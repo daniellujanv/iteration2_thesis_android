@@ -6,6 +6,7 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 
 import android.app.Activity;
@@ -126,7 +127,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 //		return inputFrame.rgba();
-        return statesHandler.handleFrame(inputFrame);
+		Mat output = new Mat();
+		Core.flip(inputFrame.rgba(), output, 1);
+        return statesHandler.handleFrame(output);
 	}
 
 }

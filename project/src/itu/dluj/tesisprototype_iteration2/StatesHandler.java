@@ -74,13 +74,13 @@ public class StatesHandler {
 
 	}
 
-	public Mat handleFrame(CvCameraViewFrame inputFrame){
+	public Mat handleFrame(Mat mInputFrame){
 //    	Log.i("check", "handleFrame - init");
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
 
 
-		Imgproc.cvtColor(inputFrame.rgba(), mRgb, Imgproc.COLOR_RGBA2RGB);
+		Imgproc.cvtColor(mInputFrame, mRgb, Imgproc.COLOR_RGBA2RGB);
 		//output == input in case something does not go according to planned 
 		Imgproc.cvtColor(mRgb, mHsv, Imgproc.COLOR_RGB2HSV);
 		Core.inRange(mHsv, minRange, maxRange, mHsv);
