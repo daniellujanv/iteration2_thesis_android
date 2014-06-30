@@ -11,6 +11,7 @@ import org.opencv.core.Mat;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,13 +28,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	private StatesHandler statesHandler;
 	private MenuItem miFrontCamera;
 	private MenuItem miBackCamera;
+	final Handler mHandler = new Handler();
+
 //	private Mat mProcessed;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
 		Log.i("opencv", "called onCreate");
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
@@ -116,7 +119,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		statesHandler = new StatesHandler(width, height);
+		statesHandler = new StatesHandler(width, height, MainActivity.this);
 	}
 
 	@Override

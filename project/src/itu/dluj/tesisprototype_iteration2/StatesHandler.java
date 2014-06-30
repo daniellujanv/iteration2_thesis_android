@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -17,7 +16,8 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import android.util.Log;
+import android.app.Activity;
+import android.content.Context;
 
 public class StatesHandler {
 
@@ -25,6 +25,7 @@ public class StatesHandler {
 	private int screenWidth;
 	private int screenHeight;
 	private int screenArea;
+	private Context appContext;
 
 	private PatientSelectionGestures patSelRecognition;
 	private RecordViewingGestures recViwRecognition;
@@ -40,7 +41,7 @@ public class StatesHandler {
 	private Mat mHsv;
 	private Mat mBin;
 	
-	public StatesHandler(int width, int height){
+	public StatesHandler(int width, int height, Activity activity){
 
 		/* 3 classes or overall states for the actions the user can perform, 
 		 * therefore 3 classes for recognition of gestures
@@ -51,6 +52,8 @@ public class StatesHandler {
 		screenWidth = width;
 		screenHeight = height;
 		screenArea = width*height;
+		
+		appContext = activity.getApplicationContext();
 		
 		mRgb = new Mat();
 		mHsv = new Mat();
@@ -64,12 +67,12 @@ public class StatesHandler {
 		
 		overallState = new HashMap<String, Boolean>();
 		overallState.put("PatientSelectionState", false);
-		overallState.put("RecordViewingState", false);
-		overallState.put("ImageInteractionState", true);	
+		overallState.put("RecordViewingState", true);
+		overallState.put("ImageInteractionState", false);	
 
-		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight);
-		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight);
-		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight);
+		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, appContext);
+		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, activity);
+		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight, activity);
 
 
 	}
@@ -78,7 +81,6 @@ public class StatesHandler {
 //    	Log.i("check", "handleFrame - init");
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
-
 
 		Imgproc.cvtColor(mInputFrame, mRgb, Imgproc.COLOR_RGBA2RGB);
 		//output == input in case something does not go according to planned 
@@ -114,10 +116,11 @@ public class StatesHandler {
 			}else if(overallState.get("RecordViewingState") == true){
 //	        	Log.i("check", "NOPE 2");
 				mRgb = recViwRecognition.processImage(mRgb, contours, indexBiggestArea);
+				currentState = "RecViw-"+recViwRecognition.getState();
 			}else if(overallState.get("ImageInteractionState") == true){
 //	        	Log.i("check", "handleFrame - calling imgIntRecon");
 				mRgb = imgIntRecognition.processImage(mRgb, contours, indexBiggestArea);
-				currentState = imgIntRecognition.getState();
+				currentState = "ImgInt-"+imgIntRecognition.getState();
 			}
 			int x =((int)Math.round(screenWidth*0.05));
 			int y = screenHeight - ((int)Math.round(screenHeight*0.10));
@@ -139,7 +142,7 @@ public class StatesHandler {
 	}
 
 	private void writeToImage(int x, int y, String string) {
-		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 20);
-		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 10);
+		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.2, new Scalar(0,0,0), 20);
+		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.2, new Scalar(255,255,255), 10);
 	}
 }

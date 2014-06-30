@@ -16,6 +16,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import android.content.Context;
 import android.util.Log;
 
 public class PatientSelectionGestures {
@@ -42,7 +43,7 @@ public class PatientSelectionGestures {
 	private int screenHeight;
 	private int screenWidth;
 	
-	public PatientSelectionGestures(int width, int height){
+	public PatientSelectionGestures(int width, int height, Context appContext){
 		pointSelectState = new HashMap<String, Boolean>();
 		pointSelectState.put("Init", false);
 		pointSelectState.put("End", false);
