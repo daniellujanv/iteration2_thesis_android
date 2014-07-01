@@ -1,9 +1,6 @@
 package itu.dluj.tesisprototype_iteration2.gesturerecognition;
 
-import itu.dluj.tesisprototype_iteration2.MainActivity;
-
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,8 +17,6 @@ import org.opencv.imgproc.Moments;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -40,10 +35,11 @@ public class ImageInteractionGestures {
 	private String sStateInit = "Init";
 	private String sStateZoom = "Zoom";
 	private String sStateRotate = "Rotate";
+	@SuppressWarnings("unused")
 	private String sStateEnd ="End";
 	
-	private List<MatOfPoint> contours;
-	private MatOfPoint handContour;
+	private MatOfPoint mHandContour;
+	private List<MatOfPoint> lHandContour;
 	private MatOfInt convexHull;
 	private Point handContourCentroid;
 	private Point[] rotateInitPos;
@@ -78,10 +74,10 @@ public class ImageInteractionGestures {
 //        mProcessed = new Mat(screenHeight, screenWidth, CvType.CV_8UC4);
         mRgb = new Mat();
 
-        contours =  new ArrayList<MatOfPoint>();
         convexHull = new MatOfInt();
-        handContour = new MatOfPoint();
+        mHandContour = new MatOfPoint();
         convexityDefects = new MatOfInt4();
+        lHandContour = new ArrayList<MatOfPoint>();
         
         red = new Scalar(255,0,0);
         green = new Scalar(0,255,0);
@@ -95,9 +91,9 @@ public class ImageInteractionGestures {
 	 * Process image - applying operations to the image
 	 * common to every gesture before detecting them
 	 */
-	public Mat processImage(Mat inputImage, List<MatOfPoint> contoursList, int indexHandContour){
+	public Mat processImage(Mat inputImage, MatOfPoint contour){
 		//if 5 seconds passed with no change go back to "zipou"
-		if(((System.currentTimeMillis() - timeLastDetectedGest) >= 8000) && (currentState != sStateZero)){
+		if(((System.currentTimeMillis() - timeLastDetectedGest) >= 10000) && (currentState != sStateZero)){
 			//no gestures detected for 8.0 seconds... go back to zipou
 			int x = (int)Math.round(screenWidth*0.05);
 			int y = (int)Math.round(screenHeight*0.35);
@@ -114,14 +110,13 @@ public class ImageInteractionGestures {
 		
 		Log.i("check", "imgIntGest - procressImage init");
 		mRgb = inputImage;
-		contours = contoursList;
-		handContour = contours.get(indexHandContour);
-		if(Imgproc.contourArea(handContour) < screenArea * 0.15){
+		mHandContour = contour;
+		if(Imgproc.contourArea(mHandContour) < screenArea * 0.10){
         	//no good contours found
         	int x = (int)Math.round(screenWidth*0.05);
         	int y = (int)Math.round(screenHeight*0.15);
 			writeToImage( x, y, "Hand too far!", -1);
-		}else if(Imgproc.contourArea(handContour) > screenArea * 0.305){
+		}else if(Imgproc.contourArea(mHandContour) > screenArea * 0.35){
         	//no good contours found
         	int x = (int)Math.round(screenWidth*0.05);
         	int y = (int)Math.round(screenHeight*0.15);
@@ -129,13 +124,13 @@ public class ImageInteractionGestures {
 		}else{
 	    	//good contour found
             //approximate polygon to hand contour, makes the edges more stable
-            MatOfPoint2f temp_contour = new MatOfPoint2f(handContour.toArray());
-            double epsilon = Imgproc.arcLength(temp_contour, true)*0.0028;
+            MatOfPoint2f temp_contour = new MatOfPoint2f(mHandContour.toArray());
+            double epsilon = Imgproc.arcLength(temp_contour, true)*0.0035;
             MatOfPoint2f result_temp_contour = new MatOfPoint2f();
             Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
-            handContour = new MatOfPoint(result_temp_contour.toArray());
-
-            handContourCentroid = getCentroid(handContour);
+            mHandContour = new MatOfPoint(result_temp_contour.toArray());
+            lHandContour.add(mHandContour);
+            handContourCentroid = getCentroid(mHandContour);
             //draw circle in centroid of contour
             Core.circle(mRgb, handContourCentroid, 10, red, -1);
             //            Log.i("contours-info", "contours="+contours.size()+" size="+biggestArea);
@@ -143,16 +138,16 @@ public class ImageInteractionGestures {
              * handContour == biggestContour 
              * but Imgproc.drawContours method takes only List<MapOfPoint> as parameter
              */
-            Imgproc.drawContours(mRgb, contours, indexHandContour, green, 3);
-            Imgproc.convexHull(handContour, convexHull, true);
-            Imgproc.convexityDefects(handContour, convexHull, convexityDefects);
-            detectGesture(handContour, convexityDefects);
+            Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
+            Imgproc.convexHull(mHandContour, convexHull, true);
+            Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
+            detectGesture(mHandContour, convexityDefects);
 //            drawDefects(convexityDefects, handContour);
             
             temp_contour.release();
             result_temp_contour.release();
-            contours.clear();
-            handContour.release();
+            lHandContour.clear();
+            mHandContour.release();
         }
 		
     	Log.i("check", "imgIntGest - procressImage end");
@@ -189,6 +184,7 @@ public class ImageInteractionGestures {
 				int y = (int)Math.round(screenHeight*0.15);
 				writeToImage( x, y, "INIT found!", Toast.LENGTH_LONG);
 				timeLastDetectedGest = System.currentTimeMillis();
+				return;
 			}
 		}else if(currentState == sStateInit){
 			//Interaction has started, nothing detected yet
@@ -204,6 +200,7 @@ public class ImageInteractionGestures {
 				int y = (int)Math.round(screenHeight*0.15);
 				writeToImage( x, y, "Rotate_Init found!", Toast.LENGTH_LONG);
 				timeLastDetectedGest = System.currentTimeMillis();
+				return;
 			}else if(detectZoomGesture(convexityDefects, handContour, false) == true){
 				interactionStates.put("Zoom_Init", true);
 				//making sure the others are false
@@ -215,7 +212,8 @@ public class ImageInteractionGestures {
 				int x = (int)Math.round(screenWidth*0.05);
 				int y = (int)Math.round(screenHeight*0.15);
 				writeToImage( x, y, "Zoom_Init found!", Toast.LENGTH_LONG);		
-				timeLastDetectedGest = System.currentTimeMillis();		
+				timeLastDetectedGest = System.currentTimeMillis();	
+				return;
 			}
 			
 		}else if(currentState == sStateRotate){
@@ -233,6 +231,7 @@ public class ImageInteractionGestures {
 //				int x = (int)Math.round(screenWidth*0.05);
 //				int y = (int)Math.round(screenHeight*0.15);
 //				writeToImage( x, y, "Rotate_End found!");
+				return;
 			}
 
 		}else if(currentState == sStateZoom){
@@ -250,6 +249,7 @@ public class ImageInteractionGestures {
 //				int x = (int)Math.round(screenWidth*0.05);
 //				int y = (int)Math.round(screenHeight*0.15);
 //				writeToImage( x, y, "Zoom_End found!");				
+				return;
 			}
 		}
 		
@@ -555,7 +555,7 @@ public class ImageInteractionGestures {
 //						Core.line(mRgb, end, centroid, blue, 3);
 //				        points
 						Core.circle(mRgb, end, 10, red, -1);
-						Core.circle(mRgb, furthest, 10, red, -1);
+//						Core.circle(mRgb, furthest, 10, red, -1);
 						
 						positiveDefects = positiveDefects + 1;
 					}
@@ -611,7 +611,7 @@ public class ImageInteractionGestures {
 //						Core.line(mRgb, end, centroid, blue, 3);
 //				        points
 						Core.circle(mRgb, end, 10, red, -1);
-						Core.circle(mRgb, furthest, 10, red, -1);
+//						Core.circle(mRgb, furthest, 10, red, -1);
 						
 						positiveDefects = positiveDefects + 1;
 					}

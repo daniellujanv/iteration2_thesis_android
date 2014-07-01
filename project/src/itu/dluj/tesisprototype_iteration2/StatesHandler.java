@@ -115,11 +115,11 @@ public class StatesHandler {
 				mRgb = patSelRecognition.processImage(mRgb, contours, indexBiggestArea);
 			}else if(overallState.get("RecordViewingState") == true){
 //	        	Log.i("check", "NOPE 2");
-				mRgb = recViwRecognition.processImage(mRgb, contours, indexBiggestArea);
+				mRgb = recViwRecognition.processImage(mRgb, contours.get(indexBiggestArea));
 				currentState = "RecViw-"+recViwRecognition.getState();
 			}else if(overallState.get("ImageInteractionState") == true){
 //	        	Log.i("check", "handleFrame - calling imgIntRecon");
-				mRgb = imgIntRecognition.processImage(mRgb, contours, indexBiggestArea);
+				mRgb = imgIntRecognition.processImage(mRgb, contours.get(indexBiggestArea));
 				currentState = "ImgInt-"+imgIntRecognition.getState();
 			}
 			int x =((int)Math.round(screenWidth*0.05));
