@@ -282,7 +282,6 @@ public class RecordViewingGestures {
 	 * Detection of PointSelect gesture
 	 */
 	private boolean detectPointSelectGesture(MatOfInt4 convexityDefects, MatOfPoint handContour, boolean initDetected) {
-		int positiveDefects = 0;
 		int defects[] = convexityDefects.toArray();
 		List<Point> contour = handContour.toList();
 		List<Point> finalDefects = new ArrayList<Point>();
@@ -297,6 +296,9 @@ public class RecordViewingGestures {
 		Point end;
 		Point furthest;
 		double distancePointHull = 0;
+		double avgDistanceCenterPoint = 0;
+		int positiveDefects = 0;
+		int negativeDefects = 0;
 		Log.i("RecordViewing", "PointSelect gesture::beginning");
 		/*
 		 * Look for PointSelect_Init gesture :: 1 finger lifted up
@@ -320,15 +322,25 @@ public class RecordViewingGestures {
 					Log.i("RecordViewing", "center_endFurtherst:: "+relationCenter_EndFurtherst);
 					finalDefects.add(end);
 					positiveDefects = positiveDefects + 1;
+				}else{
+					negativeDefects = negativeDefects + 1;
+					avgDistanceCenterPoint = avgDistanceCenterPoint + distanceCenterPoint;  
 				}
 			}
+			 avgDistanceCenterPoint = (negativeDefects != 0)? avgDistanceCenterPoint/negativeDefects : 1;
 		}
 		if(!initDetected){
+			//relation between length of positive defect and average length of negative defects
 			if(finalDefects.size() == 1){
 				Point defect_one = finalDefects.get(0);
-				Core.circle(mRgb, defect_one, 10, red, -1);
-				lastPointedLocation = defect_one;
-				return true;
+				double relationPositive_AvgNegative = getDistanceBetweenPoints(centroid, defect_one)/avgDistanceCenterPoint;
+				Log.i("RecordViewing", "positive_avgNegative::"+ relationPositive_AvgNegative
+						+ " negatives::"+negativeDefects);
+				if(relationPositive_AvgNegative > 50.0){
+					Core.circle(mRgb, defect_one, 10, red, -1);
+					lastPointedLocation = defect_one;
+					return true;
+				}
 			}
 		}else{
 			if(finalDefects.size() == 1){

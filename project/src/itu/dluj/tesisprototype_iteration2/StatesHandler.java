@@ -67,8 +67,8 @@ public class StatesHandler {
 		
 		overallState = new HashMap<String, Boolean>();
 		overallState.put("PatientSelectionState", false);
-		overallState.put("RecordViewingState", true);
-		overallState.put("ImageInteractionState", false);	
+		overallState.put("RecordViewingState", false);
+		overallState.put("ImageInteractionState", true);	
 
 		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, appContext);
 		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, activity);
