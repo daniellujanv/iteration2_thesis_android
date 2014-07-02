@@ -133,7 +133,7 @@ public class RecordViewingGestures {
 			//        	writeToImage((int)Math.round(screenWidth*0.05), (int)Math.round(screenHeight*0.10), "Hand found!");
 			//approximate polygon to hand contour, makes the edges more stable
 			MatOfPoint2f temp_contour = new MatOfPoint2f(mHandContour.toArray());
-			double epsilon = Imgproc.arcLength(temp_contour, true)*0.0035;
+			double epsilon = Imgproc.arcLength(temp_contour, true)*0.0030;
 			MatOfPoint2f result_temp_contour = new MatOfPoint2f();
 			Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
 			mHandContour = new MatOfPoint(result_temp_contour.toArray());

@@ -14,6 +14,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
@@ -49,8 +50,8 @@ public class StatesHandler {
 		 * - NavState -> Navigation actions -> swipe, point and select
 		 * - IntState -> Interaction actions -> rotate, zoom-in ( point for navigation inside zoom ), zoom-out, end 
 		 */
-		screenWidth = width;
-		screenHeight = height;
+		screenWidth = width/2;
+		screenHeight = height/2;
 		screenArea = width*height;
 		
 		appContext = activity.getApplicationContext();
@@ -73,8 +74,6 @@ public class StatesHandler {
 		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, appContext);
 		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, activity);
 		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight, activity);
-
-
 	}
 
 	public Mat handleFrame(Mat mInputFrame){
@@ -83,6 +82,7 @@ public class StatesHandler {
 		Mat hierarchy = new Mat();
 
 		Imgproc.cvtColor(mInputFrame, mRgb, Imgproc.COLOR_RGBA2RGB);
+		Imgproc.GaussianBlur(mRgb, mRgb, new Size(9,9), 2.0);
 		//output == input in case something does not go according to planned 
 		Imgproc.cvtColor(mRgb, mHsv, Imgproc.COLOR_RGB2HSV);
 		Core.inRange(mHsv, minRange, maxRange, mHsv);

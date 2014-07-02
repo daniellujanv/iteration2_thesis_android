@@ -5,12 +5,11 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <org.opencv.android.JavaCameraView
+    <itu.dluj.tesisprototype_iteration2.JavaCameraViewExtended
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:visibility="gone"
         android:id="@+id/cameraView"
-        opencv:show_fps="true"
-        opencv:camera_id="front" />
+         />
 
 </LinearLayout>

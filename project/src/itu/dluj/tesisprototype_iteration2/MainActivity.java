@@ -4,10 +4,12 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -24,11 +26,12 @@ import android.view.WindowManager;
  */
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 	
-	private CameraBridgeViewBase mOpenCvCameraView;
+	private JavaCameraViewExtended mOpenCvCameraView;
 	private StatesHandler statesHandler;
 	private MenuItem miFrontCamera;
 	private MenuItem miBackCamera;
 	final Handler mHandler = new Handler();
+	private String sDeviceModel = android.os.Build.MODEL;
 
 //	private Mat mProcessed;
 
@@ -41,13 +44,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 
-		
-		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.cameraView);
+//		mOpenCvCameraView = (JavaCameraView) findViewById(R.id.cameraView);
+		mOpenCvCameraView = (JavaCameraViewExtended) findViewById(R.id.cameraView);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+		mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
+		mOpenCvCameraView.enableFpsMeter();
 		mOpenCvCameraView.setCvCameraViewListener(this);
-
-		
-		
+	
 	}
 
 
@@ -101,6 +104,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			{
 				Log.i("opencv", "OpenCV loaded successfully");
 				mOpenCvCameraView.enableView();
+
 			} break;
 			default:
 			{
@@ -118,7 +122,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	}
 
 	@Override
-	public void onCameraViewStarted(int width, int height) {
+	public void onCameraViewStarted(int width, int height) {				
+		mOpenCvCameraView.setFpsRange(30000, 30000);
 		statesHandler = new StatesHandler(width, height, MainActivity.this);
 	}
 
@@ -131,8 +136,16 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 //		return inputFrame.rgba();
 		Mat output = new Mat();
-		Core.flip(inputFrame.rgba(), output, 1);
-        return statesHandler.handleFrame(output);
+		if(sDeviceModel == "glass"){
+			
+		}else{
+			Core.flip(inputFrame.rgba(), output, 1);
+		}
+		Mat outputScaled = new Mat();
+		Imgproc.pyrDown(output, outputScaled);
+		outputScaled = statesHandler.handleFrame(outputScaled);
+		Imgproc.pyrUp(outputScaled, output);
+        return output;
 	}
 
 }
