@@ -1,5 +1,7 @@
 package itu.dluj.tesisprototype_iteration2;
 
+import java.util.Locale;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -125,6 +127,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public void onCameraViewStarted(int width, int height) {				
 		mOpenCvCameraView.setFpsRange(30000, 30000);
 		statesHandler = new StatesHandler(width, height, MainActivity.this);
+		Log.i("MainActivity", "FPSRange::"+ mOpenCvCameraView.getFpsRange());
 	}
 
 	@Override
@@ -136,11 +139,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 //		return inputFrame.rgba();
 		Mat output = new Mat();
-		if(sDeviceModel == "glass"){
-			
-		}else{
+//		Log.i("DEVICE", sDeviceModel);
+		if( sDeviceModel.equals("Nexus 5")){
 			Core.flip(inputFrame.rgba(), output, 1);
+		}else{
+			output = inputFrame.rgba();
 		}
+
 		Mat outputScaled = new Mat();
 		Imgproc.pyrDown(output, outputScaled);
 		outputScaled = statesHandler.handleFrame(outputScaled);

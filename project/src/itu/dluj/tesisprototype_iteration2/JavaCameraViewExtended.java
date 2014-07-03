@@ -26,4 +26,12 @@ public class JavaCameraViewExtended extends JavaCameraView {
         params.setPreviewFpsRange(min, max);
         mCamera.setParameters(params);
     }
+    
+    public String getFpsRange(){
+    	Camera.Parameters params = mCamera.getParameters();
+    	int[] range = new int[2];
+        params.getPreviewFpsRange(range);
+        String result = "PreviewFpsRange:: min: "+ range[0]+ " max:"+ range[1];
+        return result;
+    }
 }

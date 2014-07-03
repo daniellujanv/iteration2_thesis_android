@@ -111,7 +111,7 @@ public class ImageInteractionGestures {
 		Log.i("check", "imgIntGest - procressImage init");
 		mRgb = inputImage;
 		mHandContour = contour;
-		if(Imgproc.contourArea(mHandContour) < screenArea * 0.10){
+		if(Imgproc.contourArea(mHandContour) < screenArea * 0.15){
 			//no good contours found
 			int x = (int)Math.round(screenWidth*0.05);
 			int y = (int)Math.round(screenHeight*0.15);
@@ -194,7 +194,7 @@ public class ImageInteractionGestures {
 				currentState = sStateRotate;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - Rotate_Init");
-				writeToImage( 0, 0, "Rotate!", Toast.LENGTH_LONG);
+				writeToImage( 0, 0, "Rotate!", Toast.LENGTH_SHORT);
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
 			}else if(detectZoomGesture(convexityDefects, handContour, false) == true){
@@ -205,7 +205,7 @@ public class ImageInteractionGestures {
 				currentState = sStateZoom;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - Zoom_Init");
-				writeToImage( 0, 0, "Zoom!", Toast.LENGTH_LONG);		
+				writeToImage( 0, 0, "Zoom!", Toast.LENGTH_SHORT);		
 				timeLastDetectedGest = System.currentTimeMillis();	
 				return;
 			}
@@ -276,8 +276,9 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		//		float distancePointHull;
-		Log.i("ImageInteraction", "Rotate gesture::beginning");
+		float distanceFurthest;
+		double distanceCenterHull;
+		//		Log.i("ImageInteraction", "Rotate gesture::beginning");
 		/*
 		 * Look for Rotate_Init gesture
 		 * - Removing defects
@@ -287,14 +288,23 @@ public class ImageInteractionGestures {
 			//					start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			//					distancePointHull = Math.round(defects[i+3]/256.0);
+			distanceFurthest = Math.round(defects[i+3]/256.0);
+			distanceCenterHull = getDistanceBetweenPoints(centroid, end);
+			double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
+			double relationCenterPoint_FurthestPoint = distanceCenterHull/distanceFurthestPoint; 
+//			Log.i("ImageInteraction","Defects Rotate :: "
+//					+ " relCenterPoint_FurthestPoint" + relationCenterPoint_FurthestPoint
+//					+ " centerHull" + distanceCenterHull
+//					+ " furthest" + distanceFurthest					
+//					);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if(end.y <= centroid.y && furthest.y <= centroid.y){
+			if( (end.y <= centroid.y) && (relationCenterPoint_FurthestPoint < 2.0)){
 				finalDefects.add(end);
 				positiveDefects = positiveDefects + 1;
-				//						}
 			}
 		}
+//		Log.i("ImageInteraction","Defects Rotate :: finalDefects: "+ finalDefects.size()
+//				);			
 
 		if(finalDefects.size() == 2){
 			Point defect_one = finalDefects.get(0);
@@ -309,20 +319,19 @@ public class ImageInteractionGestures {
 			//			        points
 			Core.circle(mRgb, defect_one, 10, red, -1);
 			Core.circle(mRgb, defect_two, 10, red, -1);
-
-			if((distanceOneTwo > distanceCenterHull_one ) && (distanceOneTwo > distanceCenterHull_two)){
+			//distance between fingers has to be greather than 1.3 times the distance from the
+			//center to both points
+			if((distanceOneTwo > distanceCenterHull_one*1.3 ) && (distanceOneTwo > distanceCenterHull_two*1.3)){
 				if(!initDetected){
 					rotateInitPos = getPointBetweenPoints(defect_one, defect_two);
 					Core.circle(mRgb, rotateInitPos, 10, magenta, -1);
 					return true;
 				}else{
 					Point rotateEndPos = getPointBetweenPoints(defect_one, defect_two);
-
-					Log.i("null-check", "init::"+ rotateInitPos.toString());
-					Log.i("null-check", " end::"+rotateEndPos.toString());
+//					Log.i("null-check", "init::"+ rotateInitPos.toString());
+//					Log.i("null-check", " end::"+rotateEndPos.toString());
 					double traveledDistance = getDistanceBetweenPoints(rotateInitPos, rotateEndPos);
 					if(traveledDistance > screenWidth*0.10){//more than 10% of the screen
-
 						if((rotateInitPos.x >= rotateEndPos.x) && (rotateInitPos.y >= rotateEndPos.y)){
 							//rotate left
 							Log.i("ImageInteraction", "Rotate gesture::LEFT ");
@@ -337,7 +346,6 @@ public class ImageInteractionGestures {
 						rotateInitPos = new Point();
 					}
 				}
-
 			}
 			//			Log.i("ImageInteraction", "Rotate gesture::defect number -> "+ positiveDefects);
 		}
@@ -360,9 +368,9 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		//		float distancePointHull;
-
-		Log.i("ImageInteraction", "Zoom gesture::beginning");
+		double distanceFurthest;
+		double distanceCenterHull;
+		//		Log.i("ImageInteraction", "Zoom gesture::beginning");
 		/*
 		 * Look for Zoom_Init gesture
 		 * - Removing defects
@@ -372,46 +380,61 @@ public class ImageInteractionGestures {
 			//					start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			//					distancePointHull = Math.round(defects[i+3]/256.0);
+			distanceFurthest = Math.round(defects[i+3]/256.0);
+			distanceCenterHull = getDistanceBetweenPoints(centroid, end);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if(end.y <= centroid.y && furthest.y <= centroid.y){
+			double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
+			double relationCenterPoint_FurthestPoint = distanceCenterHull/distanceFurthestPoint; 
+//			Log.i("ImageInteraction","Defects Zoom:: " 
+//					+ "relCenterHull_FurthestHull: "+relationCenterPoint_FurthestPoint
+//					+ " centerHull" + distanceCenterHull
+//					+ " furthest" + distanceFurthest
+//					);			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
+			if( (end.y <= centroid.y) && (relationCenterPoint_FurthestPoint < 2.0)){
 				finalDefects.add(end);
 				positiveDefects = positiveDefects + 1;
-				//						}
 			}
 		}
+//		Log.i("ImageInteraction","Defects Zoom :: finalDefects: "+ finalDefects.size()
+//				);			
 		if(finalDefects.size() == 2){
 			Point defect_one = finalDefects.get(0);
 			Point defect_two = finalDefects.get(1);
-			int distanceCenterHull_one = (int)Math.round(getDistanceBetweenPoints(centroid, defect_one));
-			int distanceCenterHull_two = (int)Math.round(getDistanceBetweenPoints(centroid, defect_two));
-			int distanceOneTwo = (int)Math.round(getDistanceBetweenPoints(defect_one, defect_two));
+			double distanceCenterHull_one = getDistanceBetweenPoints(centroid, defect_one);
+			double distanceCenterHull_two = getDistanceBetweenPoints(centroid, defect_two);
+			double distanceOneTwo = getDistanceBetweenPoints(defect_one, defect_two);
 			//			        points
 			Core.circle(mRgb, defect_one, 10, red, -1);
 			Core.circle(mRgb, defect_two, 10, red, -1);
-			if((distanceOneTwo < distanceCenterHull_one ) && (distanceOneTwo < distanceCenterHull_two)){
-				if(!initDetected){
+			//-distance between the fingers has to be less than 1.3 times the distance 
+			//from the center to the end of both fingers
+			if(!initDetected){
+				if((distanceOneTwo < distanceCenterHull_one*1.3 ) && (distanceOneTwo < distanceCenterHull_two*1.3)){
 					zoomInitDistance = getDistanceBetweenPoints(defect_one, defect_two);
 					return true;
-				}else{
-					double zoomEndDistance = getDistanceBetweenPoints(defect_one, defect_two);
-					if( (Math.abs(zoomEndDistance) - zoomInitDistance) > screenWidth*0.01 ){ //more than 01% of screen
-						if(zoomEndDistance > zoomInitDistance){
-							//Zoom-IN gesture
-							zoomInitDistance = zoomEndDistance;
-							Log.i("ImageInteraction", "Zoom gesture::IN");
-							writeToImage( 0, 0, "Zoom IN", Toast.LENGTH_SHORT);
-							return true;
-						}else if(zoomEndDistance < zoomInitDistance){
-							//Zoom-IN gesture
-							zoomInitDistance = zoomEndDistance;
-							Log.i("ImageInteraction", "Zoom gesture::OUT");
-							writeToImage( 0, 0, "Zoom OUT", Toast.LENGTH_SHORT);
-							return true;
-						}
+				}
+			}else{
+				double zoomEndDistance = getDistanceBetweenPoints(defect_one, defect_two);
+//				Log.i("ImageInteraction", "Zoom End distances::"
+//						+ " distance: " + (Math.abs(zoomEndDistance - zoomInitDistance))
+//						+ " width: " + screenWidth*0.10
+//						);
+				
+				if(Math.abs(zoomEndDistance - zoomInitDistance) > screenWidth*0.10 ){ //more than 10% of screen
+					if(zoomEndDistance > zoomInitDistance){
+						//Zoom-IN gesture
+						zoomInitDistance = zoomEndDistance;
+						Log.i("ImageInteraction", "Zoom gesture::IN");
+						writeToImage( 0, 0, "Zoom IN", Toast.LENGTH_SHORT);
+						return true;
+					}else if(zoomEndDistance < zoomInitDistance){
+						//Zoom-IN gesture
+						zoomInitDistance = zoomEndDistance;
+						Log.i("ImageInteraction", "Zoom gesture::OUT");
+						writeToImage( 0, 0, "Zoom OUT", Toast.LENGTH_SHORT);
+						return true;
 					}
-				}	
-
+				}
 			}
 		}
 		return false;
@@ -433,7 +456,8 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distancePointHull;
+		//distance between the furthest point and convex hull
+		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -442,24 +466,18 @@ public class ImageInteractionGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distancePointHull = Math.round(defects[i+3]/256.0);
+			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if(end.y <= centroid.y && furthest.y <= centroid.y){
-				int distanceCenterHull = (int)Math.round(getDistanceBetweenPoints(centroid, end));
-				double relationCenterHull_EndHull = (distanceCenterHull/distancePointHull);
-				double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
-				double relationCenterHull_distClosestPerimeter = distanceCenterHull/distClosestPerimeter;
-				//					Log.i("ImageInteracion-defects-init","center-Hull: "+ distanceCenterHull
-				//							+ " relCenterHull_EndHull: "+relationCenterHull_EndHull
-				//							+ " relCenterHull_ClosestPerimeter: "+ relationCenterHull_distClosestPerimeter);
-				if((relationCenterHull_EndHull > 10.0) && (relationCenterHull_distClosestPerimeter >= 1.9)){
-					//						Core.line(mRgb, furthest, end, blue, 3);
-					////				        line from center of contour to convexhull point
-					//						Core.line(mRgb, end, centroid, blue, 3);
+			if(end.y <= centroid.y){
+				double distanceCenterHull = getDistanceBetweenPoints(centroid, end);
+				double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
+				double relationCenterPoint_FurthestPoint = (distanceCenterHull/distanceFurthestPoint);
+				Log.i("ImageInteraction","Defects Init::"
+						+ " relCenter_Furthest: "+relationCenterPoint_FurthestPoint
+						);
+				if((relationCenterPoint_FurthestPoint < 2.0)){
 					//				        points
 					Core.circle(mRgb, end, 10, red, -1);
-					//						Core.circle(mRgb, furthest, 10, red, -1);
-
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -489,7 +507,7 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distancePointHull;
+		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -498,24 +516,20 @@ public class ImageInteractionGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distancePointHull = Math.round(defects[i+3]/256.0);
+			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if(end.y <= centroid.y && furthest.y <= centroid.y){
-				int distanceCenterHull = (int)Math.round(getDistanceBetweenPoints(centroid, end));
-				double relationCenterHull_EndHull = (distanceCenterHull/distancePointHull);
-				double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
-				double relationCenterHull_distClosestPerimeter = distanceCenterHull/distClosestPerimeter;
-				//					Log.i("ImageInteracion","End gesture::center-Hull: "+ distanceCenterHull
-				//							+ " relCenterHull_EndHull: "+relationCenterHull_EndHull
-				//							+ " relCenterHull_ClosestPerimeter: "+ relationCenterHull_distClosestPerimeter);
-				if((relationCenterHull_EndHull > 10.0) && (relationCenterHull_distClosestPerimeter < 1.9)){
-					//						Core.line(mRgb, furthest, end, blue, 3);
-					////				        line from center of contour to convexhull point
-					//						Core.line(mRgb, end, centroid, blue, 3);
+				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
+				double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
+				double relationCenterPoint_FurthestPoint = (distanceCenterPoint/distanceFurthestPoint);
+				Log.i("ImageInteraction","End Defects::"
+						+ " relCenter_furthest: "+relationCenterPoint_FurthestPoint
+						+ " center: "+ distanceCenterPoint
+						+ " furthest: "+ distanceFurthestPoint
+						);
+				if((relationCenterPoint_FurthestPoint >= 4.0)){
 					//				        points
 					Core.circle(mRgb, end, 10, red, -1);
-					//						Core.circle(mRgb, furthest, 10, red, -1);
-
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -528,6 +542,8 @@ public class ImageInteractionGestures {
 		}
 	}
 
+
+	/*************************** Utility methods ************************************/
 
 	/*
 	 * Draws convexity Defects in color image
@@ -557,12 +573,12 @@ public class ImageInteractionGestures {
 			//		        convexhull
 			//				Core.line(mRgb, start, end, blue, 3);
 			//		        line from farthest point to convexhull
-			//				Core.line(mRgb, furtshest, end, blue, 3);
+			Core.line(mRgb, furthest, end, red, 3);
 			//		        line from center of contour to convexhull point
 			Core.line(mRgb, end, centroid, blue, 3);
 			//		        points
 			Core.circle(mRgb, end, 10, red, -1);
-			//				Core.circle(mRgb, furthest, 10, red, -1);
+//			Core.circle(mRgb, furthest, 10, magenta, -1);
 			//		        write distance between hull and farthest point
 			//		        tools.setText(image, end, str(distance))
 			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
@@ -570,8 +586,6 @@ public class ImageInteractionGestures {
 			//		        tools.setText(image, centerLine, str(distanceCenterHull))	
 		}
 	}
-
-	/*************************** Utility methods ************************************/
 
 	/*
 	 * Calculates the center of the contour

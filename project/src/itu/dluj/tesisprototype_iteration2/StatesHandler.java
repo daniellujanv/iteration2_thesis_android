@@ -67,11 +67,11 @@ public class StatesHandler {
 		currentState = "Nothing done";
 		
 		overallState = new HashMap<String, Boolean>();
-		overallState.put("PatientSelectionState", false);
+		overallState.put("PatientSelectionState", true);
 		overallState.put("RecordViewingState", false);
-		overallState.put("ImageInteractionState", true);	
+		overallState.put("ImageInteractionState", false);	
 
-		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, appContext);
+		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, activity);
 		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, activity);
 		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight, activity);
 	}
@@ -112,7 +112,8 @@ public class StatesHandler {
 //        	Log.i("check", "handleFrame - biggestArea found");
 			if(overallState.get("PatientSelectionState") == true){
 //	        	Log.i("check", "NOPE 1");
-				mRgb = patSelRecognition.processImage(mRgb, contours, indexBiggestArea);
+				mRgb = patSelRecognition.processImage(mRgb, contours.get(indexBiggestArea));
+				currentState = "PatSel-"+patSelRecognition.getState();
 			}else if(overallState.get("RecordViewingState") == true){
 //	        	Log.i("check", "NOPE 2");
 				mRgb = recViwRecognition.processImage(mRgb, contours.get(indexBiggestArea));

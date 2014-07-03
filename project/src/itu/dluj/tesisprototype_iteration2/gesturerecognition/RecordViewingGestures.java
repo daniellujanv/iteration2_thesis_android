@@ -23,10 +23,11 @@ import android.widget.Toast;
 
 public class RecordViewingGestures {
 
-	public Scalar red;
-	public Scalar green;
-	public Scalar blue;
-	public Scalar magenta;
+	private Scalar red = new Scalar(255,0,0);
+	private Scalar green = new Scalar(0,255,0);
+	private Scalar blue = new Scalar(0,0,255);
+	private Scalar magenta = new Scalar(255,0,255);
+	
 	public HashMap<String, Boolean> navigationStates;
 	public Mat mRgb;
 	public Mat mHsv;
@@ -34,7 +35,7 @@ public class RecordViewingGestures {
 	public Mat kernel;
 
 	public MatOfPoint mHandContour;
-	private List<MatOfPoint> lHandcontour;//used to draw contour - nothing else
+	private List<MatOfPoint> lHandContour;//used to draw contour - nothing else
 	public Mat hierarchy;
 	public MatOfInt convexHull;
 	public Point handContourCentroid;
@@ -89,14 +90,9 @@ public class RecordViewingGestures {
 		kernel = Mat.ones(15, 15, CvType.CV_8U);
 		convexHull = new MatOfInt();
 		mHandContour = new MatOfPoint();
-		lHandcontour = new ArrayList<MatOfPoint>();
+		lHandContour = new ArrayList<MatOfPoint>();
 		convexityDefects = new MatOfInt4();
 		lastPointedLocation = new Point();
-
-		red = new Scalar(255,0,0);
-		green = new Scalar(0,255,0);
-		blue = new Scalar(0,0,255);
-		magenta = new Scalar(255,0,255);
 	}
 
 	public Mat processImage(Mat inputImage, MatOfPoint contour){
@@ -137,24 +133,23 @@ public class RecordViewingGestures {
 			MatOfPoint2f result_temp_contour = new MatOfPoint2f();
 			Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
 			mHandContour = new MatOfPoint(result_temp_contour.toArray());
-			lHandcontour.add(mHandContour);
-			Imgproc.drawContours(mRgb, lHandcontour, -1, green, 3);
+			lHandContour.add(mHandContour);
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
 
 			handContourCentroid = getCentroid(mHandContour);
 			//draw circle in centroid of contour
 			Core.circle(mRgb, handContourCentroid, 10, red, -1);
-			//            Log.i("contours-info", "contours="+contours.size()+" size="+biggestArea);
-
-			Imgproc.drawContours(mRgb, lHandcontour, -1, green, 3);
+			
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
 			Imgproc.convexHull(mHandContour, convexHull);
 			Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
-			//			drawDefects(convexityDefects, handContourCentroid, mHandContour);
+			drawDefects(convexityDefects, handContourCentroid, mHandContour);
 			detectGesture(mHandContour, convexityDefects);	
 
 			temp_contour.release();
 			result_temp_contour.release();
 			mHandContour.release();
-			lHandcontour.clear();
+			lHandContour.clear();
 		}
 		Log.i("check", "imgIntGest - procressImage end");
 
@@ -449,7 +444,8 @@ public class RecordViewingGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distancePointHull;
+		//distance between the furthest point and convex hull
+		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -458,29 +454,23 @@ public class RecordViewingGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distancePointHull = Math.round(defects[i+3]/256.0);
+			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if(end.y <= centroid.y && furthest.y <= centroid.y){
-				int distanceCenterHull = (int)Math.round(getDistanceBetweenPoints(centroid, end));
-				double relationCenterHull_EndHull = (distanceCenterHull/distancePointHull);
-				double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
-				double relationCenterHull_distClosestPerimeter = distanceCenterHull/distClosestPerimeter;
-				//					Log.i("ImageInteracion-defects-init","center-Hull: "+ distanceCenterHull
-				//							+ " relCenterHull_EndHull: "+relationCenterHull_EndHull
-				//							+ " relCenterHull_ClosestPerimeter: "+ relationCenterHull_distClosestPerimeter);
-				if((relationCenterHull_EndHull > 10.0) && (relationCenterHull_distClosestPerimeter >= 1.9)){
-					//						Core.line(mRgb, furthest, end, blue, 3);
-					////				        line from center of contour to convexhull point
-					//						Core.line(mRgb, end, centroid, blue, 3);
+			if(end.y <= centroid.y){
+				double distanceCenterHull = getDistanceBetweenPoints(centroid, end);
+				double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
+				double relationCenterPoint_FurthestPoint = (distanceCenterHull/distanceFurthestPoint);
+				Log.i("ImageInteraction","Defects Init::"
+						+ " relCenter_Furthest: "+relationCenterPoint_FurthestPoint
+						);
+				if((relationCenterPoint_FurthestPoint < 2.0)){
 					//				        points
 					Core.circle(mRgb, end, 10, red, -1);
-					//					Core.circle(mRgb, furthest, 10, red, -1);
-
 					positiveDefects = positiveDefects + 1;
 				}
 			}
 		}
-		//		Log.i("ImageInteraction", "Init gesture::defect number -> "+ positiveDefects);
+//		Log.i("ImageInteraction", "Init gesture::defect number -> "+ positiveDefects);
 		if(positiveDefects >= 4){
 			return true;
 		}else{
@@ -505,7 +495,7 @@ public class RecordViewingGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distancePointHull;
+		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -514,25 +504,20 @@ public class RecordViewingGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			//distance between the farthest point and the convex hull
-			distancePointHull = Math.round(defects[i+3]/256.0);
+			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if(end.y <= centroid.y && furthest.y <= centroid.y){
-				int distanceCenterHull = (int)Math.round(getDistanceBetweenPoints(centroid, end));
-				double relationCenterHull_EndHull = (distanceCenterHull/distancePointHull);
-				double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
-				double relationCenterHull_distClosestPerimeter = distanceCenterHull/distClosestPerimeter;
-				//					Log.i("ImageInteracion","End gesture::center-Hull: "+ distanceCenterHull
-				//							+ " relCenterHull_EndHull: "+relationCenterHull_EndHull
-				//							+ " relCenterHull_ClosestPerimeter: "+ relationCenterHull_distClosestPerimeter);
-				if((relationCenterHull_EndHull > 10.0) && (relationCenterHull_distClosestPerimeter < 1.9)){
-					//						Core.line(mRgb, furthest, end, blue, 3);
-					////				        line from center of contour to convexhull point
-					//						Core.line(mRgb, end, centroid, blue, 3);
+				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
+				double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
+				double relationCenterPoint_FurthestPoint = (distanceCenterPoint/distanceFurthestPoint);
+				Log.i("ImageInteraction","End Defects::"
+						+ " relCenter_furthest: "+relationCenterPoint_FurthestPoint
+						+ " center: "+ distanceCenterPoint
+						+ " furthest: "+ distanceFurthestPoint
+						);
+				if((relationCenterPoint_FurthestPoint >= 4.0)){
 					//				        points
 					Core.circle(mRgb, end, 10, red, -1);
-					//					Core.circle(mRgb, furthest, 10, red, -1);
-
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -544,7 +529,6 @@ public class RecordViewingGestures {
 			return false;
 		}
 	}
-
 
 
 	/*
@@ -574,7 +558,7 @@ public class RecordViewingGestures {
 			//		        convexhull
 			//				Core.line(mRgb, start, end, blue, 3);
 			//		        line from farthest point to convexhull
-			Core.line(mRgb, start, end, green, 3);
+//			Core.line(mRgb, start, end, green, 3);
 			Core.line(mRgb, furthest, end, red, 3);
 			//		        line from center of contour to convexhull point
 			Core.line(mRgb, end, centroid, blue, 3);
