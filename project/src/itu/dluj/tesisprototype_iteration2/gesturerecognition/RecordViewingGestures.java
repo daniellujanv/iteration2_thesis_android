@@ -134,13 +134,13 @@ public class RecordViewingGestures {
 			Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
 			mHandContour = new MatOfPoint(result_temp_contour.toArray());
 			lHandContour.add(mHandContour);
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
 
 			handContourCentroid = getCentroid(mHandContour);
 			//draw circle in centroid of contour
-			Core.circle(mRgb, handContourCentroid, 10, red, -1);
+			Core.circle(mRgb, handContourCentroid, 5, red, -1);
 			
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
 			Imgproc.convexHull(mHandContour, convexHull);
 			Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
 			drawDefects(convexityDefects, handContourCentroid, mHandContour);
@@ -332,7 +332,7 @@ public class RecordViewingGestures {
 				Log.i("RecordViewing", "positive_avgNegative::"+ relationPositive_AvgNegative
 						+ " negatives::"+negativeDefects);
 				if(relationPositive_AvgNegative > 50.0){
-					Core.circle(mRgb, defect_one, 10, red, -1);
+					Core.circle(mRgb, defect_one, 5, red, -1);
 					lastPointedLocation = defect_one;
 					return true;
 				}
@@ -341,16 +341,16 @@ public class RecordViewingGestures {
 			if(finalDefects.size() == 1){
 				//return false to stay in the pointselect_init state but keep the record of the detected finger
 				Point defect_one = finalDefects.get(0);
-				Core.circle(mRgb, defect_one, 10, red, -1);
+				Core.circle(mRgb, defect_one, 5, red, -1);
 				lastPointedLocation = defect_one;
 				timeLastDetectedGest = System.currentTimeMillis();
 				return false;
 			}else if(finalDefects.size() == 2){
-				Core.circle(mRgb, lastPointedLocation, 10, magenta, -1);
+				Core.circle(mRgb, lastPointedLocation, 5, magenta, -1);
 				Point defect_one = finalDefects.get(0);
 				Point defect_two = finalDefects.get(1);
-				Core.circle(mRgb, defect_one, 10, red, -1);
-				Core.circle(mRgb, defect_two, 10, red, -1);
+				Core.circle(mRgb, defect_one, 5, red, -1);
+				Core.circle(mRgb, defect_two, 5, red, -1);
 				return true;
 			}	
 		}
@@ -407,8 +407,8 @@ public class RecordViewingGestures {
 		if(finalDefects.size() == 2){
 			Point defect_one = finalDefects.get(0);
 			Point defect_two = finalDefects.get(1);
-			Core.circle(mRgb, defect_one, 10, red, -1);
-			Core.circle(mRgb, defect_two, 10, red, -1);
+			Core.circle(mRgb, defect_one, 5, red, -1);
+			Core.circle(mRgb, defect_two, 5, red, -1);
 			if(!initDetected){
 				initSwipeLocation = defect_one;
 				return true;
@@ -465,7 +465,7 @@ public class RecordViewingGestures {
 						);
 				if((relationCenterPoint_FurthestPoint < 2.0)){
 					//				        points
-					Core.circle(mRgb, end, 10, red, -1);
+					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -517,7 +517,7 @@ public class RecordViewingGestures {
 						);
 				if((relationCenterPoint_FurthestPoint >= 4.0)){
 					//				        points
-					Core.circle(mRgb, end, 10, red, -1);
+					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -559,12 +559,12 @@ public class RecordViewingGestures {
 			//				Core.line(mRgb, start, end, blue, 3);
 			//		        line from farthest point to convexhull
 //			Core.line(mRgb, start, end, green, 3);
-			Core.line(mRgb, furthest, end, red, 3);
+			Core.line(mRgb, furthest, end, red, 1);
 			//		        line from center of contour to convexhull point
-			Core.line(mRgb, end, centroid, blue, 3);
+			Core.line(mRgb, end, centroid, blue, 1);
 			//		        points
-			Core.circle(mRgb, end, 10, red, -1);
-			//			Core.circle(mRgb, furthest, 10, red, -1);
+			Core.circle(mRgb, end, 5, red, -1);
+			//			Core.circle(mRgb, furthest, 5, red, -1);
 			//		        write distance between hull and farthest point
 			//		        tools.setText(image, end, str(distance))
 			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
@@ -593,8 +593,8 @@ public class RecordViewingGestures {
 				}
 			});
 		}else{
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 20);
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 10);
+			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 10);
+			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 5);
 		}
 	}
 

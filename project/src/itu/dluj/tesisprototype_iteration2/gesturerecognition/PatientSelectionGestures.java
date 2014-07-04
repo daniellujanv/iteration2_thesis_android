@@ -127,18 +127,18 @@ public class PatientSelectionGestures {
 			//        	writeToImage((int)Math.round(screenWidth*0.05), (int)Math.round(screenHeight*0.10), "Hand found!");
 			//approximate polygon to hand contour, makes the edges more stable
 			MatOfPoint2f temp_contour = new MatOfPoint2f(mHandContour.toArray());
-			double epsilon = Imgproc.arcLength(temp_contour, true)*0.0030;
+			double epsilon = Imgproc.arcLength(temp_contour, true)*0.0035;
 			MatOfPoint2f result_temp_contour = new MatOfPoint2f();
 			Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
 			mHandContour = new MatOfPoint(result_temp_contour.toArray());
 			lHandContour.add(mHandContour);
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
 
 			handContourCentroid = getCentroid(mHandContour);
 			//draw circle in centroid of contour
-			Core.circle(mRgb, handContourCentroid, 10, red, -1);
+			Core.circle(mRgb, handContourCentroid, 5, red, -1);
 			
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
 			Imgproc.convexHull(mHandContour, convexHull);
 			Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
 			drawDefects(convexityDefects, handContourCentroid, mHandContour);
@@ -258,7 +258,7 @@ public class PatientSelectionGestures {
 		//Point start;
 		Point end;
 		Point furthest;
-		double distancePointHull = 0;
+//		double distancePointHull = 0;
 		double avgDistanceCenterPoint = 0;
 		int positiveDefects = 0;
 		int negativeDefects = 0;
@@ -272,7 +272,7 @@ public class PatientSelectionGestures {
 			//						start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distancePointHull = defects[i+3]/256.0;
+//			distancePointHull = defects[i+3]/256.0;
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if( (end.y <= centroid.y && furthest.y <= centroid.y) && (end.y < furthest.y)){
 				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
@@ -300,7 +300,7 @@ public class PatientSelectionGestures {
 				Log.i("RecordViewing", "positive_avgNegative::"+ relationPositive_AvgNegative
 						+ " negatives::"+negativeDefects);
 				if(relationPositive_AvgNegative > 50.0){
-					Core.circle(mRgb, defect_one, 10, red, -1);
+					Core.circle(mRgb, defect_one, 5, red, -1);
 					lastPointedLocation = defect_one;
 					return true;
 				}
@@ -309,16 +309,16 @@ public class PatientSelectionGestures {
 			if(finalDefects.size() == 1){
 				//return false to stay in the pointselect_init state but keep the record of the detected finger
 				Point defect_one = finalDefects.get(0);
-				Core.circle(mRgb, defect_one, 10, red, -1);
+				Core.circle(mRgb, defect_one, 5, red, -1);
 				lastPointedLocation = defect_one;
 				timeLastDetectedGest = System.currentTimeMillis();
 				return false;
 			}else if(finalDefects.size() == 2){
-				Core.circle(mRgb, lastPointedLocation, 10, magenta, -1);
+				Core.circle(mRgb, lastPointedLocation, 5, magenta, -1);
 				Point defect_one = finalDefects.get(0);
 				Point defect_two = finalDefects.get(1);
-				Core.circle(mRgb, defect_one, 10, red, -1);
-				Core.circle(mRgb, defect_two, 10, red, -1);
+				Core.circle(mRgb, defect_one, 5, red, -1);
+				Core.circle(mRgb, defect_two, 5, red, -1);
 				return true;
 			}	
 		}
@@ -334,7 +334,7 @@ public class PatientSelectionGestures {
 		int defects[] = convexityDefects.toArray();
 		List<Point> contour = handContour.toList();
 		Point centroid = getCentroid(handContour);
-		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
+//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
 		 * depth-> farthest point (depth_point) distance to convex hull
@@ -343,7 +343,7 @@ public class PatientSelectionGestures {
 		Point end;
 		Point furthest;
 		//distance between the furthest point and convex hull
-		float distanceFurthest;
+//		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -352,7 +352,7 @@ public class PatientSelectionGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distanceFurthest = Math.round(defects[i+3]/256.0);
+//			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if(end.y <= centroid.y){
 				double distanceCenterHull = getDistanceBetweenPoints(centroid, end);
@@ -363,7 +363,7 @@ public class PatientSelectionGestures {
 						);
 				if((relationCenterPoint_FurthestPoint < 2.0)){
 					//				        points
-					Core.circle(mRgb, end, 10, red, -1);
+					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -384,7 +384,7 @@ public class PatientSelectionGestures {
 		int defects[] = convexityDefects.toArray();
 		List<Point> contour = handContour.toList();
 		Point centroid = getCentroid(handContour);
-		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
+//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
@@ -393,7 +393,7 @@ public class PatientSelectionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distanceFurthest;
+//		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -402,7 +402,7 @@ public class PatientSelectionGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distanceFurthest = Math.round(defects[i+3]/256.0);
+//			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if(end.y <= centroid.y && furthest.y <= centroid.y){
 				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
@@ -415,7 +415,7 @@ public class PatientSelectionGestures {
 						);
 				if((relationCenterPoint_FurthestPoint >= 4.0)){
 					//				        points
-					Core.circle(mRgb, end, 10, red, -1);
+					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -460,12 +460,12 @@ public class PatientSelectionGestures {
 			//				Core.line(mRgb, start, end, blue, 3);
 			//		        line from farthest point to convexhull
 //			Core.line(mRgb, start, end, green, 3);
-			Core.line(mRgb, furthest, end, red, 3);
+			Core.line(mRgb, furthest, end, red, 1);
 			//		        line from center of contour to convexhull point
-			Core.line(mRgb, end, centroid, blue, 3);
+			Core.line(mRgb, end, centroid, blue, 1);
 			//		        points
-			Core.circle(mRgb, end, 10, red, -1);
-			//			Core.circle(mRgb, furthest, 10, red, -1);
+			Core.circle(mRgb, end, 5, red, -1);
+			//			Core.circle(mRgb, furthest, 5, red, -1);
 			//		        write distance between hull and farthest point
 			//		        tools.setText(image, end, str(distance))
 			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
@@ -492,8 +492,8 @@ public class PatientSelectionGestures {
 				}
 			});
 		}else{
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 20);
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 10);
+			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 10);
+			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 5);
 		}
 	}
 

@@ -132,13 +132,13 @@ public class ImageInteractionGestures {
 			lHandContour.add(mHandContour);
 			handContourCentroid = getCentroid(mHandContour);
 			//draw circle in centroid of contour
-			Core.circle(mRgb, handContourCentroid, 10, red, -1);
+			Core.circle(mRgb, handContourCentroid, 5, red, -1);
 			//            Log.i("contours-info", "contours="+contours.size()+" size="+biggestArea);
 			/* 
 			 * handContour == biggestContour 
 			 * but Imgproc.drawContours method takes only List<MapOfPoint> as parameter
 			 */
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 3);
+			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
 			Imgproc.convexHull(mHandContour, convexHull, true);
 			Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
 //			drawDefects(convexityDefects, mHandContour);
@@ -276,7 +276,6 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distanceFurthest;
 		double distanceCenterHull;
 		//		Log.i("ImageInteraction", "Rotate gesture::beginning");
 		/*
@@ -288,7 +287,6 @@ public class ImageInteractionGestures {
 			//					start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distanceFurthest = Math.round(defects[i+3]/256.0);
 			distanceCenterHull = getDistanceBetweenPoints(centroid, end);
 			double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
 			double relationCenterPoint_FurthestPoint = distanceCenterHull/distanceFurthestPoint; 
@@ -317,14 +315,14 @@ public class ImageInteractionGestures {
 			//				Core.line(mRgb, defect_two, centroid, blue, 3);
 			//				Core.line(mRgb, defect_two, defect_one, blue, 3);
 			//			        points
-			Core.circle(mRgb, defect_one, 10, red, -1);
-			Core.circle(mRgb, defect_two, 10, red, -1);
+			Core.circle(mRgb, defect_one, 5, red, -1);
+			Core.circle(mRgb, defect_two, 5, red, -1);
 			//distance between fingers has to be greather than 1.3 times the distance from the
 			//center to both points
 			if((distanceOneTwo > distanceCenterHull_one*1.3 ) && (distanceOneTwo > distanceCenterHull_two*1.3)){
 				if(!initDetected){
 					rotateInitPos = getPointBetweenPoints(defect_one, defect_two);
-					Core.circle(mRgb, rotateInitPos, 10, magenta, -1);
+					Core.circle(mRgb, rotateInitPos, 5, magenta, -1);
 					return true;
 				}else{
 					Point rotateEndPos = getPointBetweenPoints(defect_one, defect_two);
@@ -368,7 +366,6 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		double distanceFurthest;
 		double distanceCenterHull;
 		//		Log.i("ImageInteraction", "Zoom gesture::beginning");
 		/*
@@ -380,7 +377,6 @@ public class ImageInteractionGestures {
 			//					start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distanceFurthest = Math.round(defects[i+3]/256.0);
 			distanceCenterHull = getDistanceBetweenPoints(centroid, end);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
@@ -404,8 +400,8 @@ public class ImageInteractionGestures {
 			double distanceCenterHull_two = getDistanceBetweenPoints(centroid, defect_two);
 			double distanceOneTwo = getDistanceBetweenPoints(defect_one, defect_two);
 			//			        points
-			Core.circle(mRgb, defect_one, 10, red, -1);
-			Core.circle(mRgb, defect_two, 10, red, -1);
+			Core.circle(mRgb, defect_one, 5, red, -1);
+			Core.circle(mRgb, defect_two, 5, red, -1);
 			//-distance between the fingers has to be less than 1.3 times the distance 
 			//from the center to the end of both fingers
 			if(!initDetected){
@@ -448,7 +444,7 @@ public class ImageInteractionGestures {
 		int defects[] = convexityDefects.toArray();
 		List<Point> contour = handContour.toList();
 		Point centroid = getCentroid(handContour);
-		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
+//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
 		 * depth-> farthest point (depth_point) distance to convex hull
@@ -457,7 +453,6 @@ public class ImageInteractionGestures {
 		Point end;
 		Point furthest;
 		//distance between the furthest point and convex hull
-		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -466,7 +461,7 @@ public class ImageInteractionGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distanceFurthest = Math.round(defects[i+3]/256.0);
+//			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if(end.y <= centroid.y){
 				double distanceCenterHull = getDistanceBetweenPoints(centroid, end);
@@ -477,7 +472,7 @@ public class ImageInteractionGestures {
 						);
 				if((relationCenterPoint_FurthestPoint < 2.0)){
 					//				        points
-					Core.circle(mRgb, end, 10, red, -1);
+					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -498,7 +493,7 @@ public class ImageInteractionGestures {
 		int defects[] = convexityDefects.toArray();
 		List<Point> contour = handContour.toList();
 		Point centroid = getCentroid(handContour);
-		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
+//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
@@ -507,7 +502,7 @@ public class ImageInteractionGestures {
 		//		Point start;
 		Point end;
 		Point furthest;
-		float distanceFurthest;
+//		float distanceFurthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
@@ -516,7 +511,7 @@ public class ImageInteractionGestures {
 			//				start = contour.get(defects[i]);
 			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			distanceFurthest = Math.round(defects[i+3]/256.0);
+//			distanceFurthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
 			if(end.y <= centroid.y && furthest.y <= centroid.y){
 				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
@@ -529,7 +524,7 @@ public class ImageInteractionGestures {
 						);
 				if((relationCenterPoint_FurthestPoint >= 4.0)){
 					//				        points
-					Core.circle(mRgb, end, 10, red, -1);
+					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
 			}
@@ -573,12 +568,12 @@ public class ImageInteractionGestures {
 			//		        convexhull
 			//				Core.line(mRgb, start, end, blue, 3);
 			//		        line from farthest point to convexhull
-			Core.line(mRgb, furthest, end, red, 3);
+			Core.line(mRgb, furthest, end, red, 1);
 			//		        line from center of contour to convexhull point
-			Core.line(mRgb, end, centroid, blue, 3);
+			Core.line(mRgb, end, centroid, blue, 1);
 			//		        points
-			Core.circle(mRgb, end, 10, red, -1);
-//			Core.circle(mRgb, furthest, 10, magenta, -1);
+			Core.circle(mRgb, end, 5, red, -1);
+//			Core.circle(mRgb, furthest, 5, magenta, -1);
 			//		        write distance between hull and farthest point
 			//		        tools.setText(image, end, str(distance))
 			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
@@ -618,8 +613,8 @@ public class ImageInteractionGestures {
 				}
 			});
 		}else{
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 20);
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 10);
+			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 10);
+			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 5);
 		}
 	}
 

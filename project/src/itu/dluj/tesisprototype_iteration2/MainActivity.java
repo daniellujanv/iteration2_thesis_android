@@ -1,12 +1,9 @@
 package itu.dluj.tesisprototype_iteration2;
 
-import java.util.Locale;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
@@ -49,7 +46,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //		mOpenCvCameraView = (JavaCameraView) findViewById(R.id.cameraView);
 		mOpenCvCameraView = (JavaCameraViewExtended) findViewById(R.id.cameraView);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-		mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
+		mOpenCvCameraView.setCameraIndex(mOpenCvCameraView.getDefaultCameraIndex());
 		mOpenCvCameraView.enableFpsMeter();
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	
@@ -140,16 +137,19 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //		return inputFrame.rgba();
 		Mat output = new Mat();
 //		Log.i("DEVICE", sDeviceModel);
-		if( sDeviceModel.equals("Nexus 5")){
+		if( sDeviceModel.equals("Nexus 5") || sDeviceModel.equals("GT-S6810P")){  
 			Core.flip(inputFrame.rgba(), output, 1);
 		}else{
 			output = inputFrame.rgba();
 		}
 
 		Mat outputScaled = new Mat();
+//		Log.i("MainActivity", "dims output before pyrdown::"+ output.cols());
 		Imgproc.pyrDown(output, outputScaled);
+//		Log.i("MainActivity", "dims scaled after pyrdown::"+ outputScaled.cols());
 		outputScaled = statesHandler.handleFrame(outputScaled);
 		Imgproc.pyrUp(outputScaled, output);
+//		Log.i("MainActivity", "dims output after pyrup::"+ output.cols());
         return output;
 	}
 
