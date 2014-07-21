@@ -85,7 +85,7 @@ public class StatesHandler {
 		mHsv = new Mat();
 		mBin = new Mat();
 		infoScreen = new Point(screenWidth*0.05, (screenHeight - screenHeight*0.10));
-		warningScreen = new Point(screenWidth*0.05, screenHeight*0.15);
+		warningScreen = new Point(screenWidth*0.40, screenHeight*0.15);
 		
 		
 		convexHull = new MatOfInt();
@@ -129,8 +129,11 @@ public class StatesHandler {
 		Imgproc.cvtColor(mRgb, mHsv, Imgproc.COLOR_RGB2HSV);
 
 		//draw things after converting image to hsv so they don't interfere with gestures
-//		mRgb = guiHandler.drawBackButton(mRgb);
-
+		mRgb = guiHandler.drawBackButton(mRgb);
+		mRgb = guiHandler.drawImagesButton(mRgb);
+//		mRgb = guiHandler.drawPatientsToSelect(mRgb);
+		mRgb = guiHandler.drawPatientsInfo(mRgb);
+		
 		//		Imgproc.medianBlur(mHsv, mHsv, 3);
 		Core.inRange(mHsv, minRange, maxRange, mBin);
 //		Imgproc.threshold(mHsv, mBin, 1, 255, Imgproc.THRESH_BINARY);

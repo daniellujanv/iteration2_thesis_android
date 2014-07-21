@@ -18,7 +18,7 @@ public class Tools {
 	public static Scalar green = new Scalar(0,255,0);
 	public static Scalar blue = new Scalar(0,0,255);
 	public static Scalar magenta = new Scalar(255,0,255);
-	public static Scalar gray = new Scalar(10, 10, 10, 10);
+	public static Scalar gray = new Scalar(10, 10, 10);
 	
 	/*************************** Utility methods ************************************/
 
@@ -82,8 +82,8 @@ public class Tools {
 	 * Utility method - writes to color image
 	 */
 	public static Mat writeToImage(Mat mRgb, int x, int y, final String string) {
-		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(0,0,0), 5);
-		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 0.8, new Scalar(255,255,255), 1);
+		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(0,0,0), 5);
+		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255,255,255), 1);
 		return mRgb;
 	}
 
