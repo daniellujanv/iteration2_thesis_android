@@ -4,9 +4,11 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
+import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
@@ -25,12 +27,14 @@ import android.view.WindowManager;
  */
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 	
-	private JavaCameraViewExtended mOpenCvCameraView;
+//	private JavaCameraViewExtended mOpenCvCameraView;
+	private JavaCameraView mOpenCvCameraView;
 	private StatesHandler statesHandler;
 	private MenuItem miFrontCamera;
 	private MenuItem miBackCamera;
 	final Handler mHandler = new Handler();
 	private String sDeviceModel = android.os.Build.MODEL;
+	private int cameraIndex;
 
 //	private Mat mProcessed;
 
@@ -43,10 +47,20 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 
-//		mOpenCvCameraView = (JavaCameraView) findViewById(R.id.cameraView);
-		mOpenCvCameraView = (JavaCameraViewExtended) findViewById(R.id.cameraView);
+		mOpenCvCameraView = (JavaCameraView) findViewById(R.id.cameraView);
+//		mOpenCvCameraView = (JavaCameraViewExtended) findViewById(R.id.cameraView);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-		mOpenCvCameraView.setCameraIndex(mOpenCvCameraView.getDefaultCameraIndex());
+
+		if(
+//				sDeviceModel.equals("Nexus 5") ||
+				sDeviceModel.equals("GT-S6810P")
+				){
+			mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
+			cameraIndex = CameraBridgeViewBase.CAMERA_ID_FRONT;
+		}else{
+			mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_ANY);
+			cameraIndex = CameraBridgeViewBase.CAMERA_ID_ANY;
+		}
 		mOpenCvCameraView.enableFpsMeter();
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	
@@ -122,9 +136,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {				
-		mOpenCvCameraView.setFpsRange(30000, 30000);
+//		mOpenCvCameraView.setFpsRange(30000, 30000);
+		Log.i("MainActivity", "size:: w:"+ width+" h:"+height);
 		statesHandler = new StatesHandler(width, height, MainActivity.this);
-		Log.i("MainActivity", "FPSRange::"+ mOpenCvCameraView.getFpsRange());
+//		Log.i("MainActivity", "FPSRange::"+ mOpenCvCameraView.getFpsRange());
 	}
 
 	@Override
@@ -134,15 +149,20 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-//		return inputFrame.rgba();
 		Mat output = new Mat();
 //		Log.i("DEVICE", sDeviceModel);
-		if( sDeviceModel.equals("Nexus 5") || sDeviceModel.equals("GT-S6810P")){  
+		if(cameraIndex == CameraBridgeViewBase.CAMERA_ID_BACK){  
 			Core.flip(inputFrame.rgba(), output, 1);
 		}else{
 			output = inputFrame.rgba();
 		}
-
+		
+//		Mat gray = new Mat();
+//		Imgproc.cvtColor(output, gray, Imgproc.COLOR_RGB2GRAY);
+//		Imgproc.equalizeHist(gray, gray);
+//		Imgproc.cvtColor(gray, output, Imgproc.COLOR_GRAY2RGBA);
+//		
+		
 		Mat outputScaled = new Mat();
 //		Log.i("MainActivity", "dims output before pyrdown::"+ output.cols());
 		Imgproc.pyrDown(output, outputScaled);

@@ -1,5 +1,7 @@
 package itu.dluj.tesisprototype_iteration2.gesturerecognition;
 
+import itu.dluj.tesisprototype_iteration2.StatesHandler;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +12,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.imgproc.Moments;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,25 +20,17 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class PatientSelectionGestures {
-	
+
 	public HashMap<String, Boolean> pointSelectStates;
-	
+
 	public List<MatOfPoint> contours;
 
-	
-	
-	private Scalar red = new Scalar(255,0,0);
-	private Scalar green = new Scalar(0,255,0);
-	private Scalar blue = new Scalar(0,0,255);
-	private Scalar magenta = new Scalar(255,0,255);
-	
 	public Mat mRgb;
 	public Mat mHsv;
 	public Mat mProcessed;
 	public Mat kernel;
 
 	public MatOfPoint mHandContour;
-	private List<MatOfPoint> lHandContour;//used to draw contour - nothing else
 	public Mat hierarchy;
 	public MatOfInt convexHull;
 	public Point handContourCentroid;
@@ -54,7 +44,6 @@ public class PatientSelectionGestures {
 
 	private String currentState;
 	private String sStateInit = "Init";
-	@SuppressWarnings("unused")
 	private String sStateEnd = "End";
 	private String sStateZero = "Zipou";
 	private String sStatePointSelect = "PointSelect";
@@ -62,7 +51,7 @@ public class PatientSelectionGestures {
 	private Context appContext;
 	private Activity mainActivity;
 	private Toast tToastMsg;
-	
+
 	public PatientSelectionGestures(int width, int height, Activity activity){
 		pointSelectStates = new HashMap<String, Boolean>();
 		pointSelectStates.put("Init", false);
@@ -83,77 +72,50 @@ public class PatientSelectionGestures {
 		//        mHsv = new Mat(screenHeight, screenWidth, CvType.CV_8UC4);
 		//        mProcessed = new Mat(screenHeight, screenWidth, CvType.CV_8UC4);
 		mRgb = new Mat();
-		mHsv = new Mat();
-		mProcessed = new Mat();
 
-		hierarchy = new Mat();
-		kernel = Mat.ones(15, 15, CvType.CV_8U);
-		convexHull = new MatOfInt();
 		mHandContour = new MatOfPoint();
-		lHandContour = new ArrayList<MatOfPoint>();
 		convexityDefects = new MatOfInt4();
 		lastPointedLocation = new Point();
 	}
-	
-	public Mat processImage(Mat inputImage, MatOfPoint contour){
+
+	public Mat processImage(Mat inputImage, MatOfPoint contour, MatOfInt4 defects){
+		mRgb = inputImage;
+		mHandContour = contour;
+		convexityDefects = defects;
+		long now = System.currentTimeMillis();
+		//if 2 seconds have not passed since gesture detection, return
+		if( (now - timeLastDetectedGest)/1000 < Gestures.secondsToWait){
+			int x = (int)Math.round(screenWidth*0.05);
+			int y = (int)Math.round(screenHeight*0.15);
+			mRgb = Tools.writeToImage(mRgb, x, y, "Wait! " + ((now - timeLastDetectedGest)/1000));
+			return mRgb;
+		}
+
 		//if 5 seconds passed with no change go back to "zipou"
 		if(((System.currentTimeMillis() - timeLastDetectedGest) >= 10000) && (currentState != sStateZero)){
 			//no gestures detected for 8.0 seconds... go back to zipou
 			int x = (int)Math.round(screenWidth*0.05);
 			int y = (int)Math.round(screenHeight*0.35);
-			writeToImage( x, y, "back to zipou ", Toast.LENGTH_SHORT);
-			pointSelectStates.put("Init", false);
+			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
+			postToast("back to "+ sStateZero);
+			pointSelectStates.put(sStateInit, false);
 			pointSelectStates.put("PointSelect_Init", false);
 			pointSelectStates.put("PointSelect_End", false);
-			pointSelectStates.put("End", false);
+			pointSelectStates.put(sStateEnd, false);
 			currentState = sStateZero;
 			timeLastDetectedGest = System.currentTimeMillis();
 		}
-		Log.i("check", "imgIntGest - procressImage init");
-		mRgb = inputImage;
-		mHandContour = contour;
-		if(Imgproc.contourArea(mHandContour) < screenArea * 0.10){
-			//no good contours found
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			writeToImage( x, y, "Hand too far!", -1);
-		}else if(Imgproc.contourArea(mHandContour) > screenArea * 0.35){
-			//no good contours found
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			writeToImage( x, y, "Hand too close!", -1);
-		}else{
-			//			//good contour found
-			//        	writeToImage((int)Math.round(screenWidth*0.05), (int)Math.round(screenHeight*0.10), "Hand found!");
-			//approximate polygon to hand contour, makes the edges more stable
-			MatOfPoint2f temp_contour = new MatOfPoint2f(mHandContour.toArray());
-			double epsilon = Imgproc.arcLength(temp_contour, true)*0.0035;
-			MatOfPoint2f result_temp_contour = new MatOfPoint2f();
-			Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
-			mHandContour = new MatOfPoint(result_temp_contour.toArray());
-			lHandContour.add(mHandContour);
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
 
-			handContourCentroid = getCentroid(mHandContour);
-			//draw circle in centroid of contour
-			Core.circle(mRgb, handContourCentroid, 5, red, -1);
-			
-			Imgproc.drawContours(mRgb, lHandContour, -1, green, 1);
-			Imgproc.convexHull(mHandContour, convexHull);
-			Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
-			drawDefects(convexityDefects, handContourCentroid, mHandContour);
-			detectGesture(mHandContour, convexityDefects);	
-
-			temp_contour.release();
-			result_temp_contour.release();
-			mHandContour.release();
-			lHandContour.clear();
-		}
+		detectGesture(mHandContour, convexityDefects);	
 		Log.i("check", "imgIntGest - procressImage end");
+		mHandContour.release();
 
 		return mRgb;
 	}
-	
+
+	public String getState(){
+		return currentState;
+	}
 
 	/*************************** Gesture Methods *************************************/
 
@@ -170,7 +132,7 @@ public class PatientSelectionGestures {
 		 */
 		if(currentState == sStateZero){
 			//Init not detected no interaction has not started
-			if(detectInitGesture(convexityDefects, mHandContour) == true ){
+			if(Gestures.detectInitGesture(convexityDefects, mHandContour) == true ){
 				//good contour found
 				pointSelectStates.put("Init", true);
 				currentState = sStateInit;
@@ -178,29 +140,45 @@ public class PatientSelectionGestures {
 				Log.i("ImageInteraction", "Gesture detected - INIT");
 				int x = (int)Math.round(screenWidth*0.05);
 				int y = (int)Math.round(screenHeight*0.15);
-				writeToImage( x, y, "Init found!", Toast.LENGTH_SHORT);
+				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
+				postToast("Init!");
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
 			}
 		}else if(currentState == sStateInit){
 			//Interaction has started, nothing detected yet
-			if(detectPointSelectGesture(convexityDefects, mHandContour, false) == true){
+			Point detectedPoint = Gestures.detectPointSelectGesture(convexityDefects, mHandContour, false); 
+			if(detectedPoint != null){
+				//			if(detectPointSelectGesture(convexityDefects, mHandContour, false) == true){
+				lastPointedLocation = detectedPoint;
+				Core.circle(mRgb, lastPointedLocation, 5, Tools.magenta, -1);
+
+				currentState = sStatePointSelect;
+				//				drawDefects(convexityDefects, handContour);
+				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
+				int x = (int)Math.round(screenWidth*0.05);
+				int y = (int)Math.round(screenHeight*0.15);
+				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
+				//wait only 1 seconds instead of 2
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;
 				pointSelectStates.put("PointSelect_Init", true);				
 				pointSelectStates.put("Init",true); 
 				pointSelectStates.put("Swipe_Init", false);				
 				pointSelectStates.put("Swipe_End", false);				
-				currentState = sStatePointSelect;
-				timeLastDetectedGest = System.currentTimeMillis();
-				//				drawDefects(convexityDefects, handContour);
-				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-				writeToImage( 0, 0, "PointSelect_Init found!", Toast.LENGTH_SHORT);
+				postToast("PointSelect!");					
+
 				return;
 			}
 
 		}else if(currentState == sStatePointSelect){
-			//Zoom in initial gesture has been detected, look for zoom ending. 
-			//Or keep zooming until something happens
-			if(detectPointSelectGesture(convexityDefects, mHandContour, true) == true){
+			Point detectedPoint = Gestures.detectPointSelectGesture(convexityDefects, mHandContour, true);
+			Core.circle(mRgb, lastPointedLocation, 5, Tools.magenta, -1);
+			if(detectedPoint != null){
+//				Point defect_one = finalDefects.get(0);
+//				Point defect_two = finalDefects.get(1);
+//				Core.circle(mRgb, defect_one, 5, Tools.red, -1);
+//				Core.circle(mRgb, defect_two, 5, Tools.red, -1);
+				
 				pointSelectStates.put("PointSelect_Init", false);				
 				pointSelectStates.put("PointSelect_End", false);				
 				pointSelectStates.put("Init",true); 
@@ -212,7 +190,28 @@ public class PatientSelectionGestures {
 				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
 				int x = (int)Math.round(screenWidth*0.05);
 				int y = (int)Math.round(screenHeight*0.15);
-				writeToImage( x, y, "PointSelect_END found!", Toast.LENGTH_SHORT);
+				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect_End!");
+				postToast("PointSelect_End!");
+				return;
+			}
+			detectedPoint = Gestures.detectPointSelectGesture(convexityDefects, mHandContour, false); 
+			if(detectedPoint != null){
+				//			if(detectPointSelectGesture(convexityDefects, mHandContour, false) == true){
+				lastPointedLocation = detectedPoint;
+				Core.circle(mRgb, lastPointedLocation, 5, Tools.blue, -1);
+
+				currentState = sStatePointSelect;
+				//				drawDefects(convexityDefects, handContour);
+				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
+//				timeLastDetectedGest = System.currentTimeMillis() - 1000;
+//				pointSelectStates.put("PointSelect_Init", true);				
+//				pointSelectStates.put("Init",true); 
+//				pointSelectStates.put("Swipe_Init", false);				
+//				pointSelectStates.put("Swipe_End", false);				
+//				postToast("PointSelect!");					
 				return;
 			}
 		}
@@ -220,7 +219,7 @@ public class PatientSelectionGestures {
 		/*
 		 * Always detect end gesture
 		 */
-		if(detectEndGesture(convexityDefects, mHandContour) == true ){
+		if(Gestures.detectEndGesture(convexityDefects, mHandContour) == true ){
 			if(pointSelectStates.get("Init") == true){
 				pointSelectStates.put("Init",true); 
 				currentState = sStateInit;				
@@ -236,290 +235,28 @@ public class PatientSelectionGestures {
 			Log.i("ImageInteraction", "Gesture detected - End");
 			int x = (int)Math.round(screenWidth*0.05);
 			int y = (int)Math.round(screenHeight*0.15);
-			writeToImage( x, y, "END found!", Toast.LENGTH_LONG);
+			mRgb = Tools.writeToImage(mRgb, x, y, "END found!");
+			postToast("END found!");
 			timeLastDetectedGest = System.currentTimeMillis();		
 		}
 	}
 
 	/*
-	 * Detection of PointSelect gesture
-	 */
-	private boolean detectPointSelectGesture(MatOfInt4 convexityDefects, MatOfPoint handContour, boolean initDetected) {
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		List<Point> finalDefects = new ArrayList<Point>();
-		Point centroid = getCentroid(handContour);
-		//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
-
-		/*
-		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
-		 * depth-> farthest point (depth_point) distance to convex hull
-		 */
-		//Point start;
-		Point end;
-		Point furthest;
-//		double distancePointHull = 0;
-		double avgDistanceCenterPoint = 0;
-		int positiveDefects = 0;
-		int negativeDefects = 0;
-		Log.i("RecordViewing", "PointSelect gesture::beginning");
-		/*
-		 * Look for PointSelect_Init gesture :: 1 finger lifted up
-		 * - Removing defects
-		 * -- we want to keep only defects above centroid of hand
-		 */
-		for(int i=0; i< defects.length; i=i+4){
-			//						start = contour.get(defects[i]);
-			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-//			distancePointHull = defects[i+3]/256.0;
-			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if( (end.y <= centroid.y && furthest.y <= centroid.y) && (end.y < furthest.y)){
-				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
-				//					double relationCenterHull_EndHull = (distanceCenterPoint/distancePointHull);
-				//					double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
-				//					double relationCenterHull_distClosestPerimeter = distanceCenterPoint/distClosestPerimeter;
-				double distanceEndFurthest = getDistanceBetweenPoints(end, furthest);
-				double relationCenter_EndFurtherst = distanceCenterPoint/distanceEndFurthest;
-				if(relationCenter_EndFurtherst < 2.0){
-					Log.i("RecordViewing", "center_endFurtherst:: "+relationCenter_EndFurtherst);
-					finalDefects.add(end);
-					positiveDefects = positiveDefects + 1;
-				}else{
-					negativeDefects = negativeDefects + 1;
-					avgDistanceCenterPoint = avgDistanceCenterPoint + distanceCenterPoint;  
-				}
-			}
-			 avgDistanceCenterPoint = (negativeDefects != 0)? avgDistanceCenterPoint/negativeDefects : 1;
-		}
-		if(!initDetected){
-			//relation between length of positive defect and average length of negative defects
-			if(finalDefects.size() == 1){
-				Point defect_one = finalDefects.get(0);
-				double relationPositive_AvgNegative = getDistanceBetweenPoints(centroid, defect_one)/avgDistanceCenterPoint;
-				Log.i("RecordViewing", "positive_avgNegative::"+ relationPositive_AvgNegative
-						+ " negatives::"+negativeDefects);
-				if(relationPositive_AvgNegative > 50.0){
-					Core.circle(mRgb, defect_one, 5, red, -1);
-					lastPointedLocation = defect_one;
-					return true;
-				}
-			}
-		}else{
-			if(finalDefects.size() == 1){
-				//return false to stay in the pointselect_init state but keep the record of the detected finger
-				Point defect_one = finalDefects.get(0);
-				Core.circle(mRgb, defect_one, 5, red, -1);
-				lastPointedLocation = defect_one;
-				timeLastDetectedGest = System.currentTimeMillis();
-				return false;
-			}else if(finalDefects.size() == 2){
-				Core.circle(mRgb, lastPointedLocation, 5, magenta, -1);
-				Point defect_one = finalDefects.get(0);
-				Point defect_two = finalDefects.get(1);
-				Core.circle(mRgb, defect_one, 5, red, -1);
-				Core.circle(mRgb, defect_two, 5, red, -1);
-				return true;
-			}	
-		}
-		return false;
-	}
-
-
-	/*
-	 * Detection of Init gesture
-	 */
-	private boolean detectInitGesture(MatOfInt4 convexityDefects, MatOfPoint handContour) {
-		int positiveDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		Point centroid = getCentroid(handContour);
-//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
-		/*
-		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
-		 * depth-> farthest point (depth_point) distance to convex hull
-		 */
-		//		Point start;
-		Point end;
-		Point furthest;
-		//distance between the furthest point and convex hull
-//		float distanceFurthest;
-		/*
-		 * Removing defects
-		 * we want to keep only defects above centroid of hand
-		 */
-		for(int i=0; i< defects.length; i=i+4){
-			//				start = contour.get(defects[i]);
-			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-//			distanceFurthest = Math.round(defects[i+3]/256.0);
-			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if(end.y <= centroid.y){
-				double distanceCenterHull = getDistanceBetweenPoints(centroid, end);
-				double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
-				double relationCenterPoint_FurthestPoint = (distanceCenterHull/distanceFurthestPoint);
-				Log.i("ImageInteraction","Defects Init::"
-						+ " relCenter_Furthest: "+relationCenterPoint_FurthestPoint
-						);
-				if((relationCenterPoint_FurthestPoint < 2.0)){
-					//				        points
-					Core.circle(mRgb, end, 5, red, -1);
-					positiveDefects = positiveDefects + 1;
-				}
-			}
-		}
-//		Log.i("ImageInteraction", "Init gesture::defect number -> "+ positiveDefects);
-		if(positiveDefects >= 4){
-			return true;
-		}else{
-			return false;
-		}
-	}
-
-	/*
-	 * Detection of End gesture
-	 */
-	private boolean detectEndGesture(MatOfInt4 convexityDefects, MatOfPoint handContour) {
-		int positiveDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		Point centroid = getCentroid(handContour);
-//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
-
-		/*
-		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
-		 * depth-> farthest point (depth_point) distance to convex hull
-		 */
-		//		Point start;
-		Point end;
-		Point furthest;
-//		float distanceFurthest;
-		/*
-		 * Removing defects
-		 * we want to keep only defects above centroid of hand
-		 */
-		for(int i=0; i< defects.length; i=i+4){
-			//				start = contour.get(defects[i]);
-			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-//			distanceFurthest = Math.round(defects[i+3]/256.0);
-			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if(end.y <= centroid.y && furthest.y <= centroid.y){
-				double distanceCenterPoint = getDistanceBetweenPoints(centroid, end);
-				double distanceFurthestPoint = getDistanceBetweenPoints(end, furthest);
-				double relationCenterPoint_FurthestPoint = (distanceCenterPoint/distanceFurthestPoint);
-				Log.i("ImageInteraction","End Defects::"
-						+ " relCenter_furthest: "+relationCenterPoint_FurthestPoint
-						+ " center: "+ distanceCenterPoint
-						+ " furthest: "+ distanceFurthestPoint
-						);
-				if((relationCenterPoint_FurthestPoint >= 4.0)){
-					//				        points
-					Core.circle(mRgb, end, 5, red, -1);
-					positiveDefects = positiveDefects + 1;
-				}
-			}
-		}
-		//		Log.i("ImageInteraction", "End gesture::defect number -> "+ positiveDefects);
-		if(positiveDefects >= 4){
-			return true;
-		}else{
-			return false;
-		}
-	}
-
-
-	/*************************** Utility methods ************************************************/
-
-
-	/*
-	 * Draws convexity Defects in color image
-	 * params: convexity defects, center of hand contour, hand contour
-	 * 
-	 */
-	@SuppressWarnings("unused")
-	private void drawDefects(MatOfInt4 convexityDefects, Point centroid, MatOfPoint handContour) {
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		/*
-		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
-		 * depth-> farthest point (depth_point) distance to convex hull
-		 */
-		Point start;
-		Point end;
-		Point furthest;
-		float depth;
-
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
-			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-			depth = Math.round(defects[i+3]/256.0);
-
-			//		        convexhull
-			//				Core.line(mRgb, start, end, blue, 3);
-			//		        line from farthest point to convexhull
-//			Core.line(mRgb, start, end, green, 3);
-			Core.line(mRgb, furthest, end, red, 1);
-			//		        line from center of contour to convexhull point
-			Core.line(mRgb, end, centroid, blue, 1);
-			//		        points
-			Core.circle(mRgb, end, 5, red, -1);
-			//			Core.circle(mRgb, furthest, 5, red, -1);
-			//		        write distance between hull and farthest point
-			//		        tools.setText(image, end, str(distance))
-			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
-			//		        centerLine = tools.getMidPointInLine(center, end)
-			//		        tools.setText(image, centerLine, str(distanceCenterHull))	
-		}
-	}
-	
-	/*
 	 * Utility method - writes to color image
 	 */
-	private void writeToImage(int x, int y, final String string, final int length) {
-		if(length != -1){
-			mainActivity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					//					testToast.cancel();
-					if(tToastMsg != null){
-						tToastMsg.cancel();
-					}
-					tToastMsg = Toast.makeText(appContext, string, length);
-					tToastMsg.show();
-					//		            Toast.makeText(appContext, string, length).show();
+	private void postToast(final String string) {
+		mainActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				//					testToast.cancel();
+				if(tToastMsg != null){
+					tToastMsg.cancel();
 				}
-			});
-		}else{
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(0,0,0), 10);
-			Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 1.5, new Scalar(255,255,255), 5);
-		}
+				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
+				tToastMsg.show();
+				//		            Toast.makeText(appContext, string, length).show();
+			}
+		});
 	}
-
-	/*
-	 * Calculates the center of the contour
-	 * Params: hand contour
-	 * returns Point centroid -> centroid{x,y}
-	 */
-	private Point getCentroid(MatOfPoint contour) {
-		Moments moments = Imgproc.moments(contour);
-		Point centroid = new Point();
-		centroid.x = moments.get_m10() / moments.get_m00();
-		centroid.y = moments.get_m01() / moments.get_m00();
-		return centroid;
-	}
-
-	public String getState(){
-		return currentState;
-	}
-
-	/*
-	 * Utility method - gets distance between two points
-	 */
-	private double getDistanceBetweenPoints(Point one, Point two) {
-		return Math.sqrt( Math.pow((two.x-one.x), 2) + Math.pow((two.y-one.y), 2));
-	}
-
 
 }
