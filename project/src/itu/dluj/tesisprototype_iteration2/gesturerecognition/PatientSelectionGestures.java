@@ -132,6 +132,30 @@ public class PatientSelectionGestures {
 		 * interactionState("PointSelect_Init");
 		 * interactionState("PointSelect_End");
 		 */
+		/*
+		 * Always detect end gesture
+		 */
+		if(Gestures.detectEndGesture(convexityDefects, mHandContour) == true ){
+			if(pointSelectStates.get("Init") == true){
+				pointSelectStates.put("Init",true); 
+				currentState = sStateInit;				
+			}else{
+				pointSelectStates.put("Init",false); 
+				currentState = sStateZero;
+			}
+			pointSelectStates.put("Rotate_Init", false);
+			pointSelectStates.put("Rotate_End", false); 
+			pointSelectStates.put("Zoom_Init", false);
+			pointSelectStates.put("Zoom_End", false); 
+			//			drawDefects(convexityDefects, handContour);
+			Log.i("ImageInteraction", "Gesture detected - End");
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.15);
+//			mRgb = Tools.writeToImage(mRgb, x, y, "END found!");
+			postToast("END found!");
+			timeLastDetectedGest = System.currentTimeMillis();		
+		}
+		
 		if(currentState == sStateZero){
 			//Init not detected no interaction has not started
 			if(Gestures.detectInitGesture(convexityDefects, mHandContour) == true ){
@@ -218,29 +242,6 @@ public class PatientSelectionGestures {
 			}
 		}
 
-		/*
-		 * Always detect end gesture
-		 */
-		if(Gestures.detectEndGesture(convexityDefects, mHandContour) == true ){
-			if(pointSelectStates.get("Init") == true){
-				pointSelectStates.put("Init",true); 
-				currentState = sStateInit;				
-			}else{
-				pointSelectStates.put("Init",false); 
-				currentState = sStateZero;
-			}
-			pointSelectStates.put("Rotate_Init", false);
-			pointSelectStates.put("Rotate_End", false); 
-			pointSelectStates.put("Zoom_Init", false);
-			pointSelectStates.put("Zoom_End", false); 
-			//			drawDefects(convexityDefects, handContour);
-			Log.i("ImageInteraction", "Gesture detected - End");
-//			int x = (int)Math.round(screenWidth*0.05);
-//			int y = (int)Math.round(screenHeight*0.15);
-//			mRgb = Tools.writeToImage(mRgb, x, y, "END found!");
-			postToast("END found!");
-			timeLastDetectedGest = System.currentTimeMillis();		
-		}
 	}
 
 	/*

@@ -110,8 +110,8 @@ public class StatesHandler {
 //		Log.i("StatesHandler", " blur::"+blur_size+" kernel::"+kernelSizeE);
 		
 		overallState = new HashMap<String, Boolean>();
-		overallState.put(patientSelectionState, true);
-		overallState.put(recordViewingState, false);
+		overallState.put(patientSelectionState, false);
+		overallState.put(recordViewingState, true);
 		overallState.put(imageInteractionState, false);	
 
 		guiHandler = new GUIHandler(screenWidth, screenHeight, activity.getApplicationContext());
@@ -166,10 +166,10 @@ public class StatesHandler {
 			//				+ "screen area max::"+ screenArea * 0.45);
 			if(contourArea < screenArea * pctMinAreaGesture){
 				//no good contours found
-				mRgb = guiHandler.writeInfoToImage(mRgb, "Hand too far!");
+				mRgb = guiHandler.writeWarningToImage(mRgb, "Hand too far!");
 			}else if(contourArea > screenArea * pctMaxAreaGesture){
 				//no good contours found
-				mRgb = guiHandler.writeInfoToImage(mRgb, "Hand too close!");
+				mRgb = guiHandler.writeWarningToImage(mRgb, "Hand too close!");
 			}else{
 				//good contour found
 				//approximate polygon to hand contour, makes the edges more stable
@@ -210,10 +210,10 @@ public class StatesHandler {
 					mRgb = imgIntRecognition.processImage(mRgb, mHandContour, convexityDefects);
 					currentState = "ImgInt-"+imgIntRecognition.getState();
 				}
-				mRgb = guiHandler.writeInfoToImage(mRgb, currentState);
+				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
 			}
 		}else{
-			mRgb = guiHandler.writeInfoToImage(mRgb, "No contour found");
+			mRgb = guiHandler.writeWarningToImage(mRgb, "No contour found");
 			//        	Log.i("check", "writting to image - nothing found");
 		}
 
@@ -242,6 +242,7 @@ public class StatesHandler {
 			mRgb = guiHandler.drawPatientInfo(mRgb);
 			
 		}else if(overallState.get(imageInteractionState) == true){
+			mRgb = guiHandler.drawBackButton(mRgb, true);
 			mRgb = guiHandler.drawFullScreenImage(mRgb);
 		}
 

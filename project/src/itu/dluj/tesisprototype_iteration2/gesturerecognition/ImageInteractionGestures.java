@@ -196,7 +196,7 @@ public class ImageInteractionGestures {
 				//				writeToImage( x, y, "Rotate!", Toast.LENGTH_LONG);
 				postToast("Rotate!");
 //				mRgb = Tools.writeToImage(mRgb, x, y, "Rotate!");
-				timeLastDetectedGest = System.currentTimeMillis();
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;
 				return;
 			}else {
 				double detectedDistance = Gestures.detectZoomGesture(convexityDefects, handContour, false); 
@@ -213,7 +213,7 @@ public class ImageInteractionGestures {
 //					int y = (int)Math.round(screenHeight*0.15);
 //					mRgb = Tools.writeToImage(mRgb, x, y, "Zoom!");		
 					postToast("Zoom!");		
-					timeLastDetectedGest = System.currentTimeMillis();	
+					timeLastDetectedGest = System.currentTimeMillis() - 1500;	
 					return;
 				}
 			}

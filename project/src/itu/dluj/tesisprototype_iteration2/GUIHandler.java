@@ -35,7 +35,8 @@ public class GUIHandler {
 	private Point[] fullScreenImgCoords;
 	
 	private String[] patientInfoText;
-	private Point warningInfoCoords;
+	private Point infoCoords;
+	private Point warningCoords;
 	
 	private Rect patientImgsRoi;
 	private Rect fullScreenImgRoi;
@@ -57,7 +58,8 @@ public class GUIHandler {
 		 
 		currentImg = 2;
 		
-		warningInfoCoords = new Point(screenWidth*0.05, screenHeight*0.95);
+		warningCoords = new Point(screenWidth*0.05, screenHeight*0.95);
+		infoCoords = new Point(screenWidth*0.55, screenHeight*0.95);
 		
 		//Coords [0] == upper left inner rectangle
 		//Coords [1] == lower right inner rectangle
@@ -304,8 +306,17 @@ public class GUIHandler {
 	 * Utility method - writes to color image
 	 */
 	public Mat writeInfoToImage(Mat mRgb, final String string) {
-		Core.putText(mRgb, string, warningInfoCoords, Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(0,0,0), 5);
-		Core.putText(mRgb, string, warningInfoCoords, Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255,255,255), 1);
+		Core.putText(mRgb, string, infoCoords, Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(0,0,0), 5);
+		Core.putText(mRgb, string, infoCoords, Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255,255,255), 1);
+		return mRgb;
+	}
+	
+	/*
+	 * Utility method - writes to color image
+	 */
+	public Mat writeWarningToImage(Mat mRgb, final String string) {
+		Core.putText(mRgb, string, warningCoords, Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(0,0,0), 5);
+		Core.putText(mRgb, string, warningCoords, Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255,255,255), 1);
 		return mRgb;
 	}
 	

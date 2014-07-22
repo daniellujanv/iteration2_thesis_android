@@ -35,31 +35,34 @@ public class Tools {
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
 		 * depth-> farthest point (depth_point) distance to convex hull
 		 */
-		//		Point start;
-		Point end;
+		Point start;
+//		Point end;
 		Point furthest;
 		//		float depth;
 
 		for(int i=0; i< defects.length; i=i+4){
-			//				start = contour.get(defects[i]);
-			end = contour.get(defects[i+1]);
+			start = contour.get(defects[i]);
+			//			end = contour.get(defects[i+1]);
 			furthest = contour.get(defects[i+2]);
-			//				depth = Math.round(defects[i+3]/256.0);
+			if((start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
+				//				depth = Math.round(defects[i+3]/256.0);
 
-			//		        convexhull
-			//				Core.line(mRgb, start, end, blue, 3);
-			//		        line from farthest point to convexhull
-			Core.line(mRgb, furthest, end, red, 1);
-			//		        line from center of contour to convexhull point
-			Core.line(mRgb, end, centroid, blue, 1);
-			//		        points
-			Core.circle(mRgb, end, 5, red, -1);
-//			Core.circle(mRgb, furthest, 5, magenta, -1);
-			//		        write distance between hull and farthest point
-			//		        tools.setText(image, end, str(distance))
-			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
-			//		        centerLine = tools.getMidPointInLine(center, end)
-			//		        tools.setText(image, centerLine, str(distanceCenterHull))	
+				//		        convexhull
+				//				Core.line(mRgb, start, end, blue, 3);
+				//		        line from farthest point to convexhull
+				Core.line(mRgb, furthest, start, red, 1);
+				//		        line from center of contour to convexhull point
+				Core.line(mRgb, start, centroid, blue, 1);
+				//		        points
+				//			Core.circle(mRgb, end, 5, red, -1);
+				Core.circle(mRgb, start, 5, red, -1);
+				//			Core.circle(mRgb, furthest, 5, magenta, -1);
+				//		        write distance between hull and farthest point
+				//		        tools.setText(image, end, str(distance))
+				//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
+				//		        centerLine = tools.getMidPointInLine(center, end)
+				//		        tools.setText(image, centerLine, str(distanceCenterHull))	
+			}
 		}
 		
 		return mRgb;

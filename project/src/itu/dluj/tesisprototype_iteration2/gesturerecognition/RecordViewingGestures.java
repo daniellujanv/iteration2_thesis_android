@@ -130,6 +130,31 @@ public class RecordViewingGestures {
 		 * interactionState("PointSelect_Init");
 		 * interactionState("PointSelect_End");
 		 */
+		
+		/*
+		 * Always detect end gesture
+		 */
+		if(Gestures.detectEndGesture(convexityDefects, mHandContour) == true ){
+			if(navigationStates.get("Init") == true){
+				navigationStates.put("Init",true); 
+				currentState = sStateInit;				
+			}else{
+				navigationStates.put("Init",false); 
+				currentState = sStateZero;
+			}
+			navigationStates.put("Rotate_Init", false);
+			navigationStates.put("Rotate_End", false); 
+			navigationStates.put("Zoom_Init", false);
+			navigationStates.put("Zoom_End", false); 
+			//			drawDefects(convexityDefects, handContour);
+			Log.i("ImageInteraction", "Gesture detected - End");
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.15);
+//			mRgb = Tools.writeToImage(mRgb, x, y, "End!");
+			postToast("End!");
+			timeLastDetectedGest = System.currentTimeMillis() - 1500;		
+		}
+		
 		if(currentState == sStateZero){
 			//Init not detected no interaction has not started
 			if(Gestures.detectInitGesture(convexityDefects, mHandContour) == true ){
@@ -174,7 +199,7 @@ public class RecordViewingGestures {
 					navigationStates.put("PointSelect_Init", false);				
 					navigationStates.put("PointSelect_End", false);		
 					currentState = sStateSwipe;
-					timeLastDetectedGest = System.currentTimeMillis();
+					timeLastDetectedGest = System.currentTimeMillis() - 1500;
 //					int x = (int)Math.round(screenWidth*0.05);
 //					int y = (int)Math.round(screenHeight*0.15);
 //					//				drawDefects(convexityDefects, handContour);
@@ -193,7 +218,7 @@ public class RecordViewingGestures {
 			
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
-				if(traveledDistance > screenWidth*0.30){//more than 30% of the screen
+				if(traveledDistance > screenWidth*0.10){//more than 10% of the screen
 //					int x = (int)Math.round(screenWidth*0.05);
 //					int y = (int)Math.round(screenHeight*0.15);
 					//				drawDefects(convexityDefects, handContour);
@@ -265,29 +290,6 @@ public class RecordViewingGestures {
 			}
 		}
 
-		/*
-		 * Always detect end gesture
-		 */
-		if(Gestures.detectEndGesture(convexityDefects, mHandContour) == true ){
-			if(navigationStates.get("Init") == true){
-				navigationStates.put("Init",true); 
-				currentState = sStateInit;				
-			}else{
-				navigationStates.put("Init",false); 
-				currentState = sStateZero;
-			}
-			navigationStates.put("Rotate_Init", false);
-			navigationStates.put("Rotate_End", false); 
-			navigationStates.put("Zoom_Init", false);
-			navigationStates.put("Zoom_End", false); 
-			//			drawDefects(convexityDefects, handContour);
-			Log.i("ImageInteraction", "Gesture detected - End");
-//			int x = (int)Math.round(screenWidth*0.05);
-//			int y = (int)Math.round(screenHeight*0.15);
-//			mRgb = Tools.writeToImage(mRgb, x, y, "End!");
-			postToast("End!");
-			timeLastDetectedGest = System.currentTimeMillis();		
-		}
 	}
 
 	/*
