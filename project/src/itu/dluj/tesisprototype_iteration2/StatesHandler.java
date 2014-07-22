@@ -43,8 +43,11 @@ public class StatesHandler {
 
 
 	private PatientSelectionGestures patSelRecognition;
+	private String patientSelectionState = "PatientSelectionState";
 	private RecordViewingGestures recViwRecognition;
+	private String recordViewingState = "RecordViewingState";
 	private ImageInteractionGestures imgIntRecognition;
+	private String imageInteractionState = "ImageInteractionState";
 	private GUIHandler guiHandler;
 
 	private String currentState;
@@ -84,8 +87,6 @@ public class StatesHandler {
 		mRgb = new Mat();
 		mHsv = new Mat();
 		mBin = new Mat();
-		infoScreen = new Point(screenWidth*0.05, (screenHeight - screenHeight*0.10));
-		warningScreen = new Point(screenWidth*0.40, screenHeight*0.15);
 		
 		
 		convexHull = new MatOfInt();
@@ -106,17 +107,18 @@ public class StatesHandler {
 		blurSize = new Size(blur_size, blur_size);
 		currentState = "Nothing done";
 
-		Log.i("StatesHandler", " blur::"+blur_size+" kernel::"+kernelSizeE);
+//		Log.i("StatesHandler", " blur::"+blur_size+" kernel::"+kernelSizeE);
 		
 		overallState = new HashMap<String, Boolean>();
-		overallState.put("PatientSelectionState", false);
-		overallState.put("RecordViewingState", false);
-		overallState.put("ImageInteractionState", true);	
+		overallState.put(patientSelectionState, true);
+		overallState.put(recordViewingState, false);
+		overallState.put(imageInteractionState, false);	
 
-		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, activity);
-		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, activity);
-		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight, activity);
-		guiHandler = new GUIHandler(screenWidth, screenHeight);
+		guiHandler = new GUIHandler(screenWidth, screenHeight, activity.getApplicationContext());
+
+		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, activity, guiHandler);
+		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, activity, guiHandler);
+		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight, activity, guiHandler);
 	}
 
 	public Mat handleFrame(Mat mInputFrame){
@@ -128,11 +130,7 @@ public class StatesHandler {
 //		Imgproc.GaussianBlur(mRgb, mRgb, blurSize, 2.0);
 		Imgproc.cvtColor(mRgb, mHsv, Imgproc.COLOR_RGB2HSV);
 
-		//draw things after converting image to hsv so they don't interfere with gestures
-		mRgb = guiHandler.drawBackButton(mRgb);
-		mRgb = guiHandler.drawImagesButton(mRgb);
-//		mRgb = guiHandler.drawPatientsToSelect(mRgb);
-		mRgb = guiHandler.drawPatientsInfo(mRgb);
+		mRgb = drawGUI(mRgb);
 		
 		//		Imgproc.medianBlur(mHsv, mHsv, 3);
 		Core.inRange(mHsv, minRange, maxRange, mBin);
@@ -168,10 +166,10 @@ public class StatesHandler {
 			//				+ "screen area max::"+ screenArea * 0.45);
 			if(contourArea < screenArea * pctMinAreaGesture){
 				//no good contours found
-				mRgb = Tools.writeToImage(mRgb, (int)warningScreen.x, (int)warningScreen.y, "Hand too far!");
+				mRgb = guiHandler.writeInfoToImage(mRgb, "Hand too far!");
 			}else if(contourArea > screenArea * pctMaxAreaGesture){
 				//no good contours found
-				mRgb = Tools.writeToImage(mRgb, (int)warningScreen.x, (int)warningScreen.y, "Hand too close!");
+				mRgb = guiHandler.writeInfoToImage(mRgb, "Hand too close!");
 			}else{
 				//good contour found
 				//approximate polygon to hand contour, makes the edges more stable
@@ -199,23 +197,23 @@ public class StatesHandler {
 				mRgb = Tools.drawDefects(mRgb, convexityDefects, mHandContour);
 
 				//        	Log.i("check", "handleFrame - biggestArea found");
-				if(overallState.get("PatientSelectionState") == true){
+				if(overallState.get(patientSelectionState) == true){
 					//	        	Log.i("check", "NOPE 1");
 					mRgb = patSelRecognition.processImage(mRgb, mHandContour, convexityDefects);
 					currentState = "PatSel-"+patSelRecognition.getState();
-				}else if(overallState.get("RecordViewingState") == true){
+				}else if(overallState.get(recordViewingState) == true){
 					//	        	Log.i("check", "NOPE 2");
 					mRgb = recViwRecognition.processImage(mRgb, mHandContour, convexityDefects);
 					currentState = "RecViw-"+recViwRecognition.getState();
-				}else if(overallState.get("ImageInteractionState") == true){
+				}else if(overallState.get(imageInteractionState) == true){
 					//	        	Log.i("check", "handleFrame - calling imgIntRecon");
 					mRgb = imgIntRecognition.processImage(mRgb, mHandContour, convexityDefects);
 					currentState = "ImgInt-"+imgIntRecognition.getState();
 				}
-				mRgb = Tools.writeToImage(mRgb, (int)infoScreen.x, (int)infoScreen.y, currentState);
+				mRgb = guiHandler.writeInfoToImage(mRgb, currentState);
 			}
 		}else{
-			mRgb = Tools.writeToImage(mRgb, (int)warningScreen.x, (int)warningScreen.y, "No contour found");
+			mRgb = guiHandler.writeInfoToImage(mRgb, "No contour found");
 			//        	Log.i("check", "writting to image - nothing found");
 		}
 
@@ -230,6 +228,23 @@ public class StatesHandler {
 		//    	Log.i("check", "handleFrame - end");
 //		return mBin;
 //		return mHsv;
+		return mRgb;
+	}
+
+	private Mat drawGUI(Mat mRgb) {
+		//draw things after converting image to hsv so they don't interfere with gestures
+		if(overallState.get(patientSelectionState) == true){
+			mRgb = guiHandler.drawPatientsToSelect(mRgb);
+			
+		}else if(overallState.get(recordViewingState) == true){
+			mRgb = guiHandler.drawBackButton(mRgb, false);
+			mRgb = guiHandler.drawImagesButton(mRgb);
+			mRgb = guiHandler.drawPatientInfo(mRgb);
+			
+		}else if(overallState.get(imageInteractionState) == true){
+			mRgb = guiHandler.drawFullScreenImage(mRgb);
+		}
+
 		return mRgb;
 	}
 }

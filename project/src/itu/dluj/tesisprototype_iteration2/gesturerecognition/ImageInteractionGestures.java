@@ -1,6 +1,7 @@
 package itu.dluj.tesisprototype_iteration2.gesturerecognition;
 
 
+import itu.dluj.tesisprototype_iteration2.GUIHandler;
 import itu.dluj.tesisprototype_iteration2.StatesHandler;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class ImageInteractionGestures {
 	private Mat mRgb;
 	private Context appContext;
 	private Activity mainActivity;
+	
+	private GUIHandler guiHandler;
 
 
 	private MatOfPoint mHandContour;
@@ -37,7 +40,6 @@ public class ImageInteractionGestures {
 	private final String sStateInit = "Init";
 	private final String sStateZoom = "Zoom";
 	private final String sStateRotate = "Rotate";
-	@SuppressWarnings("unused")
 	private final String sStateEnd ="End";
 
 	private Point rotateInitPos;
@@ -48,7 +50,7 @@ public class ImageInteractionGestures {
 	private int screenWidth;
 	private Toast tToastMsg;
 
-	public ImageInteractionGestures(int width, int height, Activity activity){
+	public ImageInteractionGestures(int width, int height, Activity activity, GUIHandler handler){
 		interactionStates = new HashMap<String, Boolean>();
 		interactionStates.put(sStateInit, false);
 		interactionStates.put(sStateEnd, false);
@@ -60,6 +62,8 @@ public class ImageInteractionGestures {
 		
 		mainActivity = activity;
 		appContext = mainActivity.getApplicationContext();
+		
+		guiHandler = handler;
 		//		currentState = "Rotate";
 		//		currentState = sStateInit;
 
@@ -90,9 +94,7 @@ public class ImageInteractionGestures {
 		long now = System.currentTimeMillis();
 		//if 2 seconds have not passed since gesture detection, return
 		if( (now - timeLastDetectedGest)/1000 < Gestures.secondsToWait){
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			mRgb = Tools.writeToImage(mRgb, x, y, "Wait " + (2 - (now - timeLastDetectedGest)/1000) );		
+			mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + (2 - (now - timeLastDetectedGest)/1000)+" sec." );		
 			return mRgb;
 		}
 
@@ -154,9 +156,9 @@ public class ImageInteractionGestures {
 			interactionStates.put("Zoom_End", false); 
 			//			drawDefects(convexityDefects, handContour);
 			Log.i("ImageInteraction", "Gesture detected - End");
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			mRgb = Tools.writeToImage(mRgb, x, y, "END!");
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.15);
+//			mRgb = guiHandler.writeInfoToImage(mRgb, "END!");
 			postToast("END!");
 			timeLastDetectedGest = System.currentTimeMillis();		
 			//			SystemClock.sleep(500);
@@ -169,11 +171,11 @@ public class ImageInteractionGestures {
 				currentState = sStateInit;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
 				//				writeToImage( x, y, "INIT!", Toast.LENGTH_LONG);
 				postToast("Init!");
-				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
+//				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
 			}
@@ -189,11 +191,11 @@ public class ImageInteractionGestures {
 				currentState = sStateRotate;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - Rotate_Init");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
 				//				writeToImage( x, y, "Rotate!", Toast.LENGTH_LONG);
 				postToast("Rotate!");
-				mRgb = Tools.writeToImage(mRgb, x, y, "Rotate!");
+//				mRgb = Tools.writeToImage(mRgb, x, y, "Rotate!");
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
 			}else {
@@ -207,9 +209,9 @@ public class ImageInteractionGestures {
 					currentState = sStateZoom;
 					//				drawDefects(convexityDefects, handContour);
 					Log.i("ImageInteraction", "Gesture detected - Zoom_Init");
-					int x = (int)Math.round(screenWidth*0.05);
-					int y = (int)Math.round(screenHeight*0.15);
-					mRgb = Tools.writeToImage(mRgb, x, y, "Zoom!");		
+//					int x = (int)Math.round(screenWidth*0.05);
+//					int y = (int)Math.round(screenHeight*0.15);
+//					mRgb = Tools.writeToImage(mRgb, x, y, "Zoom!");		
 					postToast("Zoom!");		
 					timeLastDetectedGest = System.currentTimeMillis();	
 					return;
@@ -227,16 +229,16 @@ public class ImageInteractionGestures {
 						//rotate left
 						Log.i("ImageInteraction", "Rotate gesture::LEFT ");
 						postToast("Rotate Left!");
-						int x = (int)Math.round(screenWidth*0.05);
-						int y = (int)Math.round(screenHeight*0.15);
-						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Left!");		
+//						int x = (int)Math.round(screenWidth*0.05);
+//						int y = (int)Math.round(screenHeight*0.15);
+//						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Left!");		
 					}else if((rotateInitPos.x < rotateEndPos.x) ){
 						//rotate right
 						Log.i("ImageInteraction", "Rotate gesture::RIGHT");
 						postToast("Rotate Right!");
-						int x = (int)Math.round(screenWidth*0.05);
-						int y = (int)Math.round(screenHeight*0.15);
-						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Right!");		
+//						int x = (int)Math.round(screenWidth*0.05);
+//						int y = (int)Math.round(screenHeight*0.15);
+//						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Right!");		
 					}
 					//					rotateInitPos = new Point();
 
@@ -267,18 +269,18 @@ public class ImageInteractionGestures {
 						zoomInitDistance = zoomEndDistance;
 						Log.i("ImageInteraction", "Zoom gesture::IN");
 						postToast("Zoom IN");
-						int x = (int)Math.round(screenWidth*0.05);
-						int y = (int)Math.round(screenHeight*0.15);
-						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom in!");		
+//						int x = (int)Math.round(screenWidth*0.05);
+//						int y = (int)Math.round(screenHeight*0.15);
+//						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom in!");		
 
 					}else if(zoomEndDistance < zoomInitDistance){
 						//Zoom-OUT gesture
 						zoomInitDistance = zoomEndDistance;
 						Log.i("ImageInteraction", "Zoom gesture::OUT");
 						postToast("Zoom OUT");
-						int x = (int)Math.round(screenWidth*0.05);
-						int y = (int)Math.round(screenHeight*0.15);
-						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom out!");		
+//						int x = (int)Math.round(screenWidth*0.05);
+//						int y = (int)Math.round(screenHeight*0.15);
+//						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom out!");		
 
 					}
 

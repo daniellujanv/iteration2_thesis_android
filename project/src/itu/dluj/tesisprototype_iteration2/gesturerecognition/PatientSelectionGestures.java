@@ -1,5 +1,6 @@
 package itu.dluj.tesisprototype_iteration2.gesturerecognition;
 
+import itu.dluj.tesisprototype_iteration2.GUIHandler;
 import itu.dluj.tesisprototype_iteration2.StatesHandler;
 
 import java.util.ArrayList;
@@ -51,8 +52,10 @@ public class PatientSelectionGestures {
 	private Context appContext;
 	private Activity mainActivity;
 	private Toast tToastMsg;
+	
+	private GUIHandler guiHandler;
 
-	public PatientSelectionGestures(int width, int height, Activity activity){
+	public PatientSelectionGestures(int width, int height, Activity activity, GUIHandler handler){
 		pointSelectStates = new HashMap<String, Boolean>();
 		pointSelectStates.put("Init", false);
 		pointSelectStates.put("End", false);
@@ -63,6 +66,8 @@ public class PatientSelectionGestures {
 
 		mainActivity = activity;
 		appContext = activity.getApplicationContext();
+		
+		guiHandler = handler;
 
 		screenHeight = height;
 		screenWidth = width;
@@ -83,20 +88,13 @@ public class PatientSelectionGestures {
 		mHandContour = contour;
 		convexityDefects = defects;
 		long now = System.currentTimeMillis();
-		//if 2 seconds have not passed since gesture detection, return
-		if( (now - timeLastDetectedGest)/1000 < Gestures.secondsToWait){
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			mRgb = Tools.writeToImage(mRgb, x, y, "Wait! " + ((now - timeLastDetectedGest)/1000));
-			return mRgb;
-		}
 
 		//if 5 seconds passed with no change go back to "zipou"
 		if(((System.currentTimeMillis() - timeLastDetectedGest) >= 10000) && (currentState != sStateZero)){
 			//no gestures detected for 8.0 seconds... go back to zipou
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.35);
-			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.35);
+//			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
 			postToast("back to "+ sStateZero);
 			pointSelectStates.put(sStateInit, false);
 			pointSelectStates.put("PointSelect_Init", false);
@@ -104,6 +102,10 @@ public class PatientSelectionGestures {
 			pointSelectStates.put(sStateEnd, false);
 			currentState = sStateZero;
 			timeLastDetectedGest = System.currentTimeMillis();
+		}else if( (now - timeLastDetectedGest)/1000 < Gestures.secondsToWait){
+			//if 2 seconds have not passed since gesture detection, return				
+			mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + (2 - (now - timeLastDetectedGest)/1000)+" sec." );		
+			return mRgb;
 		}
 
 		detectGesture(mHandContour, convexityDefects);	
@@ -138,9 +140,9 @@ public class PatientSelectionGestures {
 				currentState = sStateInit;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
-				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
 				postToast("Init!");
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
@@ -156,9 +158,9 @@ public class PatientSelectionGestures {
 				currentState = sStatePointSelect;
 				//				drawDefects(convexityDefects, handContour);
 				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
-				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
 				//wait only 1 seconds instead of 2
 				timeLastDetectedGest = System.currentTimeMillis() - 1500;
 				pointSelectStates.put("PointSelect_Init", true);				
@@ -188,9 +190,9 @@ public class PatientSelectionGestures {
 				timeLastDetectedGest = System.currentTimeMillis();
 				//				drawDefects(convexityDefects, handContour);
 				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
-				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect_End!");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect_End!");
 				postToast("PointSelect_End!");
 				return;
 			}
@@ -233,9 +235,9 @@ public class PatientSelectionGestures {
 			pointSelectStates.put("Zoom_End", false); 
 			//			drawDefects(convexityDefects, handContour);
 			Log.i("ImageInteraction", "Gesture detected - End");
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			mRgb = Tools.writeToImage(mRgb, x, y, "END found!");
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.15);
+//			mRgb = Tools.writeToImage(mRgb, x, y, "END found!");
 			postToast("END found!");
 			timeLastDetectedGest = System.currentTimeMillis();		
 		}

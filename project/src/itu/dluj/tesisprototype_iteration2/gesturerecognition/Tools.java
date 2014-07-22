@@ -78,14 +78,6 @@ public class Tools {
 		return centroid;
 	}
 
-	/*
-	 * Utility method - writes to color image
-	 */
-	public static Mat writeToImage(Mat mRgb, int x, int y, final String string) {
-		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(0,0,0), 5);
-		Core.putText(mRgb, string, new Point(x, y),Core.FONT_HERSHEY_SIMPLEX, 0.7, new Scalar(255,255,255), 1);
-		return mRgb;
-	}
 
 	/*
 	 * Utility method - gets distance between two points

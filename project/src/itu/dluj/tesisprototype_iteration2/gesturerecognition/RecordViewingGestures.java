@@ -1,5 +1,7 @@
 package itu.dluj.tesisprototype_iteration2.gesturerecognition;
 
+import itu.dluj.tesisprototype_iteration2.GUIHandler;
+
 import java.util.HashMap;
 
 import org.opencv.core.Core;
@@ -39,9 +41,11 @@ public class RecordViewingGestures {
 	private Context appContext;
 	private Activity mainActivity;
 	private Toast tToastMsg;
+	
+	private GUIHandler guiHandler;
 
 
-	public RecordViewingGestures(int width, int height, Activity activity){
+	public RecordViewingGestures(int width, int height, Activity activity, GUIHandler handler){
 		navigationStates = new HashMap<String, Boolean>();
 		navigationStates.put("Init", false);
 		navigationStates.put("End", false);
@@ -54,6 +58,8 @@ public class RecordViewingGestures {
 
 		mainActivity = activity;
 		appContext = activity.getApplicationContext();
+		
+		guiHandler = handler;
 
 		screenHeight = height;
 		screenWidth = width;
@@ -76,18 +82,18 @@ public class RecordViewingGestures {
 		long now = System.currentTimeMillis();
 		//if 2 seconds have not passed since gesture detection, return
 		if( (now - timeLastDetectedGest)/1000 < Gestures.secondsToWait){
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			mRgb = Tools.writeToImage(mRgb, x, y, "Wait! " + ((now - timeLastDetectedGest)/1000));		
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.15);
+			mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + (2 - (now - timeLastDetectedGest)/1000)+" sec." );		
 			return mRgb;
 		}
 		
 		//if 5 seconds passed with no change go back to "zipou"
 		if(((now - timeLastDetectedGest) >= 10000) && (currentState != sStateZero)){
 			//no gestures detected for 8.0 seconds... go back to zipou
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.35);
-			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.35);
+//			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
 			postToast("back to "+sStateZero);
 			navigationStates.put(sStateInit, false);
 			navigationStates.put("Rotate_Init", false);
@@ -132,9 +138,9 @@ public class RecordViewingGestures {
 				currentState = sStateInit;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
-				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
 				postToast("Init!");
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
@@ -152,11 +158,11 @@ public class RecordViewingGestures {
 				navigationStates.put("Swipe_End", false);				
 				currentState = sStatePointSelect;
 				timeLastDetectedGest = System.currentTimeMillis() - 1500;
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
-				//				drawDefects(convexityDefects, handContour);
-				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				//				drawDefects(convexityDefects, handContour);
+//				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
+//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
 				postToast("PointSelect!");
 				return;
 			}else{ 
@@ -169,11 +175,11 @@ public class RecordViewingGestures {
 					navigationStates.put("PointSelect_End", false);		
 					currentState = sStateSwipe;
 					timeLastDetectedGest = System.currentTimeMillis();
-					int x = (int)Math.round(screenWidth*0.05);
-					int y = (int)Math.round(screenHeight*0.15);
-					//				drawDefects(convexityDefects, handContour);
-					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
-					mRgb = Tools.writeToImage(mRgb, x, y, "Swipe!");
+//					int x = (int)Math.round(screenWidth*0.05);
+//					int y = (int)Math.round(screenHeight*0.15);
+//					//				drawDefects(convexityDefects, handContour);
+//					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
+//					mRgb = Tools.writeToImage(mRgb, x, y, "Swipe!");
 					postToast("Swipe!");
 					return;
 				}
@@ -188,17 +194,17 @@ public class RecordViewingGestures {
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
 				if(traveledDistance > screenWidth*0.30){//more than 30% of the screen
-					int x = (int)Math.round(screenWidth*0.05);
-					int y = (int)Math.round(screenHeight*0.15);
+//					int x = (int)Math.round(screenWidth*0.05);
+//					int y = (int)Math.round(screenHeight*0.15);
 					//				drawDefects(convexityDefects, handContour);
 					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
 
 					if(initSwipeLocation.x < detectedPoint.x){
 						postToast("Swipe - Rigth");
-						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Right!");
+//						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Right!");
 					}else{
 						postToast("Swipe - Left");
-						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Left!");
+//						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Left!");
 					}
 
 					navigationStates.put("Swipe_Init", false);
@@ -231,9 +237,9 @@ public class RecordViewingGestures {
 				timeLastDetectedGest = System.currentTimeMillis();
 				//				drawDefects(convexityDefects, handContour);
 				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-				int x = (int)Math.round(screenWidth*0.05);
-				int y = (int)Math.round(screenHeight*0.15);
-				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect End!");
+//				int x = (int)Math.round(screenWidth*0.05);
+//				int y = (int)Math.round(screenHeight*0.15);
+//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect End!");
 				postToast("PointSelect_END!");
 				return;
 			}
@@ -276,9 +282,9 @@ public class RecordViewingGestures {
 			navigationStates.put("Zoom_End", false); 
 			//			drawDefects(convexityDefects, handContour);
 			Log.i("ImageInteraction", "Gesture detected - End");
-			int x = (int)Math.round(screenWidth*0.05);
-			int y = (int)Math.round(screenHeight*0.15);
-			mRgb = Tools.writeToImage(mRgb, x, y, "End!");
+//			int x = (int)Math.round(screenWidth*0.05);
+//			int y = (int)Math.round(screenHeight*0.15);
+//			mRgb = Tools.writeToImage(mRgb, x, y, "End!");
 			postToast("End!");
 			timeLastDetectedGest = System.currentTimeMillis();		
 		}
