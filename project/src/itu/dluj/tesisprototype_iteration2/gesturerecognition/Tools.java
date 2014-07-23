@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -27,44 +25,37 @@ public class Tools {
 	 * params: convexity defects, center of hand contour, hand contour
 	 * 
 	 */
-	public static Mat drawDefects(Mat mRgb, MatOfInt4 convexityDefects, MatOfPoint handContour) {
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		Point centroid = getCentroid(handContour);
+	public static Mat drawDefects(Mat mRgb, List<Point[]> convexityDefects, Point handContourCentroid) {
 		/*
-		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
-		 * depth-> farthest point (depth_point) distance to convex hull
+		 * convexityDefects -> Point[] containing [0] = start of contour, [1] = farthest point from convex hull.
 		 */
 		Point start;
 //		Point end;
-		Point furthest;
+		Point farthest;
 		//		float depth;
 
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< convexityDefects.size(); i++){
+			start = convexityDefects.get(i)[0]; 
 			//			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-			if((start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
-				//				depth = Math.round(defects[i+3]/256.0);
+			farthest = convexityDefects.get(i)[1];
+			//				depth = Math.round(defects[i+3]/256.0);
 
-				//		        convexhull
-				//				Core.line(mRgb, start, end, blue, 3);
-				//		        line from farthest point to convexhull
-				Core.line(mRgb, furthest, start, red, 1);
-				//		        line from center of contour to convexhull point
-				Core.line(mRgb, start, centroid, blue, 1);
-				//		        points
-				//			Core.circle(mRgb, end, 5, red, -1);
-				Core.circle(mRgb, start, 5, red, -1);
-				//			Core.circle(mRgb, furthest, 5, magenta, -1);
-				//		        write distance between hull and farthest point
-				//		        tools.setText(image, end, str(distance))
-				//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
-				//		        centerLine = tools.getMidPointInLine(center, end)
-				//		        tools.setText(image, centerLine, str(distanceCenterHull))	
-			}
+			//		        convexhull
+			//				Core.line(mRgb, start, end, blue, 3);
+			//		        line from farthest point to start
+			Core.line(mRgb, farthest, start, red, 1);
+			//		        line from center of contour to start
+			Core.line(mRgb, start, handContourCentroid, blue, 1);
+			//		        points
+			//			Core.circle(mRgb, end, 5, red, -1);
+			Core.circle(mRgb, start, 5, red, -1);
+			//			Core.circle(mRgb, farthest, 5, magenta, -1);
+			//		        write distance between hull and farthest point
+			//		        tools.setText(image, end, str(distance))
+			//		        distanceCenterHull = tools.getDistanceBetweenPoints(center, end)
+			//		        centerLine = tools.getMidPointInLine(center, end)
+			//		        tools.setText(image, centerLine, str(distanceCenterHull))	
 		}
-		
 		return mRgb;
 	}
 

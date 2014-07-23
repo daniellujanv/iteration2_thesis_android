@@ -3,8 +3,6 @@ package itu.dluj.tesisprototype_iteration2.gesturerecognition;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -16,48 +14,49 @@ public class Gestures {
 	public static int secondsToWait = 2;
 	private static String TAG = "Gestures::";
 
+	/************************************* Available Gestures *****************************************************/
 	/*
 	 * Detection of Init gesture
 	 */
-	public static boolean detectInitGesture(MatOfInt4 convexityDefects, MatOfPoint handContour) {
+	public static boolean detectInitGesture(List<Point[]> lDefects, Point centroid) {
 		int positiveDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		Point centroid = Tools.getCentroid(handContour);
+//		int defects[] = convexityDefects.toArray();
+//		List<Point> contour = handContour.toList();
+//		Point centroid = Tools.getCentroid(handContour);
 		//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
 		 * depth-> farthest point (depth_point) distance to convex hull
 		 */
-				Point start;
+		Point start;
 //		Point end;
-		Point furthest;
-		//distance between the furthest point and convex hull
+		Point farthest;
+		//distance between the farthest point and convex hull
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
 		 */
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< lDefects.size(); i++){
+			start = lDefects.get(i)[0];
 //			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-			//			distanceFurthest = Math.round(defects[i+3]/256.0);
+			farthest = lDefects.get(i)[1];
+			//			distancefarthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if((start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
+//			if((start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){
 				//distance between the center of hand and defect
 				double distanceCenterPoint = Tools.getDistanceBetweenPoints(centroid, start);
-				//distance between the start of defect and furthest point
-				double distanceFurthestPoint = Tools.getDistanceBetweenPoints(start, furthest);
-				//relation of distances from 1) center of hand to defect and 2)start of defect to furthest point 
-				double relationCenterPoint_FurthestPoint = (distanceCenterPoint/distanceFurthestPoint);
-				Log.i(TAG+"Init", "relCenter_Furthest: "+relationCenterPoint_FurthestPoint
+				//distance between the start of defect and farthest point
+				double distancefarthestPoint = Tools.getDistanceBetweenPoints(start, farthest);
+				//relation of distances from 1) center of hand to defect and 2)start of defect to farthest point 
+				double relationCenterPoint_farthestPoint = (distanceCenterPoint/distancefarthestPoint);
+				Log.i(TAG+"Init", "relCenter_farthest: "+relationCenterPoint_farthestPoint
 						);
-				if((relationCenterPoint_FurthestPoint < 2.0)){
+				if((relationCenterPoint_farthestPoint < 2.0)){
 					//				        points
 //					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
-			}
+//			}
 		}
 		//		Log.i("ImageInteraction", "Init gesture::defect number -> "+ positiveDefects);
 		if(positiveDefects >= 3){
@@ -70,11 +69,11 @@ public class Gestures {
 	/*
 	 * Detection of End gesture
 	 */
-	public static boolean detectEndGesture(MatOfInt4 convexityDefects, MatOfPoint handContour) {
+	public static boolean detectEndGesture(List<Point[]> lDefects, Point centroid) {
 		int positiveDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
-		Point centroid = Tools.getCentroid(handContour);
+//		int defects[] = convexityDefects.toArray();
+//		List<Point> contour = handContour.toList();
+//		Point centroid = Tools.getCentroid(handContour);
 		//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 
 		/*
@@ -83,34 +82,34 @@ public class Gestures {
 		 */
 		Point start;
 //		Point end;
-		Point furthest;
-		//		float distanceFurthest;
+		Point farthest;
+		//		float distancefarthest;
 		/*
 		 * Removing defects
 		 * we want to keep only defects above centroid of hand
 		 */
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< lDefects.size(); i++){
+			start = lDefects.get(i)[0];
 //			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
-			//			distanceFurthest = Math.round(defects[i+3]/256.0);
+			farthest = lDefects.get(i)[1];
+			//			distancefarthest = Math.round(defects[i+3]/256.0);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-//			if(start.y < centroid.y && furthest.y < centroid.y){
-			if((start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){	
+//			if(start.y < centroid.y && farthest.y < centroid.y){
+//			if((start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){	
 				//distance between the center of hand and defect
 				double distanceCenterPoint = Tools.getDistanceBetweenPoints(centroid, start);
-				//distance between the start of defect and furthest point
-				double distanceFurthestPoint = Tools.getDistanceBetweenPoints(start, furthest);
-				//relation of distances from 1) center of hand to defect and 2)start of defect to furthest point 
-				double relationCenterPoint_FurthestPoint = (distanceCenterPoint/distanceFurthestPoint);
-				Log.i(TAG+"End", "relCenter_furthest: "+relationCenterPoint_FurthestPoint
+				//distance between the start of defect and farthest point
+				double distancefarthestPoint = Tools.getDistanceBetweenPoints(start, farthest);
+				//relation of distances from 1) center of hand to defect and 2)start of defect to farthest point 
+				double relationCenterPoint_farthestPoint = (distanceCenterPoint/distancefarthestPoint);
+				Log.i(TAG+"End", "relCenter_farthest: "+relationCenterPoint_farthestPoint
 						);
-				if((relationCenterPoint_FurthestPoint >= 3.0)){
+				if((relationCenterPoint_farthestPoint >= 3.0)){
 					//				        points
 //					Core.circle(mRgb, end, 5, red, -1);
 					positiveDefects = positiveDefects + 1;
 				}
-			}
+//			}
 		}
 //		Log.i("ImageInteraction", "End gesture::defect number -> "+ positiveDefects);
 		if(positiveDefects >= 3){
@@ -123,11 +122,11 @@ public class Gestures {
 	/*
 	 * Detection of PointSelect gesture
 	 */
-	public static Point detectPointSelectGesture(MatOfInt4 convexityDefects, MatOfPoint handContour, boolean initDetected) {
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
+	public static Point detectPointSelectGesture(List<Point[]> lDefects, Point centroid, boolean initDetected) {
+//		int defects[] = convexityDefects.toArray();
+//		List<Point> contour = handContour.toList();
 		List<Point> finalDefects = new ArrayList<Point>();
-		Point centroid = Tools.getCentroid(handContour);
+//		Point centroid = Tools.getCentroid(handContour);
 		//		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 
 		/*
@@ -136,7 +135,7 @@ public class Gestures {
 		 */
 		Point start;
 //		Point end;
-		Point furthest;
+		Point farthest;
 		//		double distancePointHull = 0;
 		double avgDistanceCenterPoint_negative = 0;
 		int positiveDefects = 0;
@@ -147,31 +146,31 @@ public class Gestures {
 		 * - Removing defects
 		 * -- we want to keep only defects above centroid of hand
 		 */
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< lDefects.size(); i++){
+			start = lDefects.get(i)[0];
 //			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
+			farthest = lDefects.get(i)[1];
 			//			distancePointHull = defects[i+3]/256.0;
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if( (start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
+//			if( (start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){
 				//distance between the center of hand and defect
 				double distanceCenterPoint = Tools.getDistanceBetweenPoints(centroid, start);
 				//					double relationCenterHull_EndHull = (distanceCenterPoint/distancePointHull);
 				//					double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
 				//					double relationCenterHull_distClosestPerimeter = distanceCenterPoint/distClosestPerimeter;
-				//distance between the start of defect and furthest point
-				double distanceFurthestPoint = Tools.getDistanceBetweenPoints(start, furthest);
-				//relation of distances from 1) center of hand to defect and 2)start of defect to furthest point 
-				double relationCenterPoint_FurthestPoint = distanceCenterPoint/distanceFurthestPoint;
-				Log.i(TAG+"PointSelect", "center_endFurtherst:: "+relationCenterPoint_FurthestPoint);
-				if(relationCenterPoint_FurthestPoint < 2.0){
+				//distance between the start of defect and farthest point
+				double distancefarthestPoint = Tools.getDistanceBetweenPoints(start, farthest);
+				//relation of distances from 1) center of hand to defect and 2)start of defect to farthest point 
+				double relationCenterPoint_farthestPoint = distanceCenterPoint/distancefarthestPoint;
+				Log.i(TAG+"PointSelect", "center_endFurtherst:: "+relationCenterPoint_farthestPoint);
+				if(relationCenterPoint_farthestPoint < 2.0){
 					finalDefects.add(start);
 					positiveDefects = positiveDefects + 1;
 				}else{
 					negativeDefects = negativeDefects + 1;
 					avgDistanceCenterPoint_negative = avgDistanceCenterPoint_negative + distanceCenterPoint;  
 				}
-			}
+//			}
 			avgDistanceCenterPoint_negative = (negativeDefects != 0)? avgDistanceCenterPoint_negative/negativeDefects : 1;
 		}
 		if(!initDetected){
@@ -234,12 +233,12 @@ public class Gestures {
 	/*
 	 * Detection of PointSelect gesture
 	 */
-	public static Point detectSwipeGesture(MatOfInt4 convexityDefects, MatOfPoint handContour, boolean initDetected) {
+	public static Point detectSwipeGesture(List<Point[]> lDefects, Point centroid, boolean initDetected) {
 		int positiveDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
+//		int defects[] = convexityDefects.toArray();
+//		List<Point> contour = handContour.toList();
 		List<Point> finalDefects = new ArrayList<Point>();
-		Point centroid = Tools.getCentroid(handContour);
+//		Point centroid = Tools.getCentroid(handContour);
 //		MatOfPoint2f m2fHandContour = new MatOfPoint2f(handContour.toArray());
 
 		/*
@@ -248,35 +247,35 @@ public class Gestures {
 		 */
 		Point start;
 //		Point end;
-		Point furthest;
+		Point farthest;
 //		double distancePointHull;
 //		Log.i("Gestures::Swipe", "Swipe gesture::beginning");
 		/*
 		 * - Removing defects
 		 * -- we want to keep only defects above centroid of hand
 		 */
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< lDefects.size(); i++){
+			start = lDefects.get(i)[0];
 //			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
+			farthest = lDefects.get(i)[1];
 //			distancePointHull = defects[i+3]/256.0;
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if( (start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
+//			if( (start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){
 				//distance between the center of hand and defect
 				double distanceCenterPoint = Tools.getDistanceBetweenPoints(centroid, start);
 				//					double relationCenterHull_EndHull = (distanceCenterPoint/distancePointHull);
 				//					double distClosestPerimeter = Imgproc.pointPolygonTest(m2fHandContour, centroid, true);
 				//					double relationCenterHull_distClosestPerimeter = distanceCenterPoint/distClosestPerimeter;
-				//distance between the start of defect and furthest point
-				double distanceEndFurthest = Tools.getDistanceBetweenPoints(start, furthest);
-				//relation of distances from 1) center of hand to defect and 2)start of defect to furthest point 
-				double relationCenter_EndFurtherst = distanceCenterPoint/distanceEndFurthest;
+				//distance between the start of defect and farthest point
+				double distanceEndfarthest = Tools.getDistanceBetweenPoints(start, farthest);
+				//relation of distances from 1) center of hand to defect and 2)start of defect to farthest point 
+				double relationCenter_EndFurtherst = distanceCenterPoint/distanceEndfarthest;
 				if(relationCenter_EndFurtherst < 2.0){
 					Log.i(TAG+"Swipe", "center_endFurtherst:: "+relationCenter_EndFurtherst);
 					finalDefects.add(start);
 					positiveDefects = positiveDefects + 1;
 				}
-			}
+//			}
 		}
 		if(finalDefects.size() == 2){
 			Point defect_one = finalDefects.get(0);
@@ -305,49 +304,49 @@ public class Gestures {
 	/*
 	 * Detection of Rotation gesture
 	 */
-	public static Point detectRotateGesture(MatOfInt4 convexityDefects,	MatOfPoint handContour, boolean initDetected) {
+	public static Point detectRotateGesture(List<Point[]> lDefects, Point centroid, boolean initDetected) {
 		int positiveDefects = 0;
 //		int negativeDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
+//		int defects[] = convexityDefects.toArray();
+//		List<Point> contour = handContour.toList();
 		List<Point> finalDefects = new ArrayList<Point>();
-		Point centroid = Tools.getCentroid(handContour);
+//		Point centroid = Tools.getCentroid(handContour);
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
 		 * depth-> farthest point (depth_point) distance to convex hull
 		 */
 		Point start;
 //		Point end;
-		Point furthest;
+		Point farthest;
 		//		Log.i("ImageInteraction", "Rotate gesture::beginning");
 		/*
 		 * Look for Rotate_Init gesture
 		 * - Removing defects
 		 * -- we want to keep only defects above centroid of hand
 		 */
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< lDefects.size(); i++){
+			start = lDefects.get(i)[0];
 //			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
+			farthest = lDefects.get(i)[1];
 			//distance between the center of hand and defect
 			double distanceCenterPoint = Tools.getDistanceBetweenPoints(centroid, start);
-			//distance between the start of defect and furthest point
-			double distanceFurthestPoint = Tools.getDistanceBetweenPoints(start, furthest);
-			//relation of distances from 1) center of hand to defect and 2)start of defect to furthest point 
-			double relationCenterPoint_FurthestPoint = distanceCenterPoint/distanceFurthestPoint; 
+			//distance between the start of defect and farthest point
+			double distancefarthestPoint = Tools.getDistanceBetweenPoints(start, farthest);
+			//relation of distances from 1) center of hand to defect and 2)start of defect to farthest point 
+			double relationCenterPoint_farthestPoint = distanceCenterPoint/distancefarthestPoint; 
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if( (start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
+//			if( (start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){
 				Log.i(TAG+"Rotate",
-						"relCenterPoint_FurthestPoint: " + relationCenterPoint_FurthestPoint
+						"relCenterPoint_farthestPoint: " + relationCenterPoint_farthestPoint
 						);
-				if(relationCenterPoint_FurthestPoint < 2.0){
+				if(relationCenterPoint_farthestPoint < 2.0){
 					finalDefects.add(start);
 					positiveDefects = positiveDefects + 1;
 				}
 //				else{
 //					negativeDefects = negativeDefects + 1;
 //				}
-			}
+//			}
 		}
 		Log.i(TAG+"Rotate","finalDefects: "+ finalDefects.size()
 				);			
@@ -390,50 +389,50 @@ public class Gestures {
 	/*
 	 * Detection of Zoom gesture
 	 */
-	public static double detectZoomGesture(MatOfInt4 convexityDefects,	MatOfPoint handContour, boolean initDetected) {
+	public static double detectZoomGesture(List<Point[]> lDefects, Point centroid, boolean initDetected) {
 		int positiveDefects = 0;
 		int negativeDefects = 0;
-		int defects[] = convexityDefects.toArray();
-		List<Point> contour = handContour.toList();
+//		int defects[] = convexityDefects.toArray();
+//		List<Point> contour = handContour.toList();
 		List<Point> finalDefects = new ArrayList<Point>();
-		Point centroid = Tools.getCentroid(handContour);
+//		Point centroid = Tools.getCentroid(handContour);
 		/*
 		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
 		 * depth-> farthest point (depth_point) distance to convex hull
 		 */
 		Point start;
 //		Point end;
-		Point furthest;
+		Point farthest;
 		//		Log.i("ImageInteraction", "Zoom gesture::beginning");
 		/*
 		 * Look for Zoom_Init gesture
 		 * - Removing defects
 		 * -- we want to keep only defects above centroid of hand
 		 */
-		for(int i=0; i< defects.length; i=i+4){
-			start = contour.get(defects[i]);
+		for(int i=0; i< lDefects.size(); i++){
+			start = lDefects.get(i)[0];
 //			end = contour.get(defects[i+1]);
-			furthest = contour.get(defects[i+2]);
+			farthest = lDefects.get(i)[1];
 			//distance between the center of hand and defect
 			double distanceCenterHull = Tools.getDistanceBetweenPoints(centroid, start);
 			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			//distance between the start of defect and furthest point
-			double distanceFurthestPoint = Tools.getDistanceBetweenPoints(start, furthest);
-			//relation of distances from 1) center of hand to defect and 2)start of defect to furthest point 
-			double relationCenterPoint_FurthestPoint = distanceCenterHull/distanceFurthestPoint; 
+			//distance between the start of defect and farthest point
+			double distancefarthestPoint = Tools.getDistanceBetweenPoints(start, farthest);
+			//relation of distances from 1) center of hand to defect and 2)start of defect to farthest point 
+			double relationCenterPoint_farthestPoint = distanceCenterHull/distancefarthestPoint; 
 			//			Log.i("ImageInteraction","Defects Zoom:: " 
-			//					+ "relCenterHull_FurthestHull: "+relationCenterPoint_FurthestPoint
+			//					+ "relCenterHull_farthestHull: "+relationCenterPoint_farthestPoint
 			//					+ " centerHull" + distanceCenterHull
-			//					+ " furthest" + distanceFurthest
+			//					+ " farthest" + distancefarthest
 			//					);			//top left screen x=0,y=0. Otherwise would be end.x > centroid.x
-			if((start.y < centroid.y && furthest.y < centroid.y) && (start.y < furthest.y)){
-				if((relationCenterPoint_FurthestPoint < 2.0)){
+//			if((start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){
+				if((relationCenterPoint_farthestPoint < 2.0)){
 					finalDefects.add(start);
 					positiveDefects = positiveDefects + 1;
 				}else{
 					negativeDefects = negativeDefects + 1;
 				}
-			}
+//			}
 		}
 		//		Log.i("ImageInteraction","Defects Zoom :: finalDefects: "+ finalDefects.size()
 		//				);			
@@ -461,5 +460,38 @@ public class Gestures {
 		return -1;
 	}
 
+	/********************************** Tools *************************************************************/
+	
+	/*
+	 * filter defects
+	 * returns: list of array of points
+	 * point[0] = start
+	 * point[1] = farthest
+	 */
+	public static List<Point[]> filterDefects(MatOfInt4 convexityDefects, MatOfPoint handContour){
+		List<Point[]> finalDefects = new ArrayList<Point[]>();
 
+		int defects[] = convexityDefects.toArray();
+		List<Point> contour = handContour.toList();
+		Point centroid = Tools.getCentroid(handContour);
+		/*
+		 * convexityDefects -> structure containing (by order) start, end, depth_point, depth.
+		 */
+		Point start;
+//		Point end;
+		Point farthest;
+		//		float depth;
+		for(int i=0; i< defects.length; i=i+4){
+			start = contour.get(defects[i]);
+			//			end = contour.get(defects[i+1]);
+			farthest = contour.get(defects[i+2]);
+			if((start.y < centroid.y && farthest.y < centroid.y) && (start.y < farthest.y)){
+				Point[] points = new Point[2];
+				points[0] = start;
+				points[1] = farthest;
+				finalDefects.add(points);
+			}
+		}
+		return finalDefects;
+	}
 }
