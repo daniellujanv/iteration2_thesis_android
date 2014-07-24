@@ -8,12 +8,14 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class GUIHandler {
 
@@ -27,6 +29,10 @@ public class GUIHandler {
 	private Point[] patientInfoCoords;
 	private Point[] patientImgsCoords;
 	private Point[] fullScreenImgCoords;
+	
+	private Point pBigImgCenter;
+	private Size sBigImageOriginalSize;
+	private int zoomLevel;
 	
 	private String[] patientInfoText;
 	private Point infoCoords;
@@ -55,6 +61,8 @@ public class GUIHandler {
 		screenHeight = height;
 		imagesBtnClicked = false;
 		backBtnClicked = false;
+		
+		zoomLevel = 0;
 		
 		appContext = context;
 		resources = appContext.getResources();
@@ -171,8 +179,10 @@ public class GUIHandler {
 		/******* Full screen images*******/
 		mFullScreenImages = new Mat[3];
 
-		bWidth = (int)(fullScreenImgCoords[1].x - fullScreenImgCoords[4].x);
+
 		bHeight = (int)(fullScreenImgCoords[1].y - fullScreenImgCoords[4].y);
+		bWidth = bHeight;
+		
 		fullScreenImgRoi = new Rect((int) fullScreenImgCoords[4].x, (int)fullScreenImgCoords[4].y, bWidth, bHeight);
 
 		//image 0
@@ -302,15 +312,56 @@ public class GUIHandler {
 		//patInfoCoords[5] upper left point for image
 		//patInfoCoords[1] lower righ point for image (same as both squares)
 
-//		Log.i("GUIHandler","rec::"+rec.submat(patientImgsRoi).size().toString()+" mBitmap::"+mBitmap.size().toString());
-		Core.addWeighted(rec.submat(fullScreenImgRoi), 0.0, mFullScreenImages[iCurrentImg], 1.0, 0, rec.submat(fullScreenImgRoi));
+		if(zoomLevel != 0){
+			
+			Mat toDraw = new Mat();
+			
+			int finalWidth = mFullScreenImages[iCurrentImg].width();
+			int finalHeight = finalWidth;
+			int smallWidth = (int) (finalWidth/( Math.pow(2,zoomLevel))); //for pyrUp to work the sizes have to be mult of 2
+			int smallHeight = smallWidth;
+			int smallX = (int) ((finalWidth - smallWidth)/( Math.pow(2,zoomLevel)));
+			int smallY = (int) ((finalHeight - smallHeight)/( Math.pow(2,zoomLevel))); //for zoomed image
+			int bigWidth = smallWidth*2;
+			int bigHeight = smallHeight*2;
+			
+			for(int i=zoomLevel; i>=1; i--){
+				Rect zoomRoi = new Rect(smallX, smallY, smallWidth, smallHeight);
+				Size bigSize = new Size(bigWidth, bigHeight);				
+				Log.i("GUIHandler","zoomRoi::"+ zoomRoi.toString()
+						+ " newSize::"+ bigSize.toString());
+				toDraw = new Mat();
+				Imgproc.pyrUp(mFullScreenImages[iCurrentImg].submat(zoomRoi), toDraw, bigSize);
+				smallX = smallX*2;
+				smallY = smallY*2;
+				smallWidth = smallWidth*2;
+				smallHeight = smallHeight*2;
+				bigWidth = bigWidth*2;
+				bigHeight = bigHeight*2;
+			}
+			
+			Log.i("GUIHandler","rec::"+rec.submat(fullScreenImgRoi).size().toString()+" toDraw::"+toDraw.size().toString()
+					+ " imgRoi::"+fullScreenImgRoi.toString());
+			
+			
+			Core.addWeighted(rec.submat(fullScreenImgRoi), 0.0, 
+					toDraw, 1.0, 0, rec.submat(fullScreenImgRoi));
+		}else {
+			
+			Core.addWeighted(rec.submat(fullScreenImgRoi), 0.0, 
+					mFullScreenImages[iCurrentImg], 1.0, 0, rec.submat(fullScreenImgRoi));
+			
+		}
 		Mat output = new Mat();
 		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
 		return output;
 	}
 	
 	/******************************* Action methods *******************************************/
-	
+	/*
+	 * onClick 
+	 * returns true if click is accepted (clicked on something)
+	 */
 	public boolean onClick(Point click){
 		/*
 		 * - if iCurrentPatient == -1 --> we are in PatientSelection
@@ -355,7 +406,7 @@ public class GUIHandler {
 				return false;
 			}else if( imagesBtnClicked == true && click.inside(rect_img)){
 				backBtnClicked = false;
-				imagesBtnClicked = false;
+//				imagesBtnClicked = false;
 				bigImgShowing = true;
 				return true;
 			}
@@ -369,7 +420,7 @@ public class GUIHandler {
 				if(click.inside(rect_back)){
 					//go back to state PatientSelect
 					backBtnClicked = false;
-					imagesBtnClicked = false;
+//					imagesBtnClicked = false;
 					bigImgShowing = false;
 					return true;
 				}
@@ -377,6 +428,61 @@ public class GUIHandler {
 		return false;
 	}
 	
+	/*
+	 * swipe
+	 * returns true if swipe is accepted (if images are showing)
+	 */
+	public boolean swipe(String side){
+		if(imagesBtnClicked == true){
+			if(side == "left"){
+				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
+				return true;
+			}else if(side == "right"){
+				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/*
+	 * rotate
+	 * returns true if rotate is accepted
+	 */
+	public boolean rotate(String side){
+		if(bigImgShowing == true){
+			if(side == "left"){
+				Core.transpose(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg]);
+				Core.flip(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg], 0);
+//				mFullScreenImages[iCurrentImg] = mFullScreenImages[iCurrentImg].t();
+				return true;
+			}else if(side == "right"){
+//				mFullScreenImages[iCurrentImg] = mFullScreenImages[iCurrentImg].t();
+				Core.transpose(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg]);
+				Core.flip(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg], 1);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/*
+	 * zoom
+	 * returns true if zoom is accepted
+	 */
+	public boolean zoom(String zoom){
+		if(bigImgShowing == true){
+			if(zoom == "in"){
+				zoomLevel = (zoomLevel != 2)? zoomLevel + 1 : 0;
+				return true;
+			}else if(zoom == "out"){
+				
+				zoomLevel = (zoomLevel != 0)? zoomLevel - 1 : 0;
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	/******************************* Utility methods ******************************************/
 	

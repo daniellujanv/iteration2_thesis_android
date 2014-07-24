@@ -174,10 +174,15 @@ public class RecordViewingGestures {
 					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
 
 					if(initSwipeLocation.x < detectedPoint.x){
-						postToast("Swipe - Rigth");
+						if(guiHandler.swipe("right") == true){
+							postToast("Swipe - Rigth");
+						}
+						
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Right!");
 					}else{
-						postToast("Swipe - Left");
+						if(guiHandler.swipe("left") == true){
+							postToast("Swipe - Left");
+						}
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Left!");
 					}
 					currentState = StatesHandler.sStateInit;

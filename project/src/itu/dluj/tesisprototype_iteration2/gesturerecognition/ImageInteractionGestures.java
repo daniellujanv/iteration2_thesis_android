@@ -196,14 +196,18 @@ public class ImageInteractionGestures {
 					if((rotateInitPos.x >= rotateEndPos.x)){
 						//rotate left
 						Log.i("ImageInteraction", "Rotate gesture::LEFT ");
-						postToast("Rotate Left!");
+						if(guiHandler.rotate("left")){
+							postToast("Rotate Left!");
+						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Left!");		
 					}else if((rotateInitPos.x < rotateEndPos.x) ){
 						//rotate right
 						Log.i("ImageInteraction", "Rotate gesture::RIGHT");
-						postToast("Rotate Right!");
+						if(guiHandler.rotate("right")){
+							postToast("Rotate Right!");
+						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Right!");		
@@ -229,18 +233,20 @@ public class ImageInteractionGestures {
 				if(Math.abs(zoomEndDistance - zoomInitDistance) > screenWidth*0.05 ){ //more than 05% of screen
 					if(zoomEndDistance > zoomInitDistance){
 						//Zoom-IN gesture
-						zoomInitDistance = zoomEndDistance;
-						Log.i("ImageInteraction", "Zoom gesture::IN");
-						postToast("Zoom IN");
+						if(guiHandler.zoom("in")){
+							Log.i("ImageInteraction", "Zoom gesture::IN");
+							postToast("Zoom IN");
+						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom in!");		
 
 					}else if(zoomEndDistance < zoomInitDistance){
 						//Zoom-OUT gesture
-						zoomInitDistance = zoomEndDistance;
-						Log.i("ImageInteraction", "Zoom gesture::OUT");
-						postToast("Zoom OUT");
+						if(guiHandler.zoom("out")){
+							Log.i("ImageInteraction", "Zoom gesture::OUT");
+							postToast("Zoom OUT");
+						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom out!");		

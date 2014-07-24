@@ -39,7 +39,7 @@ public class StatesHandler {
 	private Point handContourCentroid;
 	private MatOfInt convexHull;
 	private MatOfInt4 convexityDefects;
-	private List<Point[]> lFinalDefects; //Could be array but number of defects is not known (for initialization)
+	private List<Point[]> lFinalDefects; 
 
 
 	private PatientSelectionGestures patSelRecognition;
@@ -64,7 +64,7 @@ public class StatesHandler {
 
 	//values for magenta globe 1
 	private final Scalar minRange = new Scalar(120, 0, 0);
-	private final Scalar maxRange = new Scalar(175, 255, 255);
+	private final Scalar maxRange = new Scalar(178, 255, 255);
 	private Toast tToastMsg;
 
 	//values for magenta globe 2
@@ -150,8 +150,8 @@ public class StatesHandler {
 		}
 		//if 5 seconds passed with no change go back to "zipou"
 		if(currentState != sStateZero){
-			if(((now - timeLastDetectedGesture) >= 10000)){
-				//no gestures detected for 8.0 seconds... go back to zipou
+			if(((now - timeLastDetectedGesture) >= 15000)){
+				//no gestures detected for 15.0 seconds... go back to zipou
 				//			int x = (int)Math.round(screenWidth*0.05);
 				//			int y = (int)Math.round(screenHeight*0.35);
 				//			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
@@ -206,7 +206,7 @@ public class StatesHandler {
 		}
 
 		if(indexBiggestArea != -1){
-			Log.i("check", "imgIntGest - procressImage init");
+			Log.i("check", "procressImage init");
 			mHandContour = contours.get(indexBiggestArea);
 //			Imgproc.drawContours(mRgb, contours, -1, Tools.red, 2);
 
@@ -250,7 +250,7 @@ public class StatesHandler {
 				if(overallState.get(patientSelectionState) == true){
 					//	        	Log.i("check", "NOPE 1");
 					mRgb = patSelRecognition.processImage(mRgb, handContourCentroid, lFinalDefects);
-					currentState = "PatSel-"+patSelRecognition.getState();
+					currentState = patSelRecognition.getState();
 					if(patSelRecognition.changeOfState == true){
 						recViwRecognition.timeLastDetectedGest = System.currentTimeMillis();
 						recViwRecognition.currentState = sStateInit;
@@ -259,7 +259,7 @@ public class StatesHandler {
 				}else if(overallState.get(recordViewingState) == true){
 					//	        	Log.i("check", "NOPE 2");
 					mRgb = recViwRecognition.processImage(mRgb, handContourCentroid, lFinalDefects);
-					currentState = "RecViw-"+recViwRecognition.getState();
+					currentState = recViwRecognition.getState();
 					if(recViwRecognition.nextState == true){
 						imgIntRecognition.timeLastDetectedGest = System.currentTimeMillis();
 						imgIntRecognition.currentState = sStateInit;
@@ -272,7 +272,7 @@ public class StatesHandler {
 				}else if(overallState.get(imageInteractionState) == true){
 					//	        	Log.i("check", "handleFrame - calling imgIntRecon");
 					mRgb = imgIntRecognition.processImage(mRgb, handContourCentroid, lFinalDefects);
-					currentState = "ImgInt-"+imgIntRecognition.getState();
+					currentState = imgIntRecognition.getState();
 					if(imgIntRecognition.changeOfState == true){
 						recViwRecognition.timeLastDetectedGest = System.currentTimeMillis();
 						recViwRecognition.currentState = sStateInit;
