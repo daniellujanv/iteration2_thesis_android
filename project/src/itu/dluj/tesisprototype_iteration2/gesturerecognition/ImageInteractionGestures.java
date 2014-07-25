@@ -109,14 +109,14 @@ public class ImageInteractionGestures {
 		 */
 		if(Gestures.detectEndGesture(lDefects, centroid) == true ){
 			if(currentState != StatesHandler.sStateZero){
-				postToast("END!");
+//				postToast("END!");
 				currentState = StatesHandler.sStateInit;				
 				//			drawDefects(convexityDefects, handContour);
 //				Log.i("ImageInteraction", "Gesture detected - End");
 				//			int x = (int)Math.round(screenWidth*0.05);
 				//			int y = (int)Math.round(screenHeight*0.15);
 				//			mRgb = guiHandler.writeInfoToImage(mRgb, "END!");
-				timeLastDetectedGest = System.currentTimeMillis();	
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
 			}
 			//			SystemClock.sleep(500);
 		}
@@ -124,7 +124,7 @@ public class ImageInteractionGestures {
 		if(currentState == StatesHandler.sStateZero){
 			//Init not detected no interaction has not started
 			if(Gestures.detectInitGesture(lDefects, centroid) == true ){
-				postToast("Init!");
+//				postToast("Init!");
 				currentState = StatesHandler.sStateInit;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - INIT");
@@ -139,7 +139,7 @@ public class ImageInteractionGestures {
 			//Interaction has started, nothing detected yet
 			Point detectedPoint = Gestures.detectRotateGesture(lDefects, centroid, false);
 			if( detectedPoint != null ){
-				postToast("Rotate!");
+//				postToast("Rotate!");
 				rotateInitPos = detectedPoint;
 				currentState = StatesHandler.sStateRotate;
 				//				drawDefects(convexityDefects, handContour);
@@ -148,12 +148,12 @@ public class ImageInteractionGestures {
 //				int y = (int)Math.round(screenHeight*0.15);
 				//				writeToImage( x, y, "Rotate!", Toast.LENGTH_LONG);
 //				mRgb = Tools.writeToImage(mRgb, x, y, "Rotate!");
-				timeLastDetectedGest = System.currentTimeMillis() - 1500;
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}else {
 				double detectedDistance = Gestures.detectZoomGesture(lDefects, centroid, false); 
 				if(detectedDistance != -1){
-					postToast("Zoom!");		
+//					postToast("Zoom!");		
 					zoomInitDistance = detectedDistance;
 					currentState = StatesHandler.sStateZoom;
 					//				drawDefects(convexityDefects, handContour);
@@ -161,13 +161,13 @@ public class ImageInteractionGestures {
 //					int x = (int)Math.round(screenWidth*0.05);
 //					int y = (int)Math.round(screenHeight*0.15);
 //					mRgb = Tools.writeToImage(mRgb, x, y, "Zoom!");		
-					timeLastDetectedGest = System.currentTimeMillis() - 1500;	
+					timeLastDetectedGest = System.currentTimeMillis() - 1000;	
 					return;
 				}else{
 					detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, false); 
 					if(detectedPoint != null){
 						//			if(detectPointSelectGesture(convexityDefects, mHandContour, false) == true){
-						postToast("PointSelect!");					
+//						postToast("PointSelect!");					
 						lastPointedLocation = detectedPoint;
 						Core.circle(mRgb, lastPointedLocation, 5, Tools.magenta, -1);
 
@@ -178,7 +178,7 @@ public class ImageInteractionGestures {
 						//				int y = (int)Math.round(screenHeight*0.15);
 						//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
 						//wait only 1 seconds instead of 2
-						timeLastDetectedGest = System.currentTimeMillis() - 1500;
+						timeLastDetectedGest = System.currentTimeMillis() - 1000;
 
 						return;
 					}
@@ -197,7 +197,9 @@ public class ImageInteractionGestures {
 						//rotate left
 						Log.i("ImageInteraction", "Rotate gesture::LEFT ");
 						if(guiHandler.rotate("left")){
-							postToast("Rotate Left!");
+//							postToast("Rotate Left!");
+							currentState = StatesHandler.sStateInit;
+							timeLastDetectedGest = System.currentTimeMillis();
 						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
@@ -206,16 +208,15 @@ public class ImageInteractionGestures {
 						//rotate right
 						Log.i("ImageInteraction", "Rotate gesture::RIGHT");
 						if(guiHandler.rotate("right")){
-							postToast("Rotate Right!");
+							currentState = StatesHandler.sStateInit;
+							timeLastDetectedGest = System.currentTimeMillis();
+//							postToast("Rotate Right!");
 						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Rotate Right!");		
 					}
 					//					rotateInitPos = new Point();
-
-					currentState = StatesHandler.sStateInit;
-					timeLastDetectedGest = System.currentTimeMillis();
 					return;
 				}
 			}
@@ -235,7 +236,9 @@ public class ImageInteractionGestures {
 						//Zoom-IN gesture
 						if(guiHandler.zoom("in")){
 							Log.i("ImageInteraction", "Zoom gesture::IN");
-							postToast("Zoom IN");
+							currentState = StatesHandler.sStateInit;
+							timeLastDetectedGest = System.currentTimeMillis();
+//							postToast("Zoom IN");
 						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
@@ -244,17 +247,16 @@ public class ImageInteractionGestures {
 					}else if(zoomEndDistance < zoomInitDistance){
 						//Zoom-OUT gesture
 						if(guiHandler.zoom("out")){
+							currentState = StatesHandler.sStateInit;
+							timeLastDetectedGest = System.currentTimeMillis();
 							Log.i("ImageInteraction", "Zoom gesture::OUT");
-							postToast("Zoom OUT");
+//							postToast("Zoom OUT");
 						}
 //						int x = (int)Math.round(screenWidth*0.05);
 //						int y = (int)Math.round(screenHeight*0.15);
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Zoom out!");		
 
 					}
-
-					currentState = StatesHandler.sStateInit;
-					timeLastDetectedGest = System.currentTimeMillis();
 					return;
 				}
 
@@ -267,12 +269,12 @@ public class ImageInteractionGestures {
 				//				Point defect_two = finalDefects.get(1);
 				//				Core.circle(mRgb, defect_one, 5, Tools.red, -1);
 				//				Core.circle(mRgb, defect_two, 5, Tools.red, -1);
-				postToast("PointSelect_End!");
+//				postToast("PointSelect_End!");
 				if(guiHandler.onClick(lastPointedLocation) == true){
+					currentState = StatesHandler.sStateInit;
+					timeLastDetectedGest = System.currentTimeMillis();
 					changeOfState = true;
 				}
-				currentState = StatesHandler.sStateInit;
-				timeLastDetectedGest = System.currentTimeMillis();
 				//				drawDefects(convexityDefects, handContour);
 				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
 				//				int x = (int)Math.round(screenWidth*0.05);

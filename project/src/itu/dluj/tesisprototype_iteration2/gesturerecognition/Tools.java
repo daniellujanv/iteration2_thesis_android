@@ -48,7 +48,7 @@ public class Tools {
 			Core.line(mRgb, start, handContourCentroid, blue, 1);
 			//		        points
 			//			Core.circle(mRgb, end, 5, red, -1);
-			Core.circle(mRgb, start, 5, red, -1);
+			Core.circle(mRgb, start, 2, red, -1);
 			//			Core.circle(mRgb, farthest, 5, magenta, -1);
 			//		        write distance between hull and farthest point
 			//		        tools.setText(image, end, str(distance))

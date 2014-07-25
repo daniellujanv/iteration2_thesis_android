@@ -102,7 +102,7 @@ public class RecordViewingGestures {
 		 */
 		if(Gestures.detectEndGesture(lDefects, centroid) == true ){
 			if(currentState != StatesHandler.sStateZero){
-				postToast("End!");
+//				postToast("End!");
 				currentState = StatesHandler.sStateInit;				
 				//			drawDefects(convexityDefects, handContour);
 //				Log.i("ImageInteraction", "Gesture detected - End");
@@ -116,7 +116,7 @@ public class RecordViewingGestures {
 		if(currentState == StatesHandler.sStateZero){
 			//Init not detected no interaction has not started
 			if(Gestures.detectInitGesture(lDefects, centroid) == true ){
-				postToast("Init!");
+//				postToast("Init!");
 				//good contour found
 				currentState = StatesHandler.sStateInit;
 				//				drawDefects(convexityDefects, handContour);
@@ -131,12 +131,12 @@ public class RecordViewingGestures {
 			//Interaction has started, nothing detected yet
 			Point detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, false);
 			if( detectedPoint != null){
-				postToast("PointSelect!");
+//				postToast("PointSelect!");
 				lastPointedLocation = detectedPoint;
 				Core.circle(mRgb, lastPointedLocation, 5, Tools.magenta, -1);
 
 				currentState = StatesHandler.sStatePointSelect;
-				timeLastDetectedGest = System.currentTimeMillis() - 1500;
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 //				int x = (int)Math.round(screenWidth*0.05);
 //				int y = (int)Math.round(screenHeight*0.15);
 //				//				drawDefects(convexityDefects, handContour);
@@ -146,10 +146,10 @@ public class RecordViewingGestures {
 			}else{ 
 				Point detectedPointSwipe = Gestures.detectSwipeGesture(lDefects, centroid, false); 
 				if(detectedPointSwipe != null){
-					postToast("Swipe!");
+//					postToast("Swipe!");
 					initSwipeLocation = detectedPointSwipe;
 					currentState = StatesHandler.sStateSwipe;
-					timeLastDetectedGest = System.currentTimeMillis() - 1500;
+					timeLastDetectedGest = System.currentTimeMillis() - 1000;
 //					int x = (int)Math.round(screenWidth*0.05);
 //					int y = (int)Math.round(screenHeight*0.15);
 //					//				drawDefects(convexityDefects, handContour);
@@ -175,18 +175,20 @@ public class RecordViewingGestures {
 
 					if(initSwipeLocation.x < detectedPoint.x){
 						if(guiHandler.swipe("right") == true){
-							postToast("Swipe - Rigth");
+//							postToast("Swipe - Rigth");
+							currentState = StatesHandler.sStateInit;
+							timeLastDetectedGest = System.currentTimeMillis();
 						}
 						
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Right!");
 					}else{
 						if(guiHandler.swipe("left") == true){
-							postToast("Swipe - Left");
+							currentState = StatesHandler.sStateInit;
+							timeLastDetectedGest = System.currentTimeMillis();
+//							postToast("Swipe - Left");
 						}
 //						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Left!");
 					}
-					currentState = StatesHandler.sStateInit;
-					timeLastDetectedGest = System.currentTimeMillis();
 					//				drawDefects(convexityDefects, handContour);
 					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
 					//				int x = (int)Math.round(screenWidth*0.05);
@@ -212,6 +214,9 @@ public class RecordViewingGestures {
 						nextState = true;
 					}
 				}
+				//in this case it does not matter if we assure that click was true
+				//because if the click is false the actions are handled by GUIHandler
+				//thus next two lines can be outside the if(true)
 				currentState = StatesHandler.sStateInit;
 				timeLastDetectedGest = System.currentTimeMillis();
 				
@@ -234,7 +239,7 @@ public class RecordViewingGestures {
 //				int x = (int)Math.round(screenWidth*0.05);
 //				int y = (int)Math.round(screenHeight*0.15);
 //				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
-				timeLastDetectedGest = System.currentTimeMillis() - 2000;
+				timeLastDetectedGest = System.currentTimeMillis() - 2000; // so it doesn't have to wait again 2 secs
 //				pointSelectStates.put("PointSelect_Init", true);				
 //				pointSelectStates.put("Init",true); 
 //				pointSelectStates.put("Swipe_Init", false);				

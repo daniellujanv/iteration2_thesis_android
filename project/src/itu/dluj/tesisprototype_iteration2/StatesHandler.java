@@ -31,8 +31,8 @@ public class StatesHandler {
 	private int screenWidth;
 	private int screenHeight;
 	private int screenArea;
-	private double pctMinAreaGesture = 0.08;
-	private double pctMaxAreaGesture = 0.28;
+	private double pctMinAreaGesture = 0.05;
+	private double pctMaxAreaGesture = 0.25;
 	
 	private MatOfPoint mHandContour;
 	private List<MatOfPoint> lHandContour;
@@ -51,6 +51,7 @@ public class StatesHandler {
 	private GUIHandler guiHandler;
 
 	private long timeLastDetectedGesture;
+	private long timeLastDetectedContour;
 	
 	public static final String sStateZero = "Zipou";
 	public static final String sStateInit = "Init";
@@ -95,6 +96,8 @@ public class StatesHandler {
 		screenWidth = width/2;
 		screenHeight = height/2;
 		screenArea = screenWidth*screenHeight;
+
+		timeLastDetectedContour = System.currentTimeMillis();
 
 		mRgb = new Mat();
 		mHsv = new Mat();
@@ -150,17 +153,18 @@ public class StatesHandler {
 		}
 		//if 5 seconds passed with no change go back to "zipou"
 		if(currentState != sStateZero){
-			if(((now - timeLastDetectedGesture) >= 15000)){
-				//no gestures detected for 15.0 seconds... go back to zipou
+			if(((now - timeLastDetectedContour) >= 15000)){
+				//no gestures detected for 15.0 seconds... go back to PatSel
 				//			int x = (int)Math.round(screenWidth*0.05);
 				//			int y = (int)Math.round(screenHeight*0.35);
 				//			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
-				postToast("Back to "+ sStateZero);
+				postToast("Back to "+ sStatePointSelect);
 				patSelRecognition.currentState = sStateZero;
 				recViwRecognition.currentState = sStateZero;
 				imgIntRecognition.currentState = sStateZero;
 				currentState = sStateZero;
-				timeLastDetectedGesture = System.currentTimeMillis();
+				setStateTrue(patientSelectionState);
+				timeLastDetectedContour = System.currentTimeMillis();
 				mRgb = drawGUI(mRgb);
 				return mRgb;
 			}else if( ((now - timeLastDetectedGesture)/1000 < Gestures.secondsToWait)){
@@ -220,10 +224,11 @@ public class StatesHandler {
 				//no good contours found
 				mRgb = guiHandler.writeWarningToImage(mRgb, currentState + " - Hand too close!");
 			}else{
+				timeLastDetectedContour = System.currentTimeMillis();
 				//good contour found
 				//approximate polygon to hand contour, makes the edges more stable
 				MatOfPoint2f temp_contour = new MatOfPoint2f(mHandContour.toArray());
-				double epsilon = Imgproc.arcLength(temp_contour, true)*0.0038;
+				double epsilon = Imgproc.arcLength(temp_contour, true)*0.0035;
 				MatOfPoint2f result_temp_contour = new MatOfPoint2f();
 				Imgproc.approxPolyDP(temp_contour, result_temp_contour, epsilon, true);
 				mHandContour = new MatOfPoint(result_temp_contour.toArray());
@@ -357,5 +362,12 @@ public class StatesHandler {
 		});
 	}
 
-
+	public Point getHandCentroid(){
+		if(handContourCentroid != null){
+//			Log.i("StatesHandler", "centroidScaled::"+handContourCentroid.toString());
+			return new Point(handContourCentroid.x*2, handContourCentroid.y*2);
+		}
+		return null;
+	}
+	
 }

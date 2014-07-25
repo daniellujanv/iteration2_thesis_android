@@ -9,6 +9,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
@@ -34,6 +35,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	final Handler mHandler = new Handler();
 	private String sDeviceModel = android.os.Build.MODEL;
 	private int cameraIndex;
+	private int screenWidth;
+	private int screenHeight;
 
 //	private Mat mProcessed;
 
@@ -138,6 +141,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //		mOpenCvCameraView.setFpsRange(30000, 30000);
 		Log.i("MainActivity", "size:: w:"+ width+" h:"+height);
 		statesHandler = new StatesHandler(width, height, MainActivity.this);
+		screenHeight = height;
+		screenWidth = width;
 //		Log.i("MainActivity", "FPSRange::"+ mOpenCvCameraView.getFpsRange());
 	}
 
@@ -169,6 +174,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		outputScaled = statesHandler.handleFrame(outputScaled);
 		Imgproc.pyrUp(outputScaled, output);
 //		Log.i("MainActivity", "dims output after pyrup::"+ output.cols());
+		Point handCentroid = statesHandler.getHandCentroid();
+		if(handCentroid != null){
+//			Log.i("StatesHandler", "centroidNormal::"+temp.toString());
+			mOpenCvCameraView.resetFMAreas(handCentroid, screenWidth, screenHeight);
+		}
         return output;
 	}
 

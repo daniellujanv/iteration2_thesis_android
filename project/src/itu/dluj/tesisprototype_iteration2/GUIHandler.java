@@ -33,6 +33,7 @@ public class GUIHandler {
 	private Point pBigImgCenter;
 	private Size sBigImageOriginalSize;
 	private int zoomLevel;
+	private Point pFullScreenImgCenter;
 	
 	private String[] patientInfoText;
 	private Point infoCoords;
@@ -63,6 +64,8 @@ public class GUIHandler {
 		backBtnClicked = false;
 		
 		zoomLevel = 0;
+//		pFullScreenImgCenter = new Point (width/2, height/2);
+		pFullScreenImgCenter = new Point (0, 0);
 		
 		appContext = context;
 		resources = appContext.getResources();
@@ -134,9 +137,9 @@ public class GUIHandler {
 		//fullScreenImg Coords
 		fullScreenImgCoords = new Point[5];
 		fullScreenImgCoords[0] = new Point(screenWidth*0.25, screenHeight*0.01);
-		fullScreenImgCoords[1] = new Point(screenWidth*0.99, screenHeight*0.99);
+		fullScreenImgCoords[1] = new Point(screenWidth*0.91, screenHeight*0.99);
 		fullScreenImgCoords[2] = new Point(screenWidth*0.24, screenHeight*0.0);
-		fullScreenImgCoords[3] = new Point(screenWidth*0.99, screenHeight*0.99);
+		fullScreenImgCoords[3] = new Point(screenWidth*0.91, screenHeight*0.99);
 		fullScreenImgCoords[4] = new Point(screenWidth*0.26, screenHeight*0.02);//top left point where images will be drawn
 		//PatientInfo Text
 		patientInfoText = new String[5];
@@ -320,8 +323,30 @@ public class GUIHandler {
 			int finalHeight = finalWidth;
 			int smallWidth = (int) (finalWidth/( Math.pow(2,zoomLevel))); //for pyrUp to work the sizes have to be mult of 2
 			int smallHeight = smallWidth;
-			int smallX = (int) ((finalWidth - smallWidth)/( Math.pow(2,zoomLevel)));
-			int smallY = (int) ((finalHeight - smallHeight)/( Math.pow(2,zoomLevel))); //for zoomed image
+			
+//			int smallX = (int) ((finalWidth - smallWidth)/( Math.pow(2,zoomLevel)));
+//			int smallY = (int) ((finalHeight - smallHeight)/( Math.pow(2,zoomLevel))); //for zoomed image
+			
+			int smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
+			int smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
+			while(smallX < 0){
+				pFullScreenImgCenter.x = pFullScreenImgCenter.x + 10;
+				smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
+			}
+			while(smallY < 0){
+				pFullScreenImgCenter.y = pFullScreenImgCenter.y + 10;
+				smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
+			}
+			while((smallX + smallWidth) > finalWidth){
+				pFullScreenImgCenter.x = pFullScreenImgCenter.x - 10;
+				smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
+			}
+			while((smallY + smallHeight) > finalHeight){
+				pFullScreenImgCenter.y = pFullScreenImgCenter.y - 10;
+				smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
+
+			}
+			
 			int bigWidth = smallWidth*2;
 			int bigHeight = smallHeight*2;
 			
@@ -388,11 +413,11 @@ public class GUIHandler {
 		 * 		- if imagesBtnClicked == true --> stay and show images
 		 * 		- if back&&imagesBtn == false --> nextState
 		 */
-			Rect rect_back = new Rect(backButtonCoords[2],backButtonCoords[3]);
-			Rect rect_images = new Rect(imagesButtonCoord[2], imagesButtonCoord[3]);
+			Rect rect_backBtn = new Rect(backButtonCoords[2],backButtonCoords[3]);
+			Rect rect_imagesBtn = new Rect(imagesButtonCoord[2], imagesButtonCoord[3]);
 			Rect rect_img = new Rect(patientImgsCoords[2], patientImgsCoords[3]);
 			
-			if(click.inside(rect_back)){
+			if(click.inside(rect_backBtn)){
 				//go back to state PatientSelect
 				iCurrentPatient = -1;
 				sCurrentPatient = "N/A";
@@ -400,7 +425,7 @@ public class GUIHandler {
 				backBtnClicked = true;
 				imagesBtnClicked = false;
 				return true;
-			}else if(click.inside(rect_images)){
+			}else if(click.inside(rect_imagesBtn)){
 				backBtnClicked = false;
 				imagesBtnClicked = !imagesBtnClicked;
 				return false;
@@ -415,7 +440,12 @@ public class GUIHandler {
 			 * - if bigImgShowin == true --> we are in ImageInteraction
 			 * 		- if backBtnClicked == true --> previousState
 			 */
+			/*
+			 * Coords [2] == upper left outer rectangle
+			 * Coords [3] == lower right outer rectangle
+			 */
 				Rect rect_back = new Rect(backButtonCoords[7],backButtonCoords[8]);
+				Rect rect_fullScreenImg = new Rect(fullScreenImgCoords[2], fullScreenImgCoords[3]);
 				
 				if(click.inside(rect_back)){
 					//go back to state PatientSelect
@@ -423,6 +453,8 @@ public class GUIHandler {
 //					imagesBtnClicked = false;
 					bigImgShowing = false;
 					return true;
+				}else if(click.inside(rect_fullScreenImg) && zoomLevel != 0){
+					pFullScreenImgCenter = click;
 				}
 		}
 		return false;
@@ -469,15 +501,16 @@ public class GUIHandler {
 	/*
 	 * zoom
 	 * returns true if zoom is accepted
+	 * zoomLevels -> 0 (no zoom), 1, 2
 	 */
 	public boolean zoom(String zoom){
 		if(bigImgShowing == true){
 			if(zoom == "in"){
-				zoomLevel = (zoomLevel != 2)? zoomLevel + 1 : 0;
+				zoomLevel = (zoomLevel < 3)? zoomLevel + 1 : 0;
 				return true;
 			}else if(zoom == "out"){
 				
-				zoomLevel = (zoomLevel != 0)? zoomLevel - 1 : 0;
+				zoomLevel = (zoomLevel > 0)? zoomLevel - 1 : 0;
 				return true;
 			}
 		}
