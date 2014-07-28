@@ -30,16 +30,18 @@ public class GUIHandler {
 	private Point[] patientImgsCoords;
 	private Point[] fullScreenImgCoords;
 	
-	private Point pBigImgCenter;
-	private Size sBigImageOriginalSize;
+//	private Point pBigImgCenter;
+//	private Size sBigImageOriginalSize;
 	private int zoomLevel;
+	private int maxZoom = 2;
 	private Point pFullScreenImgCenter;
 	
 	private String[] patientInfoText;
 	private Point infoCoords;
 	private Point warningCoords;
 	
-	private Rect patientImgsRoi;
+	private Rect[] patientImgsRoi;
+	private Rect[] profilePicRoi;
 	private Rect fullScreenImgRoi;
 	
 	public boolean imagesBtnClicked;
@@ -52,6 +54,7 @@ public class GUIHandler {
 	
 	private Mat[] mPatientImages;
 	private Mat[] mFullScreenImages;
+	private Mat[] mProfilePics;
 	
 	private Resources resources;
 	
@@ -64,8 +67,8 @@ public class GUIHandler {
 		backBtnClicked = false;
 		
 		zoomLevel = 0;
-//		pFullScreenImgCenter = new Point (width/2, height/2);
-		pFullScreenImgCenter = new Point (0, 0);
+		pFullScreenImgCenter = new Point (width/2, height/2);
+//		pFullScreenImgCenter = new Point (0, 0);
 		
 		appContext = context;
 		resources = appContext.getResources();
@@ -78,6 +81,9 @@ public class GUIHandler {
 		
 		warningCoords = new Point(screenWidth*0.05, screenHeight*0.95);
 		infoCoords = new Point(screenWidth*0.55, screenHeight*0.95);
+		
+		profilePicRoi = new Rect[2];// 0 == patient0, 1 == patient1
+		mProfilePics = new Mat[2];
 		
 		//Coords [0] == upper left inner rectangle
 		//Coords [1] == lower right inner rectangle
@@ -106,19 +112,40 @@ public class GUIHandler {
 		imagesButtonCoord[3] = new Point(screenWidth*0.95, screenHeight*0.20);
 		imagesButtonCoord[4] = new Point(screenWidth*0.69, screenHeight*0.15);
 		//PatientOne coords
-		patientOneCoords = new Point[5];
+		patientOneCoords = new Point[6];
 		patientOneCoords[0] = new Point(screenWidth*0.05, screenHeight*0.05);
 		patientOneCoords[1] = new Point(screenWidth*0.48, screenHeight*0.85);
 		patientOneCoords[2] = new Point(screenWidth*0.04, screenHeight*0.04);
 		patientOneCoords[3] = new Point(screenWidth*0.48, screenHeight*0.85);
 		patientOneCoords[4] = new Point(screenWidth*0.09, screenHeight*0.15);
+		patientOneCoords[5] = new Point(screenWidth*0.05, screenHeight*0.16); //profile pic
+		int widthProfPic = (int) Math.abs(patientOneCoords[1].x - patientOneCoords[5].x);
+		int heightProfPic = (int) Math.abs(patientOneCoords[1].y - patientOneCoords[5].y);
+		profilePicRoi[0] = new Rect(patientOneCoords[5],new Size(widthProfPic, heightProfPic));
+		Bitmap profilePic = BitmapFactory.decodeResource(resources, R.drawable.profilepic);
+		Bitmap bitmap = Bitmap.createScaledBitmap( profilePic, widthProfPic, heightProfPic, true);
+		mProfilePics[0] = new Mat();
+		Utils.bitmapToMat(bitmap, mProfilePics[0], true);
+		Imgproc.cvtColor(mProfilePics[0], mProfilePics[0], Imgproc.COLOR_RGBA2RGB);
+		
 		//PatientTwo Coords
-		patientTwoCoords = new Point[5];
+		patientTwoCoords = new Point[6];
 		patientTwoCoords[0] = new Point(screenWidth*0.52, screenHeight*0.05);
 		patientTwoCoords[1] = new Point(screenWidth*0.95, screenHeight*0.85);
 		patientTwoCoords[2] = new Point(screenWidth*0.51, screenHeight*0.04);
 		patientTwoCoords[3] = new Point(screenWidth*0.95, screenHeight*0.85);
 		patientTwoCoords[4] = new Point(screenWidth*0.56, screenHeight*0.15);
+		patientTwoCoords[5] = new Point(screenWidth*0.52, screenHeight*0.16);//profile pic
+		widthProfPic = (int) Math.abs(patientTwoCoords[1].x - patientTwoCoords[5].x);
+		heightProfPic = (int) Math.abs(patientTwoCoords[1].y - patientTwoCoords[5].y);
+		profilePicRoi[1] = new Rect(patientTwoCoords[5],new Size(widthProfPic, heightProfPic));
+		//uncomment next two lines in case of different profile pic
+//		profilePic = BitmapFactory.decodeResource(resources, R.drawable.profilepic);
+//		bitmap = Bitmap.createScaledBitmap( profilePic, widthProfPic, heightProfPic, true);
+		mProfilePics[1] = new Mat();
+		Utils.bitmapToMat(bitmap, mProfilePics[1], true);
+		Imgproc.cvtColor(mProfilePics[1], mProfilePics[1], Imgproc.COLOR_RGBA2RGB);
+		
 		//PatientInfo Coords
 		patientInfoCoords = new Point[5];
 		patientInfoCoords[0] = new Point(screenWidth*0.05, screenHeight*0.25);
@@ -133,7 +160,7 @@ public class GUIHandler {
 		patientImgsCoords[2] = new Point(screenWidth*0.04, screenHeight*0.24);
 		patientImgsCoords[3] = new Point(screenWidth*0.95, screenHeight*0.85);
 		patientImgsCoords[4] = new Point(screenWidth*0.09, screenHeight*0.35);
-		patientImgsCoords[5] = new Point(screenWidth*0.09, screenHeight*0.40);//top left point where images will be drawn
+		patientImgsCoords[5] = new Point(screenWidth*0.20, screenHeight*0.40);//top left point where images will be drawn
 		//fullScreenImg Coords
 		fullScreenImgCoords = new Point[5];
 		fullScreenImgCoords[0] = new Point(screenWidth*0.25, screenHeight*0.01);
@@ -156,13 +183,15 @@ public class GUIHandler {
 		Bitmap bitmap_2 = BitmapFactory.decodeResource(resources, R.drawable.xr_2);
 
 	    mPatientImages = new Mat[3];
+	    patientImgsRoi = new Rect[2];
 
-		int bWidth = (int)(patientImgsCoords[1].x - patientImgsCoords[5].x);
+		int bWidth = (int)((patientImgsCoords[1].x - patientImgsCoords[5].x)/3);
 		int bHeight = (int)(patientImgsCoords[1].y - patientImgsCoords[5].y);
-		patientImgsRoi = new Rect((int)patientImgsCoords[5].x, (int)patientImgsCoords[5].y, bWidth, bHeight);
+		patientImgsRoi[0] = new Rect((int)patientImgsCoords[5].x, (int)patientImgsCoords[5].y, bWidth, bHeight);
+		patientImgsRoi[1] = new Rect((int)(patientImgsCoords[5].x + bWidth*1.2), (int)patientImgsCoords[5].y, bWidth, bHeight);
 
 		//image 0
-		Bitmap bitmap = Bitmap.createScaledBitmap( bitmap_0, bWidth, bHeight, true);
+		bitmap = Bitmap.createScaledBitmap( bitmap_0, bWidth, bHeight, true);
 		mPatientImages[0] = new Mat();
 		Utils.bitmapToMat(bitmap, mPatientImages[0], true);
 		Imgproc.cvtColor(mPatientImages[0], mPatientImages[0], Imgproc.COLOR_RGBA2RGB);
@@ -249,14 +278,23 @@ public class GUIHandler {
 	
 	public Mat drawPatientsToSelect(Mat mRgb){
 		Mat rec = mRgb.clone();
-		//Doc One
+		//Patient One
 		Core.rectangle(rec, patientOneCoords[2], patientOneCoords[3], Tools.green, -1);
 		Core.rectangle(rec, patientOneCoords[0], patientOneCoords[1], Tools.blue, -1);
 		rec = writeToImage(rec, patientOneCoords[4], "Patient: Tom", 0.7);
-		//Doc Two
+		Log.i("GUIHandler", " profPicRoi::"+profilePicRoi[0].size().toString()
+				+ " profPicSize::"+ mProfilePics[0].size().toString()
+				);
+		Core.addWeighted(rec.submat(profilePicRoi[0]), 0.0, mProfilePics[0], 1.0, 0, rec.submat(profilePicRoi[0]));
+
+		//Patient Two
+		Log.i("GUIHandler", " profPicRoi2::"+profilePicRoi[1].size().toString()
+				+ " profPicSize2::"+ mProfilePics[1].size().toString()
+				);
 		Core.rectangle(rec, patientTwoCoords[2], patientTwoCoords[3], Tools.green, -1);
 		Core.rectangle(rec, patientTwoCoords[0], patientTwoCoords[1], Tools.blue, -1);
 		rec = writeToImage(rec, patientTwoCoords[4], "Patient: Paul", 0.7);
+		Core.addWeighted(rec.submat(profilePicRoi[1]), 0.0, mProfilePics[1], 1.0, 0, rec.submat(profilePicRoi[1]));
 
 		Mat output = new Mat();
 		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
@@ -293,14 +331,17 @@ public class GUIHandler {
 		//Doc One
 		Core.rectangle(rec, patientImgsCoords[2], patientImgsCoords[3], Tools.green, -1);
 		Core.rectangle(rec, patientImgsCoords[0], patientImgsCoords[1], Tools.blue, -1);
-		rec = writeToImage(rec, patientImgsCoords[4], sCurrentPatient+":: Image "+ (iCurrentImg + 1) + " out of "+ numberImgs);
+		int iNextImg = (( iCurrentImg == numberImgs - 1)? 0 : iCurrentImg + 1);
+		String toWrite = sCurrentPatient+"::Images "+ (iCurrentImg + 1) + " & "+ (iNextImg + 1)+ " " +" out of "+ numberImgs;
+		rec = writeToImage(rec, patientImgsCoords[4], toWrite, 0.5);
 
 		
 		//patInfoCoords[5] upper left point for image
 		//patInfoCoords[1] lower righ point for image (same as both squares)
 
 //		Log.i("GUIHandler","rec::"+rec.submat(patientImgsRoi).size().toString()+" mBitmap::"+mBitmap.size().toString());
-		Core.addWeighted(rec.submat(patientImgsRoi), 0.0, mPatientImages[iCurrentImg], 1.0, 0, rec.submat(patientImgsRoi));
+		Core.addWeighted(rec.submat(patientImgsRoi[0]), 0.0, mPatientImages[iCurrentImg], 1.0, 0, rec.submat(patientImgsRoi[0]));
+		Core.addWeighted(rec.submat(patientImgsRoi[1]), 0.0, mPatientImages[iNextImg], 1.0, 0, rec.submat(patientImgsRoi[1]));
 		Mat output = new Mat();
 		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
 		return output;
@@ -329,32 +370,35 @@ public class GUIHandler {
 			
 			int smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
 			int smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
-			while(smallX < 0){
-				pFullScreenImgCenter.x = pFullScreenImgCenter.x + 10;
-				smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
-			}
-			while(smallY < 0){
-				pFullScreenImgCenter.y = pFullScreenImgCenter.y + 10;
-				smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
-			}
-			while((smallX + smallWidth) > finalWidth){
-				pFullScreenImgCenter.x = pFullScreenImgCenter.x - 10;
-				smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
-			}
-			while((smallY + smallHeight) > finalHeight){
-				pFullScreenImgCenter.y = pFullScreenImgCenter.y - 10;
-				smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
-
-			}
 			
 			int bigWidth = smallWidth*2;
 			int bigHeight = smallHeight*2;
 			
 			for(int i=zoomLevel; i>=1; i--){
+				while(smallX < 0){
+					pFullScreenImgCenter.x = pFullScreenImgCenter.x + 10;
+					smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
+				}
+				while(smallY < 0){
+					pFullScreenImgCenter.y = pFullScreenImgCenter.y + 10;
+					smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
+				}
+				while((smallX + smallWidth) >= finalWidth){
+					pFullScreenImgCenter.x = pFullScreenImgCenter.x - 10;
+					smallX = (int) ((pFullScreenImgCenter.x - smallWidth/2)/( Math.pow(2,zoomLevel)));
+				}
+				while((smallY + smallHeight) >= finalHeight){
+					pFullScreenImgCenter.y = pFullScreenImgCenter.y - 10;
+					smallY = (int) ((pFullScreenImgCenter.y - smallHeight/2)/( Math.pow(2,zoomLevel)));
+
+				}
 				Rect zoomRoi = new Rect(smallX, smallY, smallWidth, smallHeight);
 				Size bigSize = new Size(bigWidth, bigHeight);				
-				Log.i("GUIHandler","zoomRoi::"+ zoomRoi.toString()
-						+ " newSize::"+ bigSize.toString());
+				Log.i("GUIHandler", " zoomLev::"+i
+						+ " zoomRoi::"+ zoomRoi.toString()
+						+ " newSize::"+ bigSize.toString()
+						+ " fsImg::"+ mFullScreenImages[iCurrentImg].size().toString() 
+						);
 				toDraw = new Mat();
 				Imgproc.pyrUp(mFullScreenImages[iCurrentImg].submat(zoomRoi), toDraw, bigSize);
 				smallX = smallX*2;
@@ -394,7 +438,7 @@ public class GUIHandler {
 		 * Coords [2] == upper left outer rectangle
 		 * Coords [3] == lower right outer rectangle
 		 */
-		if(iCurrentPatient == -1){
+		if(iCurrentPatient == -1){//PatSelection
 			Rect rect_one = new Rect(patientOneCoords[2], patientOneCoords[3]);
 			Rect rect_two = new Rect(patientTwoCoords[2], patientTwoCoords[3]);
 			if(click.inside(rect_one)){
@@ -406,7 +450,7 @@ public class GUIHandler {
 				sCurrentPatient = "Paul";
 				return true;
 			}
-		}else if(!bigImgShowing){
+		}else if(!bigImgShowing){//RecordViewing
 		/*
 		 * - if iCurrentPatient != -1 --> we are in RecordViewing
 		 * 		- if backBtnClicked == true --> previousState
@@ -415,7 +459,7 @@ public class GUIHandler {
 		 */
 			Rect rect_backBtn = new Rect(backButtonCoords[2],backButtonCoords[3]);
 			Rect rect_imagesBtn = new Rect(imagesButtonCoord[2], imagesButtonCoord[3]);
-			Rect rect_img = new Rect(patientImgsCoords[2], patientImgsCoords[3]);
+//			Rect rect_img = new Rect(patientImgsCoords[2], patientImgsCoords[3]);
 			
 			if(click.inside(rect_backBtn)){
 				//go back to state PatientSelect
@@ -429,13 +473,19 @@ public class GUIHandler {
 				backBtnClicked = false;
 				imagesBtnClicked = !imagesBtnClicked;
 				return false;
-			}else if( imagesBtnClicked == true && click.inside(rect_img)){
+			}else if( imagesBtnClicked == true && click.inside(patientImgsRoi[0])){
 				backBtnClicked = false;
 //				imagesBtnClicked = false;
 				bigImgShowing = true;
 				return true;
+			}else if( imagesBtnClicked == true && click.inside(patientImgsRoi[1])){
+				backBtnClicked = false;
+				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0:iCurrentImg+1;
+//				imagesBtnClicked = false;
+				bigImgShowing = true;
+				return true;
 			}
-		}else{
+		}else{//ImgInteraction
 			/*
 			 * - if bigImgShowin == true --> we are in ImageInteraction
 			 * 		- if backBtnClicked == true --> previousState
@@ -453,8 +503,11 @@ public class GUIHandler {
 //					imagesBtnClicked = false;
 					bigImgShowing = false;
 					return true;
-				}else if(click.inside(rect_fullScreenImg) && zoomLevel != 0){
-					pFullScreenImgCenter = click;
+				}else if(click.inside(rect_fullScreenImg)){
+					if(zoomLevel != 0){
+						pFullScreenImgCenter = click;
+					}
+					return true;
 				}
 		}
 		return false;
@@ -466,10 +519,10 @@ public class GUIHandler {
 	 */
 	public boolean swipe(String side){
 		if(imagesBtnClicked == true){
-			if(side == "left"){
+			if(side == "right"){
 				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
 				return true;
-			}else if(side == "right"){
+			}else if(side == "left"){
 				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
 				return true;
 			}
@@ -506,7 +559,7 @@ public class GUIHandler {
 	public boolean zoom(String zoom){
 		if(bigImgShowing == true){
 			if(zoom == "in"){
-				zoomLevel = (zoomLevel < 3)? zoomLevel + 1 : 0;
+				zoomLevel = (zoomLevel < maxZoom)? zoomLevel + 1 : 0;
 				return true;
 			}else if(zoom == "out"){
 				

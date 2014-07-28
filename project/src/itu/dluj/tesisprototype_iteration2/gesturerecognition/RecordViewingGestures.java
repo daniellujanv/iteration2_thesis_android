@@ -4,7 +4,6 @@ import itu.dluj.tesisprototype_iteration2.GUIHandler;
 import itu.dluj.tesisprototype_iteration2.StatesHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.opencv.core.Core;
@@ -12,9 +11,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 public class RecordViewingGestures {
 
@@ -33,9 +30,9 @@ public class RecordViewingGestures {
 	public boolean nextState;
 	public boolean previousState;
 
-	private Context appContext;
-	private Activity mainActivity;
-	private Toast tToastMsg;
+//	private Context appContext;
+//	private Activity mainActivity;
+//	private Toast tToastMsg;
 	
 	private GUIHandler guiHandler;
 
@@ -46,8 +43,8 @@ public class RecordViewingGestures {
 		nextState = false;
 		//		currentState = sStateInit;
 
-		mainActivity = activity;
-		appContext = activity.getApplicationContext();
+//		mainActivity = activity;
+//		appContext = activity.getApplicationContext();
 		
 		guiHandler = handler;
 
@@ -167,7 +164,7 @@ public class RecordViewingGestures {
 			
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
-				if(traveledDistance > screenWidth*0.10){//more than 10% of the screen
+				if(traveledDistance > screenWidth*0.25){//more than 25% of the screen
 //					int x = (int)Math.round(screenWidth*0.05);
 //					int y = (int)Math.round(screenHeight*0.15);
 					//				drawDefects(convexityDefects, handContour);
@@ -254,20 +251,20 @@ public class RecordViewingGestures {
 	/*
 	 * Utility method - writes to color image
 	 */
-	private void postToast(final String string) {
-		mainActivity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				//					testToast.cancel();
-				if(tToastMsg != null){
-					tToastMsg.cancel();
-				}
-				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
-				tToastMsg.show();
-				//		            Toast.makeText(appContext, string, length).show();
-			}
-		});
-	}
+//	private void postToast(final String string) {
+//		mainActivity.runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				//					testToast.cancel();
+//				if(tToastMsg != null){
+//					tToastMsg.cancel();
+//				}
+//				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
+//				tToastMsg.show();
+//				//		            Toast.makeText(appContext, string, length).show();
+//			}
+//		});
+//	}
 
 
 

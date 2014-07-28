@@ -5,7 +5,6 @@ import itu.dluj.tesisprototype_iteration2.GUIHandler;
 import itu.dluj.tesisprototype_iteration2.StatesHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.opencv.core.Core;
@@ -13,9 +12,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 public class ImageInteractionGestures {
 
@@ -23,8 +20,8 @@ public class ImageInteractionGestures {
 	public boolean changeOfState;
 
 	private Mat mRgb;
-	private Context appContext;
-	private Activity mainActivity;
+//	private Context appContext;
+//	private Activity mainActivity;
 	
 	private GUIHandler guiHandler;
 
@@ -41,14 +38,14 @@ public class ImageInteractionGestures {
 //	private int screenArea;
 //	private int screenHeight;
 	private int screenWidth;
-	private Toast tToastMsg;
+//	private Toast tToastMsg;
 
 	public ImageInteractionGestures(int width, int height, Activity activity, GUIHandler handler){
 		currentState = StatesHandler.sStateZero;
 		changeOfState = false;
 		
-		mainActivity = activity;
-		appContext = mainActivity.getApplicationContext();
+//		mainActivity = activity;
+//		appContext = mainActivity.getApplicationContext();
 		
 		guiHandler = handler;
 		//		currentState = "Rotate";
@@ -309,18 +306,18 @@ public class ImageInteractionGestures {
 	/*
 	 * Utility method - writes to color image
 	 */
-	private void postToast(final String string) {
-		mainActivity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				//					testToast.cancel();
-				if(tToastMsg != null){
-					tToastMsg.cancel();
-				}
-				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
-				tToastMsg.show();
-				//		            Toast.makeText(appContext, string, length).show();
-			}
-		});
-	}
+//	private void postToast(final String string) {
+//		mainActivity.runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				//					testToast.cancel();
+//				if(tToastMsg != null){
+//					tToastMsg.cancel();
+//				}
+//				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
+//				tToastMsg.show();
+//				//		            Toast.makeText(appContext, string, length).show();
+//			}
+//		});
+//	}
 }

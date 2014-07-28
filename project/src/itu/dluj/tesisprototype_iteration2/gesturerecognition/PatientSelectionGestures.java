@@ -4,7 +4,6 @@ import itu.dluj.tesisprototype_iteration2.GUIHandler;
 import itu.dluj.tesisprototype_iteration2.StatesHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.opencv.core.Core;
@@ -14,9 +13,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 public class PatientSelectionGestures {
 
@@ -37,9 +34,9 @@ public class PatientSelectionGestures {
 	public String currentState;
 	public boolean changeOfState;
 
-	private Context appContext;
-	private Activity mainActivity;
-	private Toast tToastMsg;
+//	private Context appContext;
+//	private Activity mainActivity;
+//	private Toast tToastMsg;
 
 	private GUIHandler guiHandler;
 
@@ -47,9 +44,9 @@ public class PatientSelectionGestures {
 		currentState = StatesHandler.sStateZero;
 		changeOfState = false;
 		//		currentState = sStateInit;
-
-		mainActivity = activity;
-		appContext = activity.getApplicationContext();
+//
+//		mainActivity = activity;
+//		appContext = activity.getApplicationContext();
 
 		guiHandler = handler;
 
@@ -194,19 +191,19 @@ public class PatientSelectionGestures {
 	/*
 	 * Utility method - writes to color image
 	 */
-	private void postToast(final String string) {
-		mainActivity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				//					testToast.cancel();
-				if(tToastMsg != null){
-					tToastMsg.cancel();
-				}
-				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
-				tToastMsg.show();
-				//		            Toast.makeText(appContext, string, length).show();
-			}
-		});
-	}
+//	private void postToast(final String string) {
+//		mainActivity.runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				//					testToast.cancel();
+//				if(tToastMsg != null){
+//					tToastMsg.cancel();
+//				}
+//				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
+//				tToastMsg.show();
+//				//		            Toast.makeText(appContext, string, length).show();
+//			}
+//		});
+//	}
 
 }

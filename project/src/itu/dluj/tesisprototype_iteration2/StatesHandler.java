@@ -32,7 +32,7 @@ public class StatesHandler {
 	private int screenHeight;
 	private int screenArea;
 	private double pctMinAreaGesture = 0.05;
-	private double pctMaxAreaGesture = 0.25;
+	private double pctMaxAreaGesture = 0.23;
 	
 	private MatOfPoint mHandContour;
 	private List<MatOfPoint> lHandContour;
