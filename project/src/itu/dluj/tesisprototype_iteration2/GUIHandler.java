@@ -507,7 +507,7 @@ public class GUIHandler {
 					if(zoomLevel != 0){
 						pFullScreenImgCenter = click;
 					}
-					return true;
+					return false;
 				}
 		}
 		return false;
