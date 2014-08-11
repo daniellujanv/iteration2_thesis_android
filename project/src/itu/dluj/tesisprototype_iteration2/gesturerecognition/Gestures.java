@@ -13,6 +13,7 @@ public class Gestures {
 
 	public static int secondsToWait = 2;
 	private static String TAG = "Gestures::";
+	private final static double iScaleFactor = 2.0;
 
 	/************************************* Available Gestures *****************************************************/
 	/*
@@ -492,5 +493,21 @@ public class Gestures {
 			}
 		}
 		return finalDefects;
+	}
+
+	public static MatOfPoint shiftContour(MatOfPoint mHand) {
+		Point[] points = mHand.toArray();
+		Point temp = points[0].clone();
+		
+		double toShift = temp.y;
+		temp.y = temp.y * iScaleFactor;
+		toShift = temp.y - toShift;		
+		
+		for(int i=0; i< points.length; i++){
+			points[i].y += toShift; 
+		}
+		MatOfPoint mResult = new MatOfPoint();
+		mResult.fromArray(points);
+		return mResult;
 	}
 }

@@ -153,8 +153,8 @@ public class StatesHandler {
 		}
 		//if 5 seconds passed with no change go back to "zipou"
 		if(currentState != sStateZero){
-			if(((now - timeLastDetectedContour) >= 15000)){
-				//no gestures detected for 15.0 seconds... go back to PatSel
+			if(((now - timeLastDetectedContour) >= 20000)){
+				//no gestures detected for 15.0 seconds... go back to zipou
 				//			int x = (int)Math.round(screenWidth*0.05);
 				//			int y = (int)Math.round(screenHeight*0.35);
 				//			mRgb = Tools.writeToImage(mRgb, x, y, "back to "+sStateZero);
@@ -169,9 +169,9 @@ public class StatesHandler {
 				return mRgb;
 			}else if( ((now - timeLastDetectedGesture)/1000 < Gestures.secondsToWait)){
 				//if 2 seconds have not passed since gesture detection, return				
+				mRgb = drawGUI(mRgb);
 				mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + (2 - (now - timeLastDetectedGesture)/1000)+"s" );	
 				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
-				mRgb = drawGUI(mRgb);
 				return mRgb;
 			}
 		}
@@ -235,7 +235,7 @@ public class StatesHandler {
 
 				temp_contour.release();
 				result_temp_contour.release();
-				
+				mHandContour = Gestures.shiftContour(mHandContour);
 				lHandContour.add(mHandContour);
 				handContourCentroid = Tools.getCentroid(mHandContour);
 				//draw circle in centroid of contour
@@ -308,6 +308,7 @@ public class StatesHandler {
 
 	private Mat drawGUI(Mat mRgb) {
 		//draw things after converting image to hsv so they don't interfere with gestures
+		mRgb = Mat.zeros(mRgb.size(), mRgb.type());
 		if(overallState.get(patientSelectionState) == true){
 			mRgb = guiHandler.drawPatientsToSelect(mRgb);
 			

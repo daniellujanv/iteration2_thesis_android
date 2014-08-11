@@ -256,7 +256,7 @@ public class GUIHandler {
 			rec = writeToImage(rec, backButtonCoords[9], "Back", 0.7);
 		}
 		Mat output = new Mat();
-		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
+		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
 
 		return output;
 	}
@@ -271,7 +271,7 @@ public class GUIHandler {
 			rec = writeToImage(rec, imagesButtonCoord[4], "Info");
 		}
 		Mat output = new Mat();
-		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
+		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
 
 		return output;
 	}
@@ -297,7 +297,7 @@ public class GUIHandler {
 		Core.addWeighted(rec.submat(profilePicRoi[1]), 0.0, mProfilePics[1], 1.0, 0, rec.submat(profilePicRoi[1]));
 
 		Mat output = new Mat();
-		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
+		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
 		
 		return output;
 	}
@@ -321,7 +321,7 @@ public class GUIHandler {
 			rec = drawPatientImages(mRgb);
 		}
 		Mat output = new Mat();
-		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
+		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
 		
 		return output;
 	}
@@ -343,7 +343,7 @@ public class GUIHandler {
 		Core.addWeighted(rec.submat(patientImgsRoi[0]), 0.0, mPatientImages[iCurrentImg], 1.0, 0, rec.submat(patientImgsRoi[0]));
 		Core.addWeighted(rec.submat(patientImgsRoi[1]), 0.0, mPatientImages[iNextImg], 1.0, 0, rec.submat(patientImgsRoi[1]));
 		Mat output = new Mat();
-		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
+		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
 		return output;
 	}
 	
@@ -422,7 +422,7 @@ public class GUIHandler {
 			
 		}
 		Mat output = new Mat();
-		Core.addWeighted(mRgb, 0.5, rec, 0.5, 0, output);
+		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
 		return output;
 	}
 	
