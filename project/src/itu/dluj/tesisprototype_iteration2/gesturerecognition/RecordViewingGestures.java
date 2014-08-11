@@ -24,6 +24,7 @@ public class RecordViewingGestures {
 	private int screenWidth;
 	public long timeLastDetectedGest;
 	private Point lastPointedLocation;
+	private List<Point> lPointedLocations;
 	private Point initSwipeLocation;
 
 	public String currentState;
@@ -41,37 +42,25 @@ public class RecordViewingGestures {
 		currentState = StatesHandler.sStateZero;
 		previousState = false;
 		nextState = false;
-		//		currentState = sStateInit;
-
-//		mainActivity = activity;
-//		appContext = activity.getApplicationContext();
-		
 		guiHandler = handler;
 
-//		screenHeight = height;
 		screenWidth = width;
-//		screenArea = width*height;
-		//	    Log.i("device-info", "Width:"+width+" Height:"+height);
-		//        mRgb = new Mat(screenHeight, screenWidth, CvType.CV_8UC4);
-		//        mHsv = new Mat(screenHeight, screenWidth, CvType.CV_8UC4);
-		//        mProcessed = new Mat(screenHeight, screenWidth, CvType.CV_8UC4);
 		mRgb = new Mat();
 
 //		pCentroid = new Point();
 		lConvexityDefects = new ArrayList<Point[]>();
 		lastPointedLocation = new Point();
+		lPointedLocations = new ArrayList<Point>();
 	}
 
 	public Mat processImage(Mat inputImage, Point centroid, List<Point[]> lDefects){
 		mRgb = inputImage;
-//		pCentroid = centroid;
 		lConvexityDefects = lDefects;
 		
 		previousState = false;
 		nextState = false;
 		
 		detectGesture(centroid, lConvexityDefects);	
-//		Log.i("check", "imgIntGest - procressImage end");
 
 		return mRgb;
 	}
@@ -88,10 +77,6 @@ public class RecordViewingGestures {
 		 * init = true, rotationInit = true, rotationEnd = false, end = false, everything else = false
 		 * 
 		 * 
-		 * interactionState("Swipe_Init");
-		 * interactionState("Swipe_End");
-		 * interactionState("PointSelect_Init");
-		 * interactionState("PointSelect_End");
 		 */
 		
 		/*
@@ -101,11 +86,6 @@ public class RecordViewingGestures {
 			if(currentState != StatesHandler.sStateZero){
 //				postToast("End!");
 				currentState = StatesHandler.sStateInit;				
-				//			drawDefects(convexityDefects, handContour);
-//				Log.i("ImageInteraction", "Gesture detected - End");
-				//			int x = (int)Math.round(screenWidth*0.05);
-				//			int y = (int)Math.round(screenHeight*0.15);
-				//			mRgb = Tools.writeToImage(mRgb, x, y, "End!");
 				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
 			}
 		}
@@ -118,9 +98,6 @@ public class RecordViewingGestures {
 				currentState = StatesHandler.sStateInit;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-//				int x = (int)Math.round(screenWidth*0.05);
-//				int y = (int)Math.round(screenHeight*0.15);
-//				mRgb = Tools.writeToImage(mRgb, x, y, "Init!");
 				timeLastDetectedGest = System.currentTimeMillis();
 				return;
 			}
@@ -128,17 +105,9 @@ public class RecordViewingGestures {
 			//Interaction has started, nothing detected yet
 			Point detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, false);
 			if( detectedPoint != null){
-//				postToast("PointSelect!");
-				lastPointedLocation = detectedPoint;
-				Core.circle(mRgb, lastPointedLocation, 5, Tools.magenta, -1);
-
+				addPointedLocation(detectedPoint);
 				currentState = StatesHandler.sStatePointSelect;
 				timeLastDetectedGest = System.currentTimeMillis() - 1000;
-//				int x = (int)Math.round(screenWidth*0.05);
-//				int y = (int)Math.round(screenHeight*0.15);
-//				//				drawDefects(convexityDefects, handContour);
-//				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
 				return;
 			}else{ 
 				Point detectedPointSwipe = Gestures.detectSwipeGesture(lDefects, centroid, false); 
@@ -147,11 +116,6 @@ public class RecordViewingGestures {
 					initSwipeLocation = detectedPointSwipe;
 					currentState = StatesHandler.sStateSwipe;
 					timeLastDetectedGest = System.currentTimeMillis() - 1000;
-//					int x = (int)Math.round(screenWidth*0.05);
-//					int y = (int)Math.round(screenHeight*0.15);
-//					//				drawDefects(convexityDefects, handContour);
-//					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
-//					mRgb = Tools.writeToImage(mRgb, x, y, "Swipe!");
 					return;
 				}
 			}
@@ -165,11 +129,6 @@ public class RecordViewingGestures {
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
 				if(traveledDistance > screenWidth*0.25){//more than 25% of the screen
-//					int x = (int)Math.round(screenWidth*0.05);
-//					int y = (int)Math.round(screenHeight*0.15);
-					//				drawDefects(convexityDefects, handContour);
-					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
-
 					if(initSwipeLocation.x < detectedPoint.x){
 						if(guiHandler.swipe("right") == true){
 //							postToast("Swipe - Rigth");
@@ -177,20 +136,12 @@ public class RecordViewingGestures {
 							timeLastDetectedGest = System.currentTimeMillis();
 						}
 						
-//						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Right!");
 					}else{
 						if(guiHandler.swipe("left") == true){
 							currentState = StatesHandler.sStateInit;
 							timeLastDetectedGest = System.currentTimeMillis();
-//							postToast("Swipe - Left");
 						}
-//						mRgb = Tools.writeToImage(mRgb, x, y, "Swipe Left!");
 					}
-					//				drawDefects(convexityDefects, handContour);
-					//				Log.i("ImageInteraction", "Gesture detected - Rotate_End");
-					//				int x = (int)Math.round(screenWidth*0.05);
-					//				int y = (int)Math.round(screenHeight*0.15);
-					//				writeToImage( x, y, "Rotate_End found!");
 					return;
 				}
 			}
@@ -198,11 +149,11 @@ public class RecordViewingGestures {
 		}else if(currentState == StatesHandler.sStatePointSelect){
 			//Zoom in initial gesture has been detected, look for zoom ending. 
 			//Or keep zooming until something happens
+			Core.circle(mRgb, getLastPointedLocation(), 5, Tools.magenta, -1);
 			Point detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, true);
 			if(detectedPoint != null){
-//				postToast("PointSelect_END!");
-				
-				if(guiHandler.onClick(lastPointedLocation) == true){
+				addPointedLocation(detectedPoint);
+				if(guiHandler.onClick(getLastPointedLocation()) == true){
 					if(guiHandler.backBtnClicked == true){
 						// if backBtn == false an image was clicked
 						// click on imgBtn returns false
@@ -216,56 +167,43 @@ public class RecordViewingGestures {
 				//thus next two lines can be outside the if(true)
 				currentState = StatesHandler.sStateInit;
 				timeLastDetectedGest = System.currentTimeMillis();
-				
-				//				drawDefects(convexityDefects, handContour);
-				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-//				int x = (int)Math.round(screenWidth*0.05);
-//				int y = (int)Math.round(screenHeight*0.15);
-//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect End!");
 				return;
 			}
 			detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, false); 
 			if(detectedPoint != null){
 				//			if(detectPointSelectGesture(convexityDefects, mHandContour, false) == true){
-				lastPointedLocation = detectedPoint;
-				Core.circle(mRgb, lastPointedLocation, 5, Tools.blue, -1);
+				addPointedLocation(detectedPoint);
 
 				currentState = StatesHandler.sStatePointSelect;
-				//				drawDefects(convexityDefects, handContour);
-				//				Log.i("ImageInteraction", "Gesture detected - Zoom_End");
-//				int x = (int)Math.round(screenWidth*0.05);
-//				int y = (int)Math.round(screenHeight*0.15);
-//				mRgb = Tools.writeToImage(mRgb, x, y, "PointSelect!");
 				timeLastDetectedGest = System.currentTimeMillis() - 2000; // so it doesn't have to wait again 2 secs
-//				pointSelectStates.put("PointSelect_Init", true);				
-//				pointSelectStates.put("Init",true); 
-//				pointSelectStates.put("Swipe_Init", false);				
-//				pointSelectStates.put("Swipe_End", false);				
-//				postToast("PointSelect!");					
 				return;
 			}
 		}
 
 	}
 
-	/*
-	 * Utility method - writes to color image
-	 */
-//	private void postToast(final String string) {
-//		mainActivity.runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				//					testToast.cancel();
-//				if(tToastMsg != null){
-//					tToastMsg.cancel();
-//				}
-//				tToastMsg = Toast.makeText(appContext, string, Toast.LENGTH_LONG);
-//				tToastMsg.show();
-//				//		            Toast.makeText(appContext, string, length).show();
-//			}
-//		});
-//	}
+	private void addPointedLocation(Point pointedLoc){
+		if(lPointedLocations.size() > 10){
+			lPointedLocations.remove(0);
+		}
 
+		lPointedLocations.add(pointedLoc);
+	}
 
+	private Point getLastPointedLocation(){
+		int x = 0;
+		int y = 0;
+		int weights = 0;
+		for(int i = 0; i< lPointedLocations.size(); i++){
+			x += lPointedLocations.get(i).x* (i/4);
+			y += lPointedLocations.get(i).y* (i/4);
+			weights += (i/4);
+		}
+		x = (x == 0)? 0: x/weights;
+		y = (y == 0)? 0: y/weights;
+		Point result = new Point(x, y);
+		return result;
+	}
+	
 
 }
