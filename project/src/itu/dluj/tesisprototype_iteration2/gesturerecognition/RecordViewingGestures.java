@@ -23,7 +23,6 @@ public class RecordViewingGestures {
 //	private int screenHeight;
 	private int screenWidth;
 	public long timeLastDetectedGest;
-	private Point lastPointedLocation;
 	private List<Point> lPointedLocations;
 	private Point initSwipeLocation;
 
@@ -49,7 +48,6 @@ public class RecordViewingGestures {
 
 //		pCentroid = new Point();
 		lConvexityDefects = new ArrayList<Point[]>();
-		lastPointedLocation = new Point();
 		lPointedLocations = new ArrayList<Point>();
 	}
 

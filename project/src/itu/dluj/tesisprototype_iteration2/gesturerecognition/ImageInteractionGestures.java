@@ -29,7 +29,6 @@ public class ImageInteractionGestures {
 	private List<Point[]> lConvexityDefects;
 
 	public long timeLastDetectedGest;
-	private Point lastPointedLocation;
 	private List<Point> lPointedLocations;
 
 

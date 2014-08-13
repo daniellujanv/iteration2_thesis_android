@@ -26,7 +26,6 @@ public class PatientSelectionGestures {
 	public List<Point[]> lConvexityDefects;
 
 	public long timeLastDetectedGest;
-	private Point lastPointedLocation;
 	private List<Point> lPointedLocations;
 
 	public String currentState;
@@ -43,7 +42,6 @@ public class PatientSelectionGestures {
 		mRgb = new Mat();
 
 		lConvexityDefects = new ArrayList<Point[]>();
-		lastPointedLocation = new Point();
 		lPointedLocations = new ArrayList<Point>();
 	}
 
