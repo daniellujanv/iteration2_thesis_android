@@ -121,7 +121,7 @@ public class StatesHandler {
 //		Log.i("StatesHandler", "kernelSize :: "+ kernelSize+ " blurSize::"+ blur_size);
 //		blur_size = (blur_size % 2 == 0)? blur_size + 1: blur_size;
 //		blurSize = new Size(blur_size, blur_size);
-		currentState = sStateZero;
+		currentState = sStateInit;
 
 //		Log.i("StatesHandler", " blur::"+blur_size+" kernel::"+kernelSizeE);
 
@@ -169,7 +169,7 @@ public class StatesHandler {
 				return mRgb;
 			}else if( ((now - timeLastDetectedGesture)/1000 < Gestures.secondsToWait)){
 				//if 2 seconds have not passed since gesture detection, return				
-				mRgb = drawGUI(mRgb);
+				mRgb = drawGUIAid(mRgb);
 				mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + (2 - (now - timeLastDetectedGesture)/1000)+"s" );	
 				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
 				return mRgb;
@@ -325,6 +325,25 @@ public class StatesHandler {
 		return mRgb;
 	}
 
+	//draws GUI plus Aid feedback for the gestures
+	private Mat drawGUIAid(Mat mRgb) {
+		//draw things after converting image to hsv so they don't interfere with gestures
+		mRgb = Mat.zeros(mRgb.size(), mRgb.type());
+		if(overallState.get(patientSelectionState) == true){
+			mRgb = guiHandler.drawPatientsToSelect(mRgb);
+		}else if(overallState.get(recordViewingState) == true){
+			mRgb = guiHandler.drawBackButton(mRgb, false);
+			mRgb = guiHandler.drawImagesButton(mRgb);
+			mRgb = guiHandler.drawPatientInfo(mRgb);
+			
+		}else if(overallState.get(imageInteractionState) == true){
+			mRgb = guiHandler.drawBackButton(mRgb, true);
+			mRgb = guiHandler.drawFullScreenImage(mRgb);
+		}
+		mRgb = guiHandler.drawAid(mRgb, currentState);
+		return mRgb;
+	}
+	
 	private void setStateTrue(String state){
 		if(state.equals(patientSelectionState)){
 			overallState.put(patientSelectionState, true);

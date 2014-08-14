@@ -17,6 +17,7 @@ public class Tools {
 	public static Scalar blue = new Scalar(0,0,255);
 	public static Scalar magenta = new Scalar(255,0,255);
 	public static Scalar gray = new Scalar(10, 10, 10);
+	public static Scalar white = new Scalar(255, 255, 255);
 	
 	/*************************** Utility methods ************************************/
 

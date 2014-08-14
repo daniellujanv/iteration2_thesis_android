@@ -340,7 +340,7 @@ public class Gestures {
 				//				}
 				//			}
 			}
-			Log.i(TAG+"Rotate","finalDefects: "+ finalDefects.size());			
+//			Log.i(TAG+"Rotate","finalDefects: "+ finalDefects.size());			
 
 			if(positiveDefects == 2){
 				Point defect_one = finalDefects.get(0);

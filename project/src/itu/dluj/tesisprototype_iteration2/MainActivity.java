@@ -1,5 +1,10 @@
 package itu.dluj.tesisprototype_iteration2;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -13,7 +18,10 @@ import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -105,6 +113,37 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	 }
 
 	 public void onDestroy() {
+		 Log.i("storagedirectory", Environment.DIRECTORY_DOWNLOADS.toString());
+		 String state = Environment.getExternalStorageState();
+		    if (Environment.MEDIA_MOUNTED.equals(state)) {
+		    	Log.i("MainActivity", "Mdia mounted");
+				 File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+				 if(!path.mkdirs()){
+					 Log.i("MainActivity", "Error mkdirs");
+				 }
+				 //				 File path = this.getExternalFilesDir(null);
+				 String fileName = "logcatParticipant1.txt";
+				 File file = new File(path, fileName);
+			     try {
+			    	 OutputStream os = new FileOutputStream(file);
+			    	 Log.i("bla", "writting");
+			    	 os.write(("testng").getBytes());
+			    	 os.close();
+			    	 Log.i("bla", "closing");
+			    	 Runtime.getRuntime().exec(new String[]{"logcat", "-f", file.getPath(), "itu.dluj.tesisprototype_iteration2:I"});
+			    	 Log.i("bla", "logcat done :: "+ path.toString());
+			    	 Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+			    	    mediaScanIntent.setData(Uri.fromFile(file));
+			    	    this.sendBroadcast(mediaScanIntent);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					 Log.i("storagedirectory", e.toString());
+				}
+		    }else{
+		    	Log.i("MainActivity", "Mdia NOT mounted");
+		    }
+
+		 
 		 Log.i("crash", "app crashed");
 	     super.onDestroy();
 	     if (mOpenCvCameraView != null)

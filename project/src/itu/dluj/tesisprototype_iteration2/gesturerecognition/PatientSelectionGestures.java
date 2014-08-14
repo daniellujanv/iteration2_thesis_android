@@ -35,7 +35,7 @@ public class PatientSelectionGestures {
 	private GUIHandler guiHandler;
 
 	public PatientSelectionGestures(int width, int height, Activity activity, GUIHandler handler){
-		currentState = StatesHandler.sStateZero;
+		currentState = StatesHandler.sStateInit;
 		changeOfState = false;
 
 		guiHandler = handler;
@@ -90,6 +90,7 @@ public class PatientSelectionGestures {
 			Point detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, false); 
 			if(detectedPoint != null){
 				addPointedLocation(detectedPoint);
+				guiHandler.hover(detectedPoint);
 				currentState = StatesHandler.sStatePointSelect;
 				//wait only 1 seconds instead of 2
 				timeLastDetectedGest = System.currentTimeMillis() - 1000;
@@ -99,10 +100,8 @@ public class PatientSelectionGestures {
 
 		}else if(currentState == StatesHandler.sStatePointSelect){
 			Point detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, true);
-			Core.circle(mRgb, getLastPointedLocation(), 5, Tools.magenta, -1);
 			if(detectedPoint != null){
-				addPointedLocation(detectedPoint);
-				
+				Core.circle(mRgb, getLastPointedLocation(), 5, Tools.white, -1);
 				if(guiHandler.onClick(getLastPointedLocation()) == false){
 //					postToast("Nothing Clicked!");					
 				}else{
@@ -112,11 +111,12 @@ public class PatientSelectionGestures {
 				}
 				return;
 			}
+			Core.circle(mRgb, getLastPointedLocation(), 5, Tools.magenta, -1);
 			detectedPoint = Gestures.detectPointSelectGesture(lDefects, centroid, false); 
 			if(detectedPoint != null){
 				//			if(detectPointSelectGesture(convexityDefects, mHandContour, false) == true){
 				addPointedLocation(detectedPoint);
-
+				guiHandler.hover(detectedPoint);
 				currentState = StatesHandler.sStatePointSelect;
 				timeLastDetectedGest = System.currentTimeMillis() - 2000;
 				return;
@@ -127,7 +127,7 @@ public class PatientSelectionGestures {
 
 
 	private void addPointedLocation(Point pointedLoc){
-		if(lPointedLocations.size() > 10){
+		if(lPointedLocations.size() > 0){
 			lPointedLocations.remove(0);
 		}
 
@@ -137,15 +137,18 @@ public class PatientSelectionGestures {
 	private Point getLastPointedLocation(){
 		int x = 0;
 		int y = 0;
-		int weights = 0;
-		for(int i = 0; i< lPointedLocations.size(); i++){
-			x += lPointedLocations.get(i).x* (i/4);
-			y += lPointedLocations.get(i).y* (i/4);
-			weights += (i/4);
-		}
-		x = (x == 0)? 0: x/weights;
-		y = (y == 0)? 0: y/weights;
+//		int weights = 0;
+//		for(int i = 0; i< lPointedLocations.size(); i++){
+//			x += lPointedLocations.get(i).x* (i/4);
+//			y += lPointedLocations.get(i).y* (i/4);
+//			weights += (i/4);
+//		}
+//		x = (x == 0)? 0: x/weights;
+//		y = (y == 0)? 0: y/weights;
 		Point result = new Point(x, y);
+		if(lPointedLocations.size() >0){
+			result = lPointedLocations.get(0);
+		}
 		return result;
 	}
 	
