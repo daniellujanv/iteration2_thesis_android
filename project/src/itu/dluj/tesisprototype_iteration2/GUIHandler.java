@@ -191,11 +191,16 @@ public class GUIHandler {
 		fullScreenImgCoords[4] = new Point(screenWidth*0.26, screenHeight*0.02);//top left point where images will be drawn
 		//PatientInfo Text
 		patientInfoText = new String[5];
-		patientInfoText[0] = "Lorem ipsum dolor sit amet,";
-		patientInfoText[1] = "consectetur adipisicing elit,";
-		patientInfoText[2] = "sed do eiusmod tempor incididunt";
-		patientInfoText[3] = "ut labore et dolore magna aliqua.";
-		patientInfoText[4] = "Ut enim ad minim veniam...";
+//		patientInfoText[0] = "Lorem ipsum dolor sit amet,";
+		patientInfoText[0] = "Say: Hello, I am playing a doctor,";
+//		patientInfoText[1] = "consectetur adipisicing elit,";
+		patientInfoText[1] = "this is an example of a record.";
+//		patientInfoText[2] = "sed do eiusmod tempor incididunt";
+		patientInfoText[2] = "Now, click the Images button above to";
+//		patientInfoText[3] = "ut labore et dolore magna aliqua.";
+		patientInfoText[3] = "see images!. Please select number 3.";
+//		patientInfoText[4] = "Ut enim ad minim veniam...";
+		patientInfoText[4] = "When clicked, it will appear bigger!";
 
 		//load images just one time
 		/*********Normal scale images**********/
@@ -433,7 +438,7 @@ public class GUIHandler {
 		//Doc One
 		if(currentHover == hoverBigImage){
 			Core.rectangle(rec, fullScreenImgCoords[2], fullScreenImgCoords[3], Tools.red, -1);
-		}else{
+		}else if(zoomLevel != 0){
 			Core.rectangle(rec, fullScreenImgCoords[2], fullScreenImgCoords[3], Tools.green, -1);
 		}
 		Core.rectangle(rec, fullScreenImgCoords[0], fullScreenImgCoords[1], Tools.blue, -1);
