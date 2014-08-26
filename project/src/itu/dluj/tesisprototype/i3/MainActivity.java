@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype;
+package itu.dluj.tesisprototype.i3;
 
 import itu.dluj.tesisprototype_iteration2.R;
 

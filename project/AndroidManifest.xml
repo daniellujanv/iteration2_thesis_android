@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="itu.dluj.tesisprototype.MainActivity"
+            android:name="itu.dluj.tesisprototype.i3.MainActivity"
 			android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/app_name"

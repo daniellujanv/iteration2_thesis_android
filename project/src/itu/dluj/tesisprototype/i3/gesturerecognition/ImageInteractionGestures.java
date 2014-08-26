@@ -1,8 +1,8 @@
-package itu.dluj.tesisprototype.gesturerecognition;
+package itu.dluj.tesisprototype.i3.gesturerecognition;
 
 
-import itu.dluj.tesisprototype.GUIHandler;
-import itu.dluj.tesisprototype.StatesHandler;
+import itu.dluj.tesisprototype.i3.GUIHandler;
+import itu.dluj.tesisprototype.i3.StatesHandler;
 
 import java.util.ArrayList;
 import java.util.List;
