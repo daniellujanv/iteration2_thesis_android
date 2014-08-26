@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype_iteration2;
+package itu.dluj.tesisprototype;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;

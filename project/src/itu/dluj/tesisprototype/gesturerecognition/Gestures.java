@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype_iteration2.gesturerecognition;
+package itu.dluj.tesisprototype.gesturerecognition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +149,7 @@ public class Gestures {
 		double avgDistanceCenterPoint_negative = 0;
 		int positiveDefects = 0;
 		int negativeDefects = 0;
-		Log.i(TAG+"PointSelect", "PointSelect gesture::beginning");
+//		Log.i(TAG+"PointSelect", "PointSelect gesture::beginning");
 		/*
 		 * Look for PointSelect_Init gesture :: 1 finger lifted up
 		 * - Removing defects

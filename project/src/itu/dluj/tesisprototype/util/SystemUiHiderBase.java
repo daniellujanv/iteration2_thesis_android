@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype_iteration2.util;
+package itu.dluj.tesisprototype.util;
 
 import android.app.Activity;
 import android.view.View;

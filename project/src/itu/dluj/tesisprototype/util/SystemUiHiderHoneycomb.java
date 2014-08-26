@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype_iteration2.util;
+package itu.dluj.tesisprototype.util;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

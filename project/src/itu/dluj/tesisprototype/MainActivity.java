@@ -1,4 +1,6 @@
-package itu.dluj.tesisprototype_iteration2;
+package itu.dluj.tesisprototype;
+
+import itu.dluj.tesisprototype_iteration2.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -122,7 +124,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 					 Log.i("MainActivity", "Error mkdirs");
 				 }
 				 //				 File path = this.getExternalFilesDir(null);
-				 String fileName = "logcatParticipant1.txt";
+				 String fileName = "logcatParticipant6.txt";
 				 File file = new File(path, fileName);
 			     try {
 			    	 OutputStream os = new FileOutputStream(file);

@@ -1,6 +1,7 @@
-package itu.dluj.tesisprototype_iteration2;
+package itu.dluj.tesisprototype;
 
-import itu.dluj.tesisprototype_iteration2.gesturerecognition.Tools;
+import itu.dluj.tesisprototype.gesturerecognition.Tools;
+import itu.dluj.tesisprototype_iteration2.R;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;

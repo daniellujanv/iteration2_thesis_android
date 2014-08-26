@@ -1,10 +1,10 @@
-package itu.dluj.tesisprototype_iteration2;
+package itu.dluj.tesisprototype;
 
-import itu.dluj.tesisprototype_iteration2.gesturerecognition.Gestures;
-import itu.dluj.tesisprototype_iteration2.gesturerecognition.ImageInteractionGestures;
-import itu.dluj.tesisprototype_iteration2.gesturerecognition.PatientSelectionGestures;
-import itu.dluj.tesisprototype_iteration2.gesturerecognition.RecordViewingGestures;
-import itu.dluj.tesisprototype_iteration2.gesturerecognition.Tools;
+import itu.dluj.tesisprototype.gesturerecognition.Gestures;
+import itu.dluj.tesisprototype.gesturerecognition.ImageInteractionGestures;
+import itu.dluj.tesisprototype.gesturerecognition.PatientSelectionGestures;
+import itu.dluj.tesisprototype.gesturerecognition.RecordViewingGestures;
+import itu.dluj.tesisprototype.gesturerecognition.Tools;
 
 import java.util.ArrayList;
 import java.util.HashMap;
