@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype.util;
+package itu.dluj.tesisprototype.i4.util;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

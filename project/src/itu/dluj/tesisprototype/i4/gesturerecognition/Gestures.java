@@ -1,4 +1,4 @@
-package itu.dluj.tesisprototype.gesturerecognition;
+package itu.dluj.tesisprototype.i4.gesturerecognition;
 
 import java.util.ArrayList;
 import java.util.List;
