@@ -101,7 +101,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     
 	/**
 	 * *********************************************
-	 * OPENCV
+	 * OpenCV
 	 * *********************************************
 	 */
 
