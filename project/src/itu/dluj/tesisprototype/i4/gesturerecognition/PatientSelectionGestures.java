@@ -34,7 +34,7 @@ public class PatientSelectionGestures {
 
 	private GUIHandler guiHandler;
 
-	public PatientSelectionGestures(int width, int height, Activity activity, GUIHandler handler){
+	public PatientSelectionGestures(int width, int height, GUIHandler handler){
 		currentState = StatesHandler.sStateInit;
 		changeOfState = false;
 
@@ -70,9 +70,11 @@ public class PatientSelectionGestures {
 		 * Always detect end gesture
 		 */
 		if(Gestures.detectEndGesture(lDefects, centroid) == true ){
+			if(currentState != StatesHandler.sStateInit){
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
+			}
 			if(currentState != StatesHandler.sStateZero){
 				currentState = StatesHandler.sStateInit;				
-				timeLastDetectedGest = System.currentTimeMillis() - 1500;		
 			}
 		}
 

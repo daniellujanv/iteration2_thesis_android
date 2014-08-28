@@ -40,7 +40,7 @@ public class ImageInteractionGestures {
 	private int screenWidth;
 //	private Toast tToastMsg;
 
-	public ImageInteractionGestures(int width, int height, Activity activity, GUIHandler handler){
+	public ImageInteractionGestures(int width, int height, GUIHandler handler){
 		currentState = StatesHandler.sStateInit;
 		changeOfState = false;
 		guiHandler = handler;
@@ -83,9 +83,11 @@ public class ImageInteractionGestures {
 		 * Always detect end gesture
 		 */
 		if(Gestures.detectEndGesture(lDefects, centroid) == true ){
+			if(currentState != StatesHandler.sStateInit){
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
+			}
 			if(currentState != StatesHandler.sStateZero){
 				currentState = StatesHandler.sStateInit;				
-				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
 			}
 		}
 

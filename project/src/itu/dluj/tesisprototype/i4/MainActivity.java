@@ -40,8 +40,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //	private JavaCameraViewExtended mOpenCvCameraView;
 	private JavaCameraView mOpenCvCameraView;
 	private StatesHandler statesHandler;
-	private MenuItem miFrontCamera;
-	private MenuItem miBackCamera;
 	final Handler mHandler = new Handler();
 	private String sDeviceModel = android.os.Build.MODEL;
 	private int cameraIndex;
@@ -82,20 +80,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 //        mItemPreviewRGBA  = menu.add("Preview RGBA");
-        miFrontCamera = menu.add("Front Camera");
-        miBackCamera = menu.add("Back Camera");
     	return true;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	mOpenCvCameraView.disableView();
-        if(item == miFrontCamera){
-        	mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
-        }else if(item == miBackCamera){
-        	mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_BACK);
-        }
-        mOpenCvCameraView.enableView();
         return true;
     }
     
@@ -138,11 +127,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			    	    mediaScanIntent.setData(Uri.fromFile(file));
 			    	    this.sendBroadcast(mediaScanIntent);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					 Log.i("storagedirectory", e.toString());
 				}
 		    }else{
-		    	Log.i("MainActivity", "Mdia NOT mounted");
+		    	Log.i("MainActivity", "Media NOT mounted");
 		    }
 
 		 
@@ -181,7 +169,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public void onCameraViewStarted(int width, int height) {				
 //		mOpenCvCameraView.setFpsRange(30000, 30000);
 		Log.i("MainActivity", "size:: w:"+ width+" h:"+height);
-		statesHandler = new StatesHandler(width, height, MainActivity.this);
+		statesHandler = new StatesHandler(width, height, getApplicationContext());
 		screenHeight = height;
 		screenWidth = width;
 //		Log.i("MainActivity", "FPSRange::"+ mOpenCvCameraView.getFpsRange());

@@ -37,7 +37,7 @@ public class RecordViewingGestures {
 	private GUIHandler guiHandler;
 
 
-	public RecordViewingGestures(int width, int height, Activity activity, GUIHandler handler){
+	public RecordViewingGestures(int width, int height, GUIHandler handler){
 		currentState = StatesHandler.sStateInit;
 		previousState = false;
 		nextState = false;
@@ -81,10 +81,11 @@ public class RecordViewingGestures {
 		 * Always detect end gesture
 		 */
 		if(Gestures.detectEndGesture(lDefects, centroid) == true ){
-			if(currentState != StatesHandler.sStateZero){
-//				postToast("End!");
-				currentState = StatesHandler.sStateInit;				
+			if(currentState != StatesHandler.sStateInit){
 				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
+			}
+			if(currentState != StatesHandler.sStateZero){
+				currentState = StatesHandler.sStateInit;				
 			}
 		}
 		
@@ -127,6 +128,7 @@ public class RecordViewingGestures {
 			
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
+				Log.i("RecordViewing", "traveled::"+traveledDistance);
 				if(traveledDistance > screenWidth*0.25){//more than 25% of the screen
 					if(initSwipeLocation.x < detectedPoint.x){
 						if(guiHandler.swipe("right") == true){
