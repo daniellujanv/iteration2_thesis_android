@@ -152,15 +152,13 @@ public class StatesHandler {
 		if(currentState != sStateZero){
 			if(((now - timeLastDetectedContour) >= 40000)){
 				//no gestures detected for 15.0 seconds... go back to zipou
-//				postToast("Back to "+ sStatePointSelect);
 				patSelRecognition.currentState = sStateZero;
 				recViwRecognition.currentState = sStateZero;
 				imgIntRecognition.currentState = sStateZero;
 				currentState = sStateZero;
 				setStateTrue(sPatientSelectionState);
 				timeLastDetectedContour = System.currentTimeMillis();
-//				mRgb = drawGUI(mRgb.size(), mRgb.type());
-				drawGUI();
+				drawGUI(true);
 				return mRgb;
 			}
 		}
@@ -195,19 +193,19 @@ public class StatesHandler {
 		}
 
 		if(indexBiggestArea != -1){
-			Log.i("check", "procressImage init");
+//			Log.i("check", "procressImage init");
 			mHandContour = contours.get(indexBiggestArea);
 //			Imgproc.drawContours(mRgb, contours, -1, Tools.red, 2);
 
 			double contourArea = Imgproc.contourArea(mHandContour);
 			if(contourArea < screenArea * pctMinAreaGesture){
 				//no good contours found
-				drawGUI();
-				mRgb = guiHandler.writeWarningToImage(mRgb, currentState + " - Hand too far!");
+				drawGUI(false);
+				mRgb = guiHandler.writeWarningToImage(mRgb, " Hand too far!");
 			}else if(contourArea > screenArea * pctMaxAreaGesture){
 				//no good contours found
-				drawGUI();
-				mRgb = guiHandler.writeWarningToImage(mRgb, currentState + " - Hand too close!");
+				drawGUI(false);
+				mRgb = guiHandler.writeWarningToImage(mRgb," Hand too close!");
 			}else{
 				timeLastDetectedContour = System.currentTimeMillis();
 				//good contour found
@@ -231,11 +229,11 @@ public class StatesHandler {
 					long sec = (2 - (now - timeLastDetectedGesture)/1000);
 					drawGUIAid(sec);
 					lHandContour.clear();
-					mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + sec+"s" );	
-					mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
+//					mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + sec+"s" );	
+//					mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
 					return mRgb;
 				}else{
-					drawGUI();
+					drawGUI(true);
 				}
 				/************/
 				Imgproc.convexHull(mHandContour, convexHull, true);
@@ -275,14 +273,14 @@ public class StatesHandler {
 						setStateTrue(sRecordViewingState);
 					}
 				}
-				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
+//				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
 			}
 		}else{
 			/*
 			 * GIVE FEEDBACK THAT CONTOUR IS NOT FOUND
 			 */
-			drawGUI();
-			mRgb = guiHandler.writeWarningToImage(mRgb, currentState + " - No contour found");
+			drawGUI(false);
+			mRgb = guiHandler.writeWarningToImage(mRgb, " No hand found!");
 		}
 
 		
@@ -303,9 +301,9 @@ public class StatesHandler {
 	/*
 	 * 
 	 */
-	private void drawGUI() {
+	private void drawGUI(boolean goodContour) {
 		//draw things after converting image to hsv so they don't interfere with gestures
-		mRgb = guiHandler.drawGui(lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, false, -1);
+		mRgb = guiHandler.drawGui(goodContour, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, false, -1);
 //		return mRgb;
 	}
 
@@ -315,7 +313,7 @@ public class StatesHandler {
 	//draws GUI plus Aid feedback for the gestures
 	private void drawGUIAid(long second) {
 		//draw things after converting image to hsv so they don't interfere with gestures
-		mRgb = guiHandler.drawGui(lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, true, second);
+		mRgb = guiHandler.drawGui(true, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, true, second);
 	}
 	
 	/*

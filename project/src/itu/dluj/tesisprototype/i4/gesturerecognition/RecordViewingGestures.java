@@ -158,8 +158,10 @@ public class RecordViewingGestures {
 						// if backBtn == false an image was clicked
 						// click on imgBtn returns false
 						previousState = true;
-					}else if(guiHandler.bigImgShowing == true){
+						nextState = false;
+					}else if(guiHandler.imagesBtnClicked == true){
 						nextState = true;
+						previousState = false;
 					}
 				}
 				//in this case it does not matter if we assure that click was true
