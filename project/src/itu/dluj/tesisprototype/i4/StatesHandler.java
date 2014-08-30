@@ -137,6 +137,9 @@ public class StatesHandler {
 		
 	}
 
+	/*
+	 * handles frame
+	 */
 	public Mat handleFrame(Mat mInputFrame){
 		//    	Log.i("check", "handleFrame - init");
 		Imgproc.cvtColor(mInputFrame, mRgb, Imgproc.COLOR_RGBA2RGB);
@@ -151,7 +154,7 @@ public class StatesHandler {
 		//if 5 seconds passed with no change go back to "zipou"
 		if(currentState != sStateZero){
 			if(((now - timeLastDetectedContour) >= 40000)){
-				//no gestures detected for 15.0 seconds... go back to zipou
+				//no gestures detected for 40.0 seconds... go back to zipou&patientSelection
 				patSelRecognition.currentState = sStateZero;
 				recViwRecognition.currentState = sStateZero;
 				imgIntRecognition.currentState = sStateZero;
@@ -226,7 +229,7 @@ public class StatesHandler {
 				/************/
 				if( ((now - timeLastDetectedGesture)/1000 < Gestures.secondsToWait)){
 					//if 2 seconds have not passed since gesture detection, return	
-					long sec = (2 - (now - timeLastDetectedGesture)/1000);
+					long sec = (long) (2 - (double)((now - timeLastDetectedGesture)/1000));
 					drawGUIAid(sec);
 					lHandContour.clear();
 //					mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + sec+"s" );	
@@ -308,9 +311,8 @@ public class StatesHandler {
 	}
 
 	/*
-	 * 
+	 * draws GUI plus Aid feedback for the gestures
 	 */
-	//draws GUI plus Aid feedback for the gestures
 	private void drawGUIAid(long second) {
 		//draw things after converting image to hsv so they don't interfere with gestures
 		mRgb = guiHandler.drawGui(true, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, true, second);

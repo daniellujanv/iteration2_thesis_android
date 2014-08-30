@@ -77,7 +77,8 @@ public class GUIHandler {
 	private int iCurrentPatient;
 	private String sCurrentPatient;
 	private int iCurrentImg;
-	private int numberImgs = 3;
+	private int iCurrentImgPage;
+	private int numberImgs = 4;
 
 	private Mat[] mPatientImages;
 	private Mat[] mFullScreenImages;
@@ -92,7 +93,7 @@ public class GUIHandler {
 		screenWidth = width;
 		screenHeight = height;
 		imagesBtnClicked = false;
-		//		imagesBtnClicked = true;
+//		imagesBtnClicked = true;
 		backBtnClicked = false;
 
 		mRgb = new Mat();
@@ -105,6 +106,8 @@ public class GUIHandler {
 
 		//0 to 2
 		iCurrentImg = 0;
+		//1, 2, 3,----, n
+		iCurrentImgPage = 1;
 		//0 or 1... -1 == null
 		iCurrentPatient = -1;
 		sCurrentPatient = "N/A";
@@ -131,7 +134,7 @@ public class GUIHandler {
 		gestureIconsCoords[6] = new Point(0.0, screenHeight*0.69);//c
 		gestureIconsCoords[7] = new Point(0.0, screenHeight*0.70);//p
 
-		int widthIcon = (int) Math.abs(screenHeight*0.14);
+		int widthIcon = (int)  Math.ceil((double)(screenHeight*0.14));
 		int heightIcon = widthIcon;
 		//POINT SELECT ICON
 		gestureIconsRoi[0] = new Rect(gestureIconsCoords[1],new Size(widthIcon, heightIcon));
@@ -175,9 +178,9 @@ public class GUIHandler {
 		backButtonCoords[3] = new Point(screenWidth*0.50, screenHeight*0.15);//n bottom - right
 		backButtonCoords[4] = new Point(screenWidth*0.19, screenHeight*0.10);//n text
 		backButtonCoords[5] = new Point(0.0, 0.0);//fullscreenImg coordinates top-left clickable
-		backButtonCoords[6] = new Point(screenWidth*0.30, screenHeight);//f bottom-right
+		backButtonCoords[6] = new Point(screenWidth*0.35, screenHeight);//f bottom-right
 		backButtonCoords[7] = new Point(0.0, 0.0);//f top-left hover
-		backButtonCoords[8] = new Point(screenWidth*0.30, screenHeight*0.15);//f bottom-right
+		backButtonCoords[8] = new Point(screenWidth*0.35, screenHeight*0.15);//f bottom-right
 		backButtonCoords[9] = new Point(screenWidth*0.05, screenHeight*0.10);//f text
 
 		/**********************IMAGES BUTTON******************************/
@@ -241,25 +244,25 @@ public class GUIHandler {
 		/**********************PATIENT IMAGES******************************/
 		//PatientImages Coords
 		patientImgsCoords = new Point[10];
-		patientImgsCoords[0] = new Point(screenWidth*0.10, screenHeight*0.25);//big rectangle upper left
-		patientImgsCoords[1] = new Point(screenWidth*0.95, screenHeight);//big rectanlge lower right
+		patientImgsCoords[0] = new Point(screenWidth*0.10, screenHeight*0.23);//top-left hover img1
+		patientImgsCoords[1] = new Point(screenWidth*0.50, screenHeight*0.25);//bottom-right hover img1
 		patientImgsCoords[2] = new Point(screenWidth*0.10, screenHeight*0.25);//img1 upperleft
 		patientImgsCoords[3] = new Point(screenWidth*0.50, screenHeight);//img1 lowerright
 		patientImgsCoords[4] = new Point(screenWidth*0.50, screenHeight*0.25);//img2 upperleft
 		patientImgsCoords[5] = new Point(screenWidth*0.90, screenHeight);//img2 lowerright
-		patientImgsCoords[6] = new Point(screenWidth*0.09, screenHeight*0.31);//text above imgs
-		patientImgsCoords[7] = new Point(screenWidth*0.20, screenHeight*0.40);//top left point where images will be drawn
-		patientImgsCoords[8] = new Point(screenWidth*0.09, screenHeight*0.23);//img1 outer upperleft
+		patientImgsCoords[6] = new Point(screenWidth*0.50, screenHeight*0.23);//top-left hover img2
+		patientImgsCoords[7] = new Point(screenWidth*0.90, screenHeight*0.25);//top-left hover img2
+		patientImgsCoords[8] = new Point(screenWidth*0.10, screenHeight*0.23);//img1 outer upperleft
 		patientImgsCoords[9] = new Point(screenWidth*0.50, screenHeight*0.23);//img2 outer upperleft
 
 		/**********************FULLSCREEN IMAGE******************************/
 		//fullScreenImg Coords
 		fullScreenImgCoords = new Point[5];
-		fullScreenImgCoords[0] = new Point(screenWidth*0.30, 0.0); //top-left clickable
+		fullScreenImgCoords[0] = new Point(screenWidth*0.35, 0.0); //top-left clickable
 		fullScreenImgCoords[1] = new Point(screenWidth, screenHeight); //bottom-right
-		fullScreenImgCoords[2] = new Point(screenWidth*0.30, 0.0); // top-left hover
-		fullScreenImgCoords[3] = new Point(screenWidth, screenHeight*0.05); // bottom-right
-		fullScreenImgCoords[4] = new Point((screenWidth-(screenHeight-screenHeight*0.06)), screenHeight*0.06);//top left point where images will be drawn
+		fullScreenImgCoords[2] = new Point(screenWidth*0.35, 0.0); // top-left hover
+		fullScreenImgCoords[3] = new Point(screenWidth, screenHeight*0.02); // bottom-right
+		fullScreenImgCoords[4] = new Point((screenWidth-(screenHeight-screenHeight*0.02)), screenHeight*0.02);//top left point where images will be drawn
 
 		/**********************TEXT******************************/
 		//PatientInfo Text
@@ -282,11 +285,9 @@ public class GUIHandler {
 		Bitmap bitmap_0 = BitmapFactory.decodeResource(resources, R.drawable.xr_0);
 		Bitmap bitmap_1 = BitmapFactory.decodeResource(resources, R.drawable.xr_1);
 		Bitmap bitmap_2 = BitmapFactory.decodeResource(resources, R.drawable.xr_2);
-		Bitmap bitmap_3 = BitmapFactory.decodeResource(resources, R.drawable.rotate_aid);
-		Bitmap bitmap_4 = BitmapFactory.decodeResource(resources, R.drawable.swipe_aid);
-		Bitmap bitmap_5 = BitmapFactory.decodeResource(resources, R.drawable.zoom_aid);
-
-		mPatientImages = new Mat[3];
+		Bitmap bitmap_3 = BitmapFactory.decodeResource(resources, R.drawable.xr_3);
+		
+		mPatientImages = new Mat[4];
 		patientImgsRoi = new Rect[2];
 
 		patientImgsRoi[0] = new Rect(patientImgsCoords[2], patientImgsCoords[3]);
@@ -312,32 +313,40 @@ public class GUIHandler {
 		mPatientImages[2] = new Mat();
 		Utils.bitmapToMat(bitmap, mPatientImages[2], true);
 		Imgproc.cvtColor(mPatientImages[2], mPatientImages[2], Imgproc.COLOR_RGBA2RGB);
-
+		//image 3
+		bitmap = Bitmap.createScaledBitmap(bitmap_3, bWidth, bHeight, true);
+		mPatientImages[3] = new Mat();
+		Utils.bitmapToMat(bitmap, mPatientImages[3], true);
+		Imgproc.cvtColor(mPatientImages[3], mPatientImages[3], Imgproc.COLOR_RGBA2RGB);
+		
 		//ROI for Aid feedback
 		aidRoi = new Rect(new Point(screenWidth*0.15, screenHeight*0.35), new Point(screenWidth*0.85, screenHeight*0.85));
 		//aid rotate
-		bitmap = Bitmap.createScaledBitmap( bitmap_3, aidRoi.width, aidRoi.height, true);
+		bitmap = BitmapFactory.decodeResource(resources, R.drawable.rotate_aid);
+		bitmap = Bitmap.createScaledBitmap( bitmap, aidRoi.width, aidRoi.height, true);
 		mAidRotate = new Mat();
 		Utils.bitmapToMat(bitmap, mAidRotate, true);
 		Imgproc.cvtColor(mAidRotate, mAidRotate, Imgproc.COLOR_RGBA2RGB);
 		//aid swipe
-		bitmap = Bitmap.createScaledBitmap( bitmap_4, aidRoi.width, aidRoi.height, true);
+		bitmap = BitmapFactory.decodeResource(resources, R.drawable.swipe_aid);
+		bitmap = Bitmap.createScaledBitmap( bitmap, aidRoi.width, aidRoi.height, true);
 		mAidSwipe = new Mat();
 		Utils.bitmapToMat(bitmap, mAidSwipe, true);
 		Imgproc.cvtColor(mAidSwipe, mAidSwipe, Imgproc.COLOR_RGBA2RGB);		
 		//aid zoom
-		bitmap = Bitmap.createScaledBitmap( bitmap_5, aidRoi.width, aidRoi.height, true);
+		bitmap = BitmapFactory.decodeResource(resources, R.drawable.zoom_aid);
+		bitmap = Bitmap.createScaledBitmap( bitmap, aidRoi.width, aidRoi.height, true);
 		mAidZoom = new Mat();
 		Utils.bitmapToMat(bitmap, mAidZoom, true);
 		Imgproc.cvtColor(mAidZoom, mAidZoom, Imgproc.COLOR_RGBA2RGB);		
 
 		/*********************** Full screen images*****************************/
-		mFullScreenImages = new Mat[3];
+		mFullScreenImages = new Mat[4];
 
-		bHeight = (int)Math.ceil((fullScreenImgCoords[1].y - fullScreenImgCoords[4].y)*0.99);
-		bWidth = (int)Math.ceil((fullScreenImgCoords[1].x - fullScreenImgCoords[4].x)*0.99);
+		bHeight = (int)Math.ceil( (double)(fullScreenImgCoords[1].y - fullScreenImgCoords[4].y));
+		bWidth = (int)Math.ceil( (double)(fullScreenImgCoords[1].x - fullScreenImgCoords[4].x));
 
-		fullScreenImgRoi = new Rect((int) (fullScreenImgCoords[4].x*0.90), (int)fullScreenImgCoords[4].y, bWidth, bHeight);
+		fullScreenImgRoi = new Rect((int) (fullScreenImgCoords[4].x), (int)fullScreenImgCoords[4].y, bWidth, bHeight);
 		pFullScreenImgCenter = new Point(bWidth/2, bHeight/2);
 
 		//image 0
@@ -357,15 +366,18 @@ public class GUIHandler {
 		mFullScreenImages[2] = new Mat();
 		Utils.bitmapToMat(bitmap, mFullScreenImages[2], true);
 		Imgproc.cvtColor(mFullScreenImages[2], mFullScreenImages[2], Imgproc.COLOR_RGBA2RGB);
-
+		
+		//image 3
+		bitmap = Bitmap.createScaledBitmap(bitmap_3, bWidth, bHeight, true);
+		mFullScreenImages[3] = new Mat();
+		Utils.bitmapToMat(bitmap, mFullScreenImages[3], true);
+		Imgproc.cvtColor(mFullScreenImages[3], mFullScreenImages[3], Imgproc.COLOR_RGBA2RGB);
 
 		bitmap.recycle();
 		bitmap_0.recycle();
 		bitmap_1.recycle();
 		bitmap_2.recycle();
 		bitmap_3.recycle();
-		bitmap_4.recycle();
-		bitmap_5.recycle();
 	}
 
 	/******************************** Drawing methods ****************************************/
@@ -388,7 +400,7 @@ public class GUIHandler {
 			}else{
 				Core.rectangle(mRgb, backButtonCoords[7], backButtonCoords[8], Tools.blue, -1);
 			}
-			Core.rectangle(mRgb, backButtonCoords[5], backButtonCoords[6], Tools.lightGray, 1);
+			Core.rectangle(mRgb, backButtonCoords[5], backButtonCoords[6], Tools.lightGray, 2);
 			mRgb = writeToImage(mRgb, backButtonCoords[9], "Back", 0.7);
 		}
 	}
@@ -474,37 +486,38 @@ public class GUIHandler {
 	 * 
 	 */
 	public void drawPatientImages(){
-		//		Mat rec = Mat.zeros(size, type);
-		//Doc One
-		//		Core.rectangle(rec, patientImgsCoords[2], patientImgsCoords[3], Tools.green, -1);
-		//		Core.rectangle(rec, patientImgsCoords[0], patientImgsCoords[1], Tools.blue, -1);
-		//		Core.rectangle(mRgb, patientImgsCoords[0], patientImgsCoords[1], Tools.lightGray, -1);
-		//green rectangles beside images
 		if(currentHover == hoverImg1){
-			Core.rectangle(mRgb, patientImgsCoords[8], patientImgsCoords[3], Tools.green, -1);
+			Core.rectangle(mRgb, patientImgsCoords[0], patientImgsCoords[1], Tools.green, -1);
 		}else{
-			Core.rectangle(mRgb, patientImgsCoords[8], patientImgsCoords[3], Tools.blue, -1);
+			Core.rectangle(mRgb, patientImgsCoords[0], patientImgsCoords[1], Tools.blue, -1);
 		}
 
 		if(currentHover == hoverImg2){
-			Core.rectangle(mRgb, patientImgsCoords[9], patientImgsCoords[5], Tools.green, -1);
+			Core.rectangle(mRgb, patientImgsCoords[6], patientImgsCoords[7], Tools.green, -1);
 		}else{
-			Core.rectangle(mRgb, patientImgsCoords[9], patientImgsCoords[5], Tools.blue, -1);
+			Core.rectangle(mRgb, patientImgsCoords[6], patientImgsCoords[7], Tools.blue, -1);
 		}
-		int iNextImg = (( iCurrentImg == numberImgs - 1)? 0 : iCurrentImg + 1);
-		String toWrite = sCurrentPatient+"::Images "+ (iCurrentImg + 1) + " & "+ (iNextImg + 1)+ " " +" out of "+ numberImgs;
-		mRgb = writeToImage(mRgb, patientImgsRoi[0].br(), toWrite, 0.3);
 
-
-		//patInfoCoords[5] upper left point for image
-		//patInfoCoords[1] lower righ point for image (same as both squares)
-
-		Log.i("GUIHandler","rec::"+mRgb.submat(patientImgsRoi[1]).size().toString()+" mBitmap::"+mPatientImages[iCurrentImg].size().toString());
-		Core.addWeighted(mRgb.submat(patientImgsRoi[0]), 0.0, mPatientImages[iCurrentImg], 1.0, 0, mRgb.submat(patientImgsRoi[0]));
-		Core.addWeighted(mRgb.submat(patientImgsRoi[1]), 0.0, mPatientImages[iNextImg], 1.0, 0, mRgb.submat(patientImgsRoi[1]));
-		//		Mat output = new Mat();
-		//		Core.addWeighted(mRgb, 0.0, rec, 1.0, 0, output);
-		//		return rec;
+//		Log.i("GUIHandler","rec::"+mRgb.submat(patientImgsRoi[1]).size().toString()+" mBitmap::"+mPatientImages[iCurrentImg].size().toString());
+		
+		Core.addWeighted(mRgb.submat(patientImgsRoi[0]), 0.0, mPatientImages[iCurrentImgPage*2 - 2], 1.0, 0, mRgb.submat(patientImgsRoi[0]));
+		mRgb = writeToImage(mRgb, new Point(patientImgsRoi[0].tl().x*1.05, patientImgsRoi[0].tl().y*1.20), ""+(iCurrentImgPage*2 - 1), 0.4);
+		
+		Core.addWeighted(mRgb.submat(patientImgsRoi[1]), 0.0, mPatientImages[iCurrentImgPage*2 - 1], 1.0, 0, mRgb.submat(patientImgsRoi[1]));
+		mRgb = writeToImage(mRgb,  new Point(patientImgsRoi[1].tl().x*1.05, patientImgsRoi[1].tl().y*1.20), ""+(iCurrentImgPage*2), 0.4);
+		
+		Point pPageNumberCircle = new Point();
+		pPageNumberCircle.x = patientImgsCoords[9].x*0.97;
+		pPageNumberCircle.y = patientImgsCoords[9].y*0.90;
+		
+		for(int i = 1; i<= (int)Math.ceil((double)numberImgs/2); i++){
+			if(i == iCurrentImgPage){
+				Core.circle(mRgb, pPageNumberCircle, 4, Tools.white, -1);
+			}else{
+				Core.circle(mRgb, pPageNumberCircle, 4, Tools.white, 1);				
+			}
+			pPageNumberCircle.x = pPageNumberCircle.x * 1.06;
+		}
 	}
 
 	/*
@@ -515,13 +528,6 @@ public class GUIHandler {
 		//		Mat rec = Mat.zeros(size, type);
 		//Doc One
 		drawBackButton(true);
-		if(currentHover == hoverBigImage){
-			Core.rectangle(mRgb, fullScreenImgCoords[2], fullScreenImgCoords[3], Tools.green, -1);
-		}else if(zoomLevel != 0){
-			Core.rectangle(mRgb, fullScreenImgCoords[2], fullScreenImgCoords[3], Tools.blue, -1);
-		}
-		Core.rectangle(mRgb, fullScreenImgCoords[0], fullScreenImgCoords[1], Tools.lightGray, 1);
-
 		//patInfoCoords[5] upper left point for image
 		//patInfoCoords[1] lower righ point for image (same as both squares)
 
@@ -531,8 +537,8 @@ public class GUIHandler {
 
 			int finalWidth = fullScreenImgRoi.width;
 			int finalHeight = fullScreenImgRoi.height;
-			int smallWidth = (int) (finalWidth/( Math.pow(2,zoomLevel))); //for pyrUp to work the sizes have to be mult of 2
-			int smallHeight = (int) (finalHeight/( Math.pow(2,zoomLevel)));;
+			int smallWidth = (int) Math.ceil((double)(finalWidth/( Math.pow(2,zoomLevel)))); //for pyrUp to work the sizes have to be mult of 2
+			int smallHeight = (int) Math.ceil((double)(finalHeight/( Math.pow(2,zoomLevel))));
 
 			//			int smallX = (int) ((finalWidth - smallWidth)/( Math.pow(2,zoomLevel)));
 			//			int smallY = (int) ((finalHeight - smallHeight)/( Math.pow(2,zoomLevel))); //for zoomed image
@@ -567,7 +573,6 @@ public class GUIHandler {
 
 			for(int i=1; i<=zoomLevel; i++){
 
-				//				zoomRoi = new Rect(smallX, smallY, smallWidth, smallHeight);
 				bigSize = new Size(bigWidth, bigHeight);				
 				toDraw[i] = new Mat();
 				Imgproc.pyrUp(toDraw[i-1], toDraw[i], bigSize);
@@ -576,10 +581,6 @@ public class GUIHandler {
 				//						+ " newSize::"+ bigSize.toString()
 				//						+ " toDrawSize::"+ toDraw[i].size().toString() 
 				//						);
-				//				smallX = smallX*2;
-				//				smallY = smallY*2;
-				//				smallWidth = smallWidth*2;
-				//				smallHeight = smallHeight*2;
 				bigWidth = bigWidth*2;
 				bigHeight = bigHeight*2;
 
@@ -595,6 +596,25 @@ public class GUIHandler {
 			Core.addWeighted(mRgb.submat(fullScreenImgRoi), 0.0, 
 					mFullScreenImages[iCurrentImg], 1.0, 0, mRgb.submat(fullScreenImgRoi));
 		}
+		if(currentHover == hoverBigImage){
+			Core.rectangle(mRgb, fullScreenImgCoords[2], fullScreenImgCoords[3], Tools.green, -1);
+		}else if(zoomLevel != 0){
+			Core.rectangle(mRgb, fullScreenImgCoords[2], fullScreenImgCoords[3], Tools.blue, -1);
+		}
+		Core.rectangle(mRgb, fullScreenImgCoords[0], fullScreenImgCoords[1], Tools.lightGray, 2);
+
+		Point pZoomLevel = new Point();
+		pZoomLevel.x = fullScreenImgCoords[0].x*1.05;
+		pZoomLevel.y = screenHeight*0.05;
+		for(int i = 0; i<= maxZoom; i++){
+			if(i == zoomLevel){
+				Core.circle(mRgb, pZoomLevel, (2*i + 2), Tools.white, -1);
+			}else{
+				Core.circle(mRgb, pZoomLevel, (2*i + 2), Tools.white, 1);				
+			}
+			pZoomLevel.x = pZoomLevel.x * 1.10;
+		}
+		
 	}
 
 
@@ -607,23 +627,27 @@ public class GUIHandler {
 		/*****************PATIENT SELECTION*********************/
 		if(currentOverallState == StatesHandler.sPatientSelectionState){
 			drawPatientsToSelect();
-			//POINTSELECT ICON
-			Core.rectangle(mRgb, gestureIconsCoords[0], new Point(screenHeight*0.14, gestureIconsCoords[1].y ), Tools.cyan, -1);
-			Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
 			//SWIPE ICON IN GRAY
 			Core.rectangle(mRgb,gestureIconsRoi[1].tl(), gestureIconsRoi[1].br(), Tools.lightGray, -1);
 			//ZOOM ICON IN GRAY
 			Core.rectangle(mRgb, gestureIconsRoi[2].tl(), gestureIconsRoi[2].br(), Tools.lightGray, -1);
 			//ROTATE ICON IN GRAY
 			Core.rectangle(mRgb, gestureIconsRoi[3].tl(), gestureIconsRoi[3].br(), Tools.lightGray, -1);
-
+			
+			//POINTSELECT ICON
+			Core.rectangle(mRgb, gestureIconsCoords[0], new Point( Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
+			Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
 		}else 
 			/***********************RECORD VIEWING**************************/
 			if(currentOverallState == StatesHandler.sRecordViewingState){
-				drawPatientInfo();
+				//ZOOM ICON IN GRAY
+				Core.rectangle(mRgb, gestureIconsRoi[2].tl(), gestureIconsRoi[2].br(), Tools.lightGray, -1);
+				//ROTATE ICON IN GRAY
+				Core.rectangle(mRgb, gestureIconsRoi[3].tl(), gestureIconsRoi[3].br(), Tools.lightGray, -1);
+
 				if(imagesBtnClicked){
 					//SWIPE ICON
-					Core.rectangle(mRgb, gestureIconsCoords[2], new Point(screenHeight*0.14, gestureIconsCoords[3].y ), Tools.white, -1);
+					Core.rectangle(mRgb, gestureIconsCoords[2], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[3].y ), Tools.white, -1);
 					Core.addWeighted(mRgb.submat(gestureIconsRoi[1]), 0.0, mSwipeIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[1]));
 				}else{
 					//SWIPE ICON IN GRAY
@@ -631,29 +655,27 @@ public class GUIHandler {
 				}
 
 				//POINTSELECT ICON
-				Core.rectangle(mRgb, gestureIconsCoords[0], new Point(screenHeight*0.14, gestureIconsCoords[1].y ), Tools.cyan, -1);
+				Core.rectangle(mRgb, gestureIconsCoords[0], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
 				Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
 
-				//ZOOM ICON IN GRAY
-				Core.rectangle(mRgb, gestureIconsRoi[2].tl(), gestureIconsRoi[2].br(), Tools.lightGray, -1);
-				//ROTATE ICON IN GRAY
-				Core.rectangle(mRgb, gestureIconsRoi[3].tl(), gestureIconsRoi[3].br(), Tools.lightGray, -1);
+				drawPatientInfo();
 			}else 
 				/********************IMAGE INTERACTION***********************/
 				if(currentOverallState == StatesHandler.sImageInteractionState){
-					drawFullScreenImage();
-
-					//POINTSELECT ICON
-					Core.rectangle(mRgb, gestureIconsCoords[0], new Point(screenHeight*0.14, gestureIconsCoords[1].y ), Tools.cyan, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
-					//ZOOM ICON
-					Core.rectangle(mRgb, gestureIconsCoords[4], new Point(screenHeight*0.14, gestureIconsCoords[5].y ), Tools.orange, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[2]), 0.0, mZoomIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[2]));
-					//ROTATE ICON
-					Core.rectangle(mRgb, gestureIconsCoords[6], new Point(screenHeight*0.14, gestureIconsCoords[7].y ), Tools.magenta, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[3]), 0.0, mRotateIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[3]));
 					//SWIPE ICON IN GRAY
 					Core.rectangle(mRgb,gestureIconsRoi[1].tl(), gestureIconsRoi[1].br(), Tools.lightGray, -1);
+					drawFullScreenImage();
+					
+					//POINTSELECT ICON
+					Core.rectangle(mRgb, gestureIconsCoords[0], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+					//ZOOM ICON
+					Core.rectangle(mRgb, gestureIconsCoords[4], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[5].y ), Tools.orange, -1);
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[2]), 0.0, mZoomIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[2]));
+					//ROTATE ICON
+					Core.rectangle(mRgb, gestureIconsCoords[6], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[7].y ), Tools.magenta, -1);
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[3]), 0.0, mRotateIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[3]));
+
 				}
 
 		int fill = 2;
@@ -735,11 +757,11 @@ public class GUIHandler {
 	public void drawAid(String gesture){
 		//		Mat rec = mRgb;
 		if(gesture == StatesHandler.sStateRotate){
-			Core.addWeighted(mRgb.submat(aidRoi), 0.5, mAidRotate, 1.0, 0, mRgb.submat(aidRoi));
+			Core.addWeighted(mRgb.submat(aidRoi), 0.2, mAidRotate, 1.0, 0, mRgb.submat(aidRoi));
 		}else if(gesture == StatesHandler.sStateSwipe){
-			Core.addWeighted(mRgb.submat(aidRoi), 0.5, mAidSwipe, 1.0, 0, mRgb.submat(aidRoi));
+			Core.addWeighted(mRgb.submat(aidRoi), 0.2, mAidSwipe, 1.0, 0, mRgb.submat(aidRoi));
 		}else if(gesture == StatesHandler.sStateZoom){
-			Core.addWeighted(mRgb.submat(aidRoi), 0.5, mAidZoom, 1.0, 0, mRgb.submat(aidRoi));			
+			Core.addWeighted(mRgb.submat(aidRoi), 0.2, mAidZoom, 1.0, 0, mRgb.submat(aidRoi));			
 		}
 		//		return mRgb;
 	}
@@ -782,15 +804,24 @@ public class GUIHandler {
 			//			Rect rect_img = new Rect(patientImgsCoords[2], patientImgsCoords[3]);
 
 			if(imagesBtnClicked){
+				//click on left image
 				if( imagesBtnClicked == true && click.inside(patientImgsRoi[0])){
 					backBtnClicked = false;
 					//				imagesBtnClicked = false;
 					//					bigImgShowing = true;
+					// page 1 shows images --> 0 , 1 ... 1*2 - 2 = 0
+					iCurrentImg = iCurrentImgPage*2 - 2;
 					currentHover = hoverNone;
 					return true;
-				}else if( imagesBtnClicked == true && click.inside(patientImgsRoi[1])){
+				}else 
+					//click on right image
+					if( imagesBtnClicked == true && click.inside(patientImgsRoi[1])){
 					backBtnClicked = false;
-					iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0:iCurrentImg+1;
+					// page 1 shows images --> 0 , 1 ... 1*2 - 1 = 1
+					iCurrentImg = iCurrentImgPage*2 - 1;
+					
+//					iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0:iCurrentImg+1;
+					
 					//				imagesBtnClicked = false;
 					//					bigImgShowing = true;
 					currentHover = hoverNone;
@@ -933,10 +964,12 @@ public class GUIHandler {
 	public boolean swipe(String side){
 		if(imagesBtnClicked == true){
 			if(side == "right"){
-				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
+//				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
+				iCurrentImgPage = (iCurrentImgPage == 1)? (int)Math.ceil((double)numberImgs/2) : iCurrentImgPage - 1;
 				return true;
 			}else if(side == "left"){
-				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
+//				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
+				iCurrentImgPage = (iCurrentImgPage == (int)Math.ceil((double)numberImgs/2))? 1 : iCurrentImgPage + 1 ;
 				return true;
 			}
 		}

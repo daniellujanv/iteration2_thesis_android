@@ -96,7 +96,7 @@ public class ImageInteractionGestures {
 			if(Gestures.detectInitGesture(lDefects, centroid) == true ){
 				currentState = StatesHandler.sStateInit;
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-				timeLastDetectedGest = System.currentTimeMillis();
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}
 		}else if(currentState == StatesHandler.sStateInit){
@@ -123,7 +123,7 @@ public class ImageInteractionGestures {
 						currentState = StatesHandler.sStatePointSelect;
 						guiHandler.hover(detectedPoint);
 						//wait only 1 seconds instead of 2
-						timeLastDetectedGest = System.currentTimeMillis() - 1000;
+						timeLastDetectedGest = System.currentTimeMillis() - 1500;
 
 						return;
 					}
@@ -190,7 +190,7 @@ public class ImageInteractionGestures {
 					changeOfState = true;
 				}
 				currentState = StatesHandler.sStateInit;
-				timeLastDetectedGest = System.currentTimeMillis();
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}			
 			Core.circle(mRgb, getLastPointedLocation(), 5, Tools.magenta, -1);

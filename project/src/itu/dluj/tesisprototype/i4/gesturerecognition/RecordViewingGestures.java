@@ -97,7 +97,7 @@ public class RecordViewingGestures {
 				currentState = StatesHandler.sStateInit;
 				//				drawDefects(convexityDefects, handContour);
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-				timeLastDetectedGest = System.currentTimeMillis();
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}
 		}else if(currentState == StatesHandler.sStateInit){
@@ -107,7 +107,7 @@ public class RecordViewingGestures {
 				addPointedLocation(detectedPoint);
 				guiHandler.hover(detectedPoint);
 				currentState = StatesHandler.sStatePointSelect;
-				timeLastDetectedGest = System.currentTimeMillis() - 1000;
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;
 				return;
 			}else{ 
 				Point detectedPointSwipe = Gestures.detectSwipeGesture(lDefects, centroid, false); 
@@ -129,7 +129,7 @@ public class RecordViewingGestures {
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
 				Log.i("RecordViewing", "traveled::"+traveledDistance);
-				if(traveledDistance > screenWidth*0.25){//more than 25% of the screen
+				if(traveledDistance > screenWidth*0.20){//more than 20% of the screen
 					if(initSwipeLocation.x < detectedPoint.x){
 						if(guiHandler.swipe("right") == true){
 //							postToast("Swipe - Rigth");
@@ -168,7 +168,7 @@ public class RecordViewingGestures {
 				//because if the click is false the actions are handled by GUIHandler
 				//thus next two lines can be outside the if(true)
 				currentState = StatesHandler.sStateInit;
-				timeLastDetectedGest = System.currentTimeMillis();
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}
 			Core.circle(mRgb, getLastPointedLocation(), 5, Tools.magenta, -1);

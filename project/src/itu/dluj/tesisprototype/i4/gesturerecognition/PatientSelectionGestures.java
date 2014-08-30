@@ -84,7 +84,7 @@ public class PatientSelectionGestures {
 				//good contour found
 				currentState = StatesHandler.sStateInit;
 				Log.i("ImageInteraction", "Gesture detected - INIT");
-				timeLastDetectedGest = System.currentTimeMillis();
+				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}
 		}else if(currentState == StatesHandler.sStateInit){
@@ -95,7 +95,7 @@ public class PatientSelectionGestures {
 				guiHandler.hover(detectedPoint);
 				currentState = StatesHandler.sStatePointSelect;
 				//wait only 1 seconds instead of 2
-				timeLastDetectedGest = System.currentTimeMillis() - 1000;
+				timeLastDetectedGest = System.currentTimeMillis() - 1500;
 
 				return;
 			}
@@ -109,7 +109,7 @@ public class PatientSelectionGestures {
 				}else{
 					changeOfState = true;
 					currentState = StatesHandler.sStateInit;
-					timeLastDetectedGest = System.currentTimeMillis();
+					timeLastDetectedGest = System.currentTimeMillis() - 1500;
 				}
 				return;
 			}
@@ -120,6 +120,7 @@ public class PatientSelectionGestures {
 				addPointedLocation(detectedPoint);
 				guiHandler.hover(detectedPoint);
 				currentState = StatesHandler.sStatePointSelect;
+				// - 2000 so the system does not enter the waiting mode
 				timeLastDetectedGest = System.currentTimeMillis() - 2000;
 				return;
 			}
