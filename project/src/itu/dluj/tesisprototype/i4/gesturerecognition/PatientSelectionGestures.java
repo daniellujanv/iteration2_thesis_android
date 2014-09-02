@@ -124,6 +124,7 @@ public class PatientSelectionGestures {
 				timeLastDetectedGest = System.currentTimeMillis() - 2000;
 				return;
 			}
+			
 		}
 
 	}

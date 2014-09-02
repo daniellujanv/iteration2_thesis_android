@@ -169,6 +169,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public void onCameraViewStarted(int width, int height) {				
 //		mOpenCvCameraView.setFpsRange(30000, 30000);
 		Log.i("MainActivity", "size:: w:"+ width+" h:"+height);
+		if(width == 0){
+			width = 720;
+		}
+		if(height == 0){
+			height = 480;
+		}
 		statesHandler = new StatesHandler(width, height, getApplicationContext());
 		screenHeight = height;
 		screenWidth = width;
