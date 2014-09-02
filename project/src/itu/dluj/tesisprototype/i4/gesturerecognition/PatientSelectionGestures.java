@@ -70,7 +70,7 @@ public class PatientSelectionGestures {
 		 * Always detect end gesture
 		 */
 		if(Gestures.detectEndGesture(lDefects, centroid) == true ){
-			if(currentState != StatesHandler.sStateInit){
+			if(currentState != StatesHandler.sStateInit && currentState != StatesHandler.sStateZero){
 				timeLastDetectedGest = System.currentTimeMillis() - 1500;	
 			}
 			if(currentState != StatesHandler.sStateZero){

@@ -13,16 +13,16 @@ import org.opencv.imgproc.Moments;
 public class Tools {
 
 	public static Scalar red = new Scalar(255,0,0);
-	public static Scalar green = new Scalar(0,255,0);
+	public static Scalar green = new Scalar(0,166,81);
 	public static Scalar lightGreen = new Scalar(127,255,0);
-	public static Scalar blue = new Scalar(0,0,255);
-	public static Scalar magenta = new Scalar(255,0,255);
+	public static Scalar blue = new Scalar(0,114,188);
+	public static Scalar magenta = new Scalar(239,30,239);
 	public static Scalar gray = new Scalar(10, 10, 10);
 	public static Scalar lightGray = new Scalar(64, 64, 64);
 	public static Scalar white = new Scalar(255, 255, 255);
-	public static Scalar yellow = new Scalar(255,255,0);
-	public static Scalar orange = new Scalar(255,165,0);
-	public static Scalar cyan = new Scalar(0, 255, 255);
+	public static Scalar yellow = new Scalar(255,242,0);
+	public static Scalar orange = new Scalar(227,107,0);
+	public static Scalar cyan = new Scalar(23, 223, 223);
 	
 	/*************************** Utility methods ************************************/
 

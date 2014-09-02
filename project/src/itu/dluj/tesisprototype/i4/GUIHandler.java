@@ -35,9 +35,14 @@ public class GUIHandler {
 	private Point[] fullScreenImgCoords;
 
 	private Mat mPointSelectIcon;
+	private Mat mPointSelectIconSelected;
 	private Mat mSwipeIcon;
+	private Mat mSwipeIconSelected;
+	private Mat mInitIcon;
 	private Mat mZoomIcon;
+	private Mat mZoomIconSelected;
 	private Mat mRotateIcon;
+	private Mat mRotateIconSelected;
 	private Rect[] gestureIconsRoi;
 	private Point[] gestureIconsCoords;
 
@@ -93,7 +98,7 @@ public class GUIHandler {
 		screenWidth = width;
 		screenHeight = height;
 		imagesBtnClicked = false;
-//		imagesBtnClicked = true;
+		//		imagesBtnClicked = true;
 		backBtnClicked = false;
 
 		mRgb = new Mat();
@@ -119,9 +124,15 @@ public class GUIHandler {
 		mProfilePics = new Mat[2];
 		/***************************ICONS***********************************/
 		mPointSelectIcon = new Mat();
+		mPointSelectIconSelected = new Mat();
 		mSwipeIcon = new Mat();
+		mSwipeIconSelected = new Mat();
 		mZoomIcon  = new Mat();
+		mZoomIconSelected  = new Mat();
 		mRotateIcon = new Mat();
+		mRotateIconSelected = new Mat();
+		mInitIcon = new Mat();
+
 
 		gestureIconsRoi = new Rect[4];
 		gestureIconsCoords = new Point[8];
@@ -136,31 +147,58 @@ public class GUIHandler {
 
 		int widthIcon = (int)  Math.ceil((double)(screenHeight*0.14));
 		int heightIcon = widthIcon;
-		//POINT SELECT ICON
+		//POINT SELECT ICON NORMAL
 		gestureIconsRoi[0] = new Rect(gestureIconsCoords[1],new Size(widthIcon, heightIcon));
-		Bitmap icon = BitmapFactory.decodeResource(resources, R.drawable.icon_pointselect);
+		Bitmap icon = BitmapFactory.decodeResource(resources, R.drawable.icon_pointselect_normal);
 		Bitmap bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
 		Utils.bitmapToMat(bitmap, mPointSelectIcon, true);
 		Imgproc.cvtColor(mPointSelectIcon, mPointSelectIcon, Imgproc.COLOR_RGBA2RGB);
+		//POINT SELECT ICON SELECTED
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_pointselect_selected);
+		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
+		Utils.bitmapToMat(bitmap, mPointSelectIconSelected, true);
+		Imgproc.cvtColor(mPointSelectIconSelected, mPointSelectIconSelected, Imgproc.COLOR_RGBA2RGB);
+		//INIT ICON
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_init_normal);
+		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
+		Utils.bitmapToMat(bitmap, mInitIcon, true);
+		Imgproc.cvtColor(mInitIcon, mInitIcon, Imgproc.COLOR_RGBA2RGB);		
 		//SWIPE ICON
 		gestureIconsRoi[1] = new Rect(gestureIconsCoords[3],new Size(widthIcon, heightIcon));
-		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_swipe);
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_swipe_normal);
 		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
 		Utils.bitmapToMat(bitmap, mSwipeIcon, true);
 		Imgproc.cvtColor(mSwipeIcon, mSwipeIcon, Imgproc.COLOR_RGBA2RGB);
+		//SWIPE ICON SELECTED
+		gestureIconsRoi[1] = new Rect(gestureIconsCoords[3],new Size(widthIcon, heightIcon));
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_swipe_selected);
+		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
+		Utils.bitmapToMat(bitmap, mSwipeIconSelected, true);
+		Imgproc.cvtColor(mSwipeIconSelected, mSwipeIconSelected, Imgproc.COLOR_RGBA2RGB);
 		//ZOOM
 		gestureIconsRoi[2] = new Rect(gestureIconsCoords[5],new Size(widthIcon, heightIcon));
-		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_zoom);
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_zoom_normal);
 		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
 		Utils.bitmapToMat(bitmap, mZoomIcon, true);
 		Imgproc.cvtColor(mZoomIcon, mZoomIcon, Imgproc.COLOR_RGBA2RGB);
+		//ZOOM SELECTED
+		gestureIconsRoi[2] = new Rect(gestureIconsCoords[5],new Size(widthIcon, heightIcon));
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_zoom_selected);
+		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
+		Utils.bitmapToMat(bitmap, mZoomIconSelected, true);
+		Imgproc.cvtColor(mZoomIconSelected, mZoomIconSelected, Imgproc.COLOR_RGBA2RGB);
 		//ROTATE
 		gestureIconsRoi[3] = new Rect(gestureIconsCoords[7],new Size(widthIcon, heightIcon));
-		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_rotate);
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_rotate_normal);
 		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
 		Utils.bitmapToMat(bitmap, mRotateIcon, true);
 		Imgproc.cvtColor(mRotateIcon, mRotateIcon, Imgproc.COLOR_RGBA2RGB);
-
+		//ROTATE SELECTED
+		gestureIconsRoi[3] = new Rect(gestureIconsCoords[7],new Size(widthIcon, heightIcon));
+		icon = BitmapFactory.decodeResource(resources, R.drawable.icon_gesture_rotate_selected);
+		bitmap = Bitmap.createScaledBitmap( icon, widthIcon, heightIcon, true);
+		Utils.bitmapToMat(bitmap, mRotateIconSelected, true);
+		Imgproc.cvtColor(mRotateIconSelected, mRotateIconSelected, Imgproc.COLOR_RGBA2RGB);
 		icon.recycle();
 
 		//Coords [0] == upper left inner rectangle
@@ -286,7 +324,7 @@ public class GUIHandler {
 		Bitmap bitmap_1 = BitmapFactory.decodeResource(resources, R.drawable.xr_1);
 		Bitmap bitmap_2 = BitmapFactory.decodeResource(resources, R.drawable.xr_2);
 		Bitmap bitmap_3 = BitmapFactory.decodeResource(resources, R.drawable.xr_3);
-		
+
 		mPatientImages = new Mat[4];
 		patientImgsRoi = new Rect[2];
 
@@ -318,7 +356,7 @@ public class GUIHandler {
 		mPatientImages[3] = new Mat();
 		Utils.bitmapToMat(bitmap, mPatientImages[3], true);
 		Imgproc.cvtColor(mPatientImages[3], mPatientImages[3], Imgproc.COLOR_RGBA2RGB);
-		
+
 		//ROI for Aid feedback
 		aidRoi = new Rect(new Point(screenWidth*0.15, screenHeight*0.35), new Point(screenWidth*0.85, screenHeight*0.85));
 		//aid rotate
@@ -366,7 +404,7 @@ public class GUIHandler {
 		mFullScreenImages[2] = new Mat();
 		Utils.bitmapToMat(bitmap, mFullScreenImages[2], true);
 		Imgproc.cvtColor(mFullScreenImages[2], mFullScreenImages[2], Imgproc.COLOR_RGBA2RGB);
-		
+
 		//image 3
 		bitmap = Bitmap.createScaledBitmap(bitmap_3, bWidth, bHeight, true);
 		mFullScreenImages[3] = new Mat();
@@ -498,18 +536,18 @@ public class GUIHandler {
 			Core.rectangle(mRgb, patientImgsCoords[6], patientImgsCoords[7], Tools.blue, -1);
 		}
 
-//		Log.i("GUIHandler","rec::"+mRgb.submat(patientImgsRoi[1]).size().toString()+" mBitmap::"+mPatientImages[iCurrentImg].size().toString());
-		
+		//		Log.i("GUIHandler","rec::"+mRgb.submat(patientImgsRoi[1]).size().toString()+" mBitmap::"+mPatientImages[iCurrentImg].size().toString());
+
 		Core.addWeighted(mRgb.submat(patientImgsRoi[0]), 0.0, mPatientImages[iCurrentImgPage*2 - 2], 1.0, 0, mRgb.submat(patientImgsRoi[0]));
 		mRgb = writeToImage(mRgb, new Point(patientImgsRoi[0].tl().x*1.05, patientImgsRoi[0].tl().y*1.20), ""+(iCurrentImgPage*2 - 1), 0.4);
-		
+
 		Core.addWeighted(mRgb.submat(patientImgsRoi[1]), 0.0, mPatientImages[iCurrentImgPage*2 - 1], 1.0, 0, mRgb.submat(patientImgsRoi[1]));
 		mRgb = writeToImage(mRgb,  new Point(patientImgsRoi[1].tl().x*1.05, patientImgsRoi[1].tl().y*1.20), ""+(iCurrentImgPage*2), 0.4);
-		
+
 		Point pPageNumberCircle = new Point();
 		pPageNumberCircle.x = patientImgsCoords[9].x*0.97;
 		pPageNumberCircle.y = patientImgsCoords[9].y*0.90;
-		
+
 		for(int i = 1; i<= (int)Math.ceil((double)numberImgs/2); i++){
 			if(i == iCurrentImgPage){
 				Core.circle(mRgb, pPageNumberCircle, 4, Tools.white, -1);
@@ -614,7 +652,7 @@ public class GUIHandler {
 			}
 			pZoomLevel.x = pZoomLevel.x * 1.10;
 		}
-		
+
 	}
 
 
@@ -627,16 +665,26 @@ public class GUIHandler {
 		/*****************PATIENT SELECTION*********************/
 		if(currentOverallState == StatesHandler.sPatientSelectionState){
 			drawPatientsToSelect();
-			//SWIPE ICON IN GRAY
-			Core.rectangle(mRgb,gestureIconsRoi[1].tl(), gestureIconsRoi[1].br(), Tools.lightGray, -1);
-			//ZOOM ICON IN GRAY
-			Core.rectangle(mRgb, gestureIconsRoi[2].tl(), gestureIconsRoi[2].br(), Tools.lightGray, -1);
-			//ROTATE ICON IN GRAY
-			Core.rectangle(mRgb, gestureIconsRoi[3].tl(), gestureIconsRoi[3].br(), Tools.lightGray, -1);
-			
-			//POINTSELECT ICON
-			Core.rectangle(mRgb, gestureIconsCoords[0], new Point( Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
-			Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+			/****************ZERO STATE -- ONLY DRAW INIT GESTURE**************************/
+			if(currentOverallState == StatesHandler.sStateZero){
+				//INIT ICON
+				Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mInitIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+			}else{
+				//SWIPE ICON IN GRAY
+				Core.rectangle(mRgb,gestureIconsRoi[1].tl(), gestureIconsRoi[1].br(), Tools.lightGray, -1);
+				//ZOOM ICON IN GRAY
+				Core.rectangle(mRgb, gestureIconsRoi[2].tl(), gestureIconsRoi[2].br(), Tools.lightGray, -1);
+				//ROTATE ICON IN GRAY
+				Core.rectangle(mRgb, gestureIconsRoi[3].tl(), gestureIconsRoi[3].br(), Tools.lightGray, -1);
+
+				//POINTSELECT ICON
+				Core.rectangle(mRgb, gestureIconsCoords[0], new Point( Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
+				if(gesture != StatesHandler.sStatePointSelect){
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+				}else{
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIconSelected, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+				}
+			}
 		}else 
 			/***********************RECORD VIEWING**************************/
 			if(currentOverallState == StatesHandler.sRecordViewingState){
@@ -648,7 +696,11 @@ public class GUIHandler {
 				if(imagesBtnClicked){
 					//SWIPE ICON
 					Core.rectangle(mRgb, gestureIconsCoords[2], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[3].y ), Tools.white, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[1]), 0.0, mSwipeIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[1]));
+					if(gesture != StatesHandler.sStateSwipe){
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[1]), 0.0, mSwipeIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[1]));
+					}else{
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[1]), 0.0, mSwipeIconSelected, 1.0, 0, mRgb.submat(gestureIconsRoi[1]));
+					}
 				}else{
 					//SWIPE ICON IN GRAY
 					Core.rectangle(mRgb,gestureIconsRoi[1].tl(), gestureIconsRoi[1].br(), Tools.lightGray, -1);		
@@ -656,8 +708,11 @@ public class GUIHandler {
 
 				//POINTSELECT ICON
 				Core.rectangle(mRgb, gestureIconsCoords[0], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
-				Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
-
+				if(gesture != StatesHandler.sStatePointSelect){
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+				}else{
+					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIconSelected, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+				}
 				drawPatientInfo();
 			}else 
 				/********************IMAGE INTERACTION***********************/
@@ -665,25 +720,36 @@ public class GUIHandler {
 					//SWIPE ICON IN GRAY
 					Core.rectangle(mRgb,gestureIconsRoi[1].tl(), gestureIconsRoi[1].br(), Tools.lightGray, -1);
 					drawFullScreenImage();
-					
+
 					//POINTSELECT ICON
 					Core.rectangle(mRgb, gestureIconsCoords[0], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[1].y ), Tools.cyan, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+					if(gesture != StatesHandler.sStatePointSelect){
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+					}else{
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mPointSelectIconSelected, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
+					}
 					//ZOOM ICON
 					Core.rectangle(mRgb, gestureIconsCoords[4], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[5].y ), Tools.orange, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[2]), 0.0, mZoomIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[2]));
+					if(gesture != StatesHandler.sStateZoom){
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[2]), 0.0, mZoomIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[2]));
+					}else{
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[2]), 0.0, mZoomIconSelected, 1.0, 0, mRgb.submat(gestureIconsRoi[2]));
+					}
 					//ROTATE ICON
 					Core.rectangle(mRgb, gestureIconsCoords[6], new Point(Math.ceil((double)(screenHeight*0.14)), gestureIconsCoords[7].y ), Tools.magenta, -1);
-					Core.addWeighted(mRgb.submat(gestureIconsRoi[3]), 0.0, mRotateIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[3]));
-
+					if(gesture != StatesHandler.sStateRotate){
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[3]), 0.0, mRotateIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[3]));
+					}else{
+						Core.addWeighted(mRgb.submat(gestureIconsRoi[3]), 0.0, mRotateIconSelected, 1.0, 0, mRgb.submat(gestureIconsRoi[3]));
+					}
 				}
 
-		int fill = 2;
+		int fill = 5;
 		switch (gesture) {
 		case StatesHandler.sStateZero:
 			currentHover = hoverNone;
 			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.gray, fill);
+				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.gray, 2);
 			}else{
 				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
 			}
@@ -699,7 +765,7 @@ public class GUIHandler {
 		case StatesHandler.sStateInit:
 			currentHover = hoverNone;
 			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.green, fill);
+				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.green, 2);
 			}else{
 				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
 			}
@@ -816,17 +882,17 @@ public class GUIHandler {
 				}else 
 					//click on right image
 					if( imagesBtnClicked == true && click.inside(patientImgsRoi[1])){
-					backBtnClicked = false;
-					// page 1 shows images --> 0 , 1 ... 1*2 - 1 = 1
-					iCurrentImg = iCurrentImgPage*2 - 1;
-					
-//					iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0:iCurrentImg+1;
-					
-					//				imagesBtnClicked = false;
-					//					bigImgShowing = true;
-					currentHover = hoverNone;
-					return true;
-				}
+						backBtnClicked = false;
+						// page 1 shows images --> 0 , 1 ... 1*2 - 1 = 1
+						iCurrentImg = iCurrentImgPage*2 - 1;
+
+						//					iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0:iCurrentImg+1;
+
+						//				imagesBtnClicked = false;
+						//					bigImgShowing = true;
+						currentHover = hoverNone;
+						return true;
+					}
 			}
 			if(click.inside(rect_backBtn)){
 				//go back to state PatientSelect
@@ -964,11 +1030,11 @@ public class GUIHandler {
 	public boolean swipe(String side){
 		if(imagesBtnClicked == true){
 			if(side == "right"){
-//				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
+				//				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
 				iCurrentImgPage = (iCurrentImgPage == 1)? (int)Math.ceil((double)numberImgs/2) : iCurrentImgPage - 1;
 				return true;
 			}else if(side == "left"){
-//				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
+				//				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
 				iCurrentImgPage = (iCurrentImgPage == (int)Math.ceil((double)numberImgs/2))? 1 : iCurrentImgPage + 1 ;
 				return true;
 			}

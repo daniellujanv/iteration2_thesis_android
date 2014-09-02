@@ -306,7 +306,11 @@ public class StatesHandler {
 	 */
 	private void drawGUI(boolean goodContour) {
 		//draw things after converting image to hsv so they don't interfere with gestures
-		mRgb = guiHandler.drawGui(goodContour, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, false, -1);
+		if(currentState == sStateZero){
+			mRgb = guiHandler.drawGui(goodContour, lHandContour, sStateZero, mRgb.size(), mRgb.type(), currentState, false, -1);			
+		}else{
+			mRgb = guiHandler.drawGui(goodContour, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, false, -1);
+		}
 //		return mRgb;
 	}
 
