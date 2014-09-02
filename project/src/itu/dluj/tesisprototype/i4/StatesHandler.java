@@ -32,7 +32,7 @@ public class StatesHandler {
 	private int screenArea;
 	private double pctMinAreaGesture = 0.05;
 	private double pctMaxAreaGesture = 0.28;
-	
+
 	private MatOfPoint mHandContour;
 	private List<MatOfPoint> lHandContour;
 	private Point handContourCentroid;
@@ -51,7 +51,7 @@ public class StatesHandler {
 
 	private long timeLastDetectedGesture;
 	private long timeLastDetectedContour;
-	
+
 	public static final String sStateZero = "Zipou";
 	public static final String sStateInit = "Init";
 	public static final String sStateZoom = "Zoom";
@@ -60,7 +60,7 @@ public class StatesHandler {
 	public static final String sStatePointSelect = "PointSelect";
 	public static final String sStateEnd ="End";
 	public static String currentOverallState;
-	
+
 	private String currentState = sStateInit;
 
 	//values for magenta globe 1
@@ -68,13 +68,13 @@ public class StatesHandler {
 	private final Scalar maxRange = new Scalar(178, 255, 255);
 
 	//values for magenta globe 2
-//	private final Scalar minRange = new Scalar(110, 50, 50);
-//	private final Scalar maxRange = new Scalar(174, 230, 200);
+	//	private final Scalar minRange = new Scalar(110, 50, 50);
+	//	private final Scalar maxRange = new Scalar(174, 230, 200);
 	//values for blue globe
-//	private final Scalar minRange = new Scalar(0, 0, 0);
-//	private final Scalar maxRange = new Scalar(30, 255, 255);
+	//	private final Scalar minRange = new Scalar(0, 0, 0);
+	//	private final Scalar maxRange = new Scalar(30, 255, 255);
 
-//	private Size blurSize;
+	//	private Size blurSize;
 	private Mat kernelErode;
 	private Mat kernelDilate;
 
@@ -99,8 +99,8 @@ public class StatesHandler {
 		mRgb = new Mat();
 		mHsv = new Mat();
 		mBin = new Mat();
-		
-		
+
+
 		convexHull = new MatOfInt();
 		mHandContour = new MatOfPoint();
 		convexityDefects = new MatOfInt4();
@@ -109,32 +109,32 @@ public class StatesHandler {
 
 		int kernelSizeE = 15;
 		int kernelSizeD = 12;
-//		int kernelSize =(int)Math.round(screenWidth*0.035);
-//		kernelSize = (kernelSize % 2 == 0)? kernelSize + 1: kernelSize;
+		//		int kernelSize =(int)Math.round(screenWidth*0.035);
+		//		kernelSize = (kernelSize % 2 == 0)? kernelSize + 1: kernelSize;
 		kernelErode = Mat.ones(kernelSizeE, kernelSizeE, CvType.CV_8U);
 		kernelDilate = Mat.ones(kernelSizeD, kernelSizeD, CvType.CV_8U);
-//		int blur_size = 5;
-//		int blur_size = (int)Math.round(screenWidth*0.008);
-//		Log.i("StatesHandler", "kernelSize :: "+ kernelSize+ " blurSize::"+ blur_size);
-//		blur_size = (blur_size % 2 == 0)? blur_size + 1: blur_size;
-//		blurSize = new Size(blur_size, blur_size);
+		//		int blur_size = 5;
+		//		int blur_size = (int)Math.round(screenWidth*0.008);
+		//		Log.i("StatesHandler", "kernelSize :: "+ kernelSize+ " blurSize::"+ blur_size);
+		//		blur_size = (blur_size % 2 == 0)? blur_size + 1: blur_size;
+		//		blurSize = new Size(blur_size, blur_size);
 		currentState = sStateInit;
 		currentOverallState = sPatientSelectionState;
-		
-//		Log.i("StatesHandler", " blur::"+blur_size+" kernel::"+kernelSizeE);
+
+		//		Log.i("StatesHandler", " blur::"+blur_size+" kernel::"+kernelSizeE);
 
 		overallState = new HashMap<String, Boolean>();	
 		setStateTrue(sPatientSelectionState);
-//		setStateTrue(sRecordViewingState);
-//		setStateTrue(sImageInteractionState);
-		
+		//		setStateTrue(sRecordViewingState);
+		//		setStateTrue(sImageInteractionState);
+
 		guiHandler = new GUIHandler(screenWidth, screenHeight, appContext);
 
 		patSelRecognition = new PatientSelectionGestures(screenWidth, screenHeight, guiHandler);
 		recViwRecognition = new RecordViewingGestures(screenWidth, screenHeight, guiHandler);
 		imgIntRecognition = new ImageInteractionGestures(screenWidth, screenHeight, guiHandler);
-		
-		
+
+
 	}
 
 	/*
@@ -165,18 +165,18 @@ public class StatesHandler {
 				return mRgb;
 			}
 		}
-		
+
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
 		Imgproc.cvtColor(mRgb, mHsv, Imgproc.COLOR_RGB2HSV);
 
-//		mRgb = drawGUI();
-//		drawGUI();
-		
+		//		mRgb = drawGUI();
+		//		drawGUI();
+
 		Core.inRange(mHsv, minRange, maxRange, mBin);
 		Imgproc.erode(mBin, mBin, kernelErode);
 		Imgproc.dilate(mBin, mBin, kernelDilate);
-		
+
 		Imgproc.findContours(mBin, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 		double biggestArea = 0;
 		int indexBiggestArea = -1;
@@ -196,9 +196,9 @@ public class StatesHandler {
 		}
 
 		if(indexBiggestArea != -1){
-//			Log.i("check", "procressImage init");
+			//			Log.i("check", "procressImage init");
 			mHandContour = contours.get(indexBiggestArea);
-//			Imgproc.drawContours(mRgb, contours, -1, Tools.red, 2);
+			//			Imgproc.drawContours(mRgb, contours, -1, Tools.red, 2);
 
 			double contourArea = Imgproc.contourArea(mHandContour);
 			if(contourArea < screenArea * pctMinAreaGesture){
@@ -232,8 +232,8 @@ public class StatesHandler {
 					long sec = (long) (2 - (double)((now - timeLastDetectedGesture)/1000));
 					drawGUIAid(sec);
 					lHandContour.clear();
-//					mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + sec+"s" );	
-//					mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
+					//					mRgb = guiHandler.writeInfoToImage(mRgb, "Wait " + sec+"s" );	
+					//					mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
 					return mRgb;
 				}else{
 					drawGUI(true);
@@ -243,10 +243,10 @@ public class StatesHandler {
 				Imgproc.convexityDefects(mHandContour, convexHull, convexityDefects);
 				lFinalDefects = Gestures.filterDefects(convexityDefects, mHandContour);
 				/***********/
-//				mRgb = Tools.drawDefects(mRgb, lFinalDefects, handContourCentroid);
+				//				mRgb = Tools.drawDefects(mRgb, lFinalDefects, handContourCentroid);
 				/**********/
-				
-				
+
+
 				if(overallState.get(sPatientSelectionState) == true){
 					mRgb = patSelRecognition.processImage(mRgb, handContourCentroid, lFinalDefects);
 					currentState = patSelRecognition.getState();
@@ -276,7 +276,7 @@ public class StatesHandler {
 						setStateTrue(sRecordViewingState);
 					}
 				}
-//				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
+				//				mRgb = guiHandler.writeWarningToImage(mRgb, currentState);
 			}
 		}else{
 			/*
@@ -286,7 +286,7 @@ public class StatesHandler {
 			mRgb = guiHandler.writeWarningToImage(mRgb, " No hand found!");
 		}
 
-		
+
 		lHandContour.clear();
 		lFinalDefects.clear();
 		mHandContour.release();
@@ -296,8 +296,8 @@ public class StatesHandler {
 		contours.clear();
 
 		//    	Log.i("check", "handleFrame - end");
-//		return mBin;
-//		return mHsv;
+		//		return mBin;
+		//		return mHsv;
 		return mRgb;
 	}
 
@@ -306,12 +306,8 @@ public class StatesHandler {
 	 */
 	private void drawGUI(boolean goodContour) {
 		//draw things after converting image to hsv so they don't interfere with gestures
-		if(currentState == sStateZero){
-			mRgb = guiHandler.drawGui(goodContour, lHandContour, sStateZero, mRgb.size(), mRgb.type(), currentState, false, -1);			
-		}else{
-			mRgb = guiHandler.drawGui(goodContour, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, false, -1);
-		}
-//		return mRgb;
+		mRgb = guiHandler.drawGui(goodContour, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, false, -1);
+		//		return mRgb;
 	}
 
 	/*
@@ -321,7 +317,7 @@ public class StatesHandler {
 		//draw things after converting image to hsv so they don't interfere with gestures
 		mRgb = guiHandler.drawGui(true, lHandContour, currentOverallState, mRgb.size(), mRgb.type(), currentState, true, second);
 	}
-	
+
 	/*
 	 * 
 	 */
@@ -352,10 +348,10 @@ public class StatesHandler {
 	 */
 	public Point getHandCentroid(){
 		if(handContourCentroid != null){
-//			Log.i("StatesHandler", "centroidScaled::"+handContourCentroid.toString());
+			//			Log.i("StatesHandler", "centroidScaled::"+handContourCentroid.toString());
 			return new Point(handContourCentroid.x*2, handContourCentroid.y*2);
 		}
 		return null;
 	}
-	
+
 }

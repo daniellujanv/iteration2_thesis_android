@@ -666,7 +666,7 @@ public class GUIHandler {
 		if(currentOverallState == StatesHandler.sPatientSelectionState){
 			drawPatientsToSelect();
 			/****************ZERO STATE -- ONLY DRAW INIT GESTURE**************************/
-			if(currentOverallState == StatesHandler.sStateZero){
+			if(gesture == StatesHandler.sStateZero){
 				//INIT ICON
 				Core.addWeighted(mRgb.submat(gestureIconsRoi[0]), 0.0, mInitIcon, 1.0, 0, mRgb.submat(gestureIconsRoi[0]));
 			}else{
