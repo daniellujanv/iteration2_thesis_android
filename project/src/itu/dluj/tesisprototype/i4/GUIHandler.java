@@ -92,7 +92,7 @@ public class GUIHandler {
 	private Resources resources;
 
 	private Context appContext;
-
+	private String TAG = "itu.dluj.tesisprototype_iteration2";
 
 	public GUIHandler(int width, int height, Context context){
 		screenWidth = width;
@@ -476,9 +476,9 @@ public class GUIHandler {
 		}
 		Core.rectangle(mRgb, patientOneCoords[0], patientOneCoords[1], Tools.lightGray, 1);
 		mRgb = writeToImage(mRgb, patientOneCoords[4], "Patient: Tom", 0.7);
-		Log.i("GUIHandler", " profPicRoi::"+profilePicRoi[0].size().toString()
-				+ " profPicSize::"+ mProfilePics[0].size().toString()
-				);
+//		Log.i("GUIHandler", " profPicRoi::"+profilePicRoi[0].size().toString()
+//				+ " profPicSize::"+ mProfilePics[0].size().toString()
+//				);
 		Core.addWeighted(mRgb.submat(profilePicRoi[0]), 0.0, mProfilePics[0], 1.0, 0, mRgb.submat(profilePicRoi[0]));
 
 		//Patient Two
@@ -490,9 +490,9 @@ public class GUIHandler {
 		}
 		Core.rectangle(mRgb, patientTwoCoords[0], patientTwoCoords[1], Tools.lightGray, 1);
 		mRgb = writeToImage(mRgb, patientTwoCoords[4], "Patient: Paul", 0.7);
-		Log.i("GUIHandler", " profPicRoi2::"+profilePicRoi[1].size().toString()
-				+ " profPicSize::"+ mProfilePics[1].size().toString()
-				);
+//		Log.i("GUIHandler", " profPicRoi2::"+profilePicRoi[1].size().toString()
+//				+ " profPicSize::"+ mProfilePics[1].size().toString()
+//				);
 		Core.addWeighted(mRgb.submat(profilePicRoi[1]), 0.0, mProfilePics[1], 1.0, 0, mRgb.submat(profilePicRoi[1]));
 	}
 
@@ -624,13 +624,13 @@ public class GUIHandler {
 
 			}
 
-			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+toDraw[zoomLevel].size().toString()
-					+ " imgRoi::"+fullScreenImgRoi.toString());
+//			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+toDraw[zoomLevel].size().toString()
+//					+ " imgRoi::"+fullScreenImgRoi.toString());
 			Core.addWeighted(mRgb.submat(fullScreenImgRoi), 0.0, 
 					toDraw[zoomLevel], 1.0, 0, mRgb.submat(fullScreenImgRoi));
 		}else {
-			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+mFullScreenImages[iCurrentImg].size().toString()
-					+ " imgRoi::"+fullScreenImgRoi.toString());
+//			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+mFullScreenImages[iCurrentImg].size().toString()
+//					+ " imgRoi::"+fullScreenImgRoi.toString());
 			Core.addWeighted(mRgb.submat(fullScreenImgRoi), 0.0, 
 					mFullScreenImages[iCurrentImg], 1.0, 0, mRgb.submat(fullScreenImgRoi));
 		}
@@ -744,7 +744,11 @@ public class GUIHandler {
 					}
 				}
 
-		int fill = 5;
+		if(second >= 1.0){
+			Imgproc.drawContours(mRgb, lHandContour, -1, Tools.red, -1);
+		}
+
+		int fill = 4;
 		switch (gesture) {
 		case StatesHandler.sStateZero:
 			currentHover = hoverNone;
@@ -805,10 +809,6 @@ public class GUIHandler {
 			break;
 		}
 
-		if(second >= 1.0){
-			Imgproc.drawContours(mRgb, lHandContour, -1, Tools.red, -1);
-		}
-
 		if(drawAid){
 			drawAid(gesture);
 		}
@@ -851,11 +851,13 @@ public class GUIHandler {
 				iCurrentPatient = 0;
 				sCurrentPatient = "Tom";
 				currentHover = hoverNone;
+				Log.i(TAG, "GUIHandler :: PatientSelection :: Patient Tom Selected");
 				return true;
 			}else if(click.inside(rect_two)){
 				iCurrentPatient = 1;
 				sCurrentPatient = "Paul";
 				currentHover = hoverNone;
+				Log.i(TAG, "GUIHandler :: PatientSelection :: Patient Paul Selected");
 				return true;
 			}
 		}else if(StatesHandler.currentOverallState == StatesHandler.sRecordViewingState){//RecordViewing
@@ -878,6 +880,7 @@ public class GUIHandler {
 					// page 1 shows images --> 0 , 1 ... 1*2 - 2 = 0
 					iCurrentImg = iCurrentImgPage*2 - 2;
 					currentHover = hoverNone;
+					Log.i(TAG, "GUIHandler :: RecordViewing :: Patient's image selected :: "+ iCurrentImg);
 					return true;
 				}else 
 					//click on right image
@@ -890,6 +893,7 @@ public class GUIHandler {
 
 						//				imagesBtnClicked = false;
 						//					bigImgShowing = true;
+						Log.i(TAG, "GUIHandler :: RecordViewing :: Patient's image selected :: "+ iCurrentImg);
 						currentHover = hoverNone;
 						return true;
 					}
@@ -902,11 +906,13 @@ public class GUIHandler {
 				backBtnClicked = true;
 				currentHover = hoverNone;
 				imagesBtnClicked = false;
+				Log.i(TAG, "GUIHandler :: RecordViewing :: Back button selected");
 				return true;
 			}else if(click.inside(rect_imagesBtn)){
 				backBtnClicked = false;
 				imagesBtnClicked = !imagesBtnClicked;
 				currentHover = hoverNone;
+				Log.i(TAG, "GUIHandler :: RecordViewing :: Images button selected");
 				return false;
 			}
 		}else{//ImgInteraction
@@ -928,6 +934,7 @@ public class GUIHandler {
 				//				bigImgShowing = false;
 				currentHover = hoverNone;
 				zoomLevel = 0;
+				Log.i(TAG, "GUIHandler :: ImageInteraction :: Back button selected");
 				return true;
 			}else if(click.inside(rect_fullScreenImg)){
 				if(zoomLevel != 0){
@@ -938,6 +945,7 @@ public class GUIHandler {
 					pFullScreenImgCenter.y = pFullScreenImgCenter.y + betay;
 					//					Log.i("GUIHandler", "OnClick::NewCenter::"+pFullScreenImgCenter.toString());
 					currentHover = hoverNone;
+					Log.i(TAG, "GUIHandler :: ImageInteraction :: Zoomed Image Center changed");
 				}
 				return false;
 			}
@@ -1032,10 +1040,12 @@ public class GUIHandler {
 			if(side == "right"){
 				//				iCurrentImg = (iCurrentImg == 0)? (numberImgs - 1): iCurrentImg - 1;
 				iCurrentImgPage = (iCurrentImgPage == 1)? (int)Math.ceil((double)numberImgs/2) : iCurrentImgPage - 1;
+				Log.i(TAG, "GUIHandler :: RecordViewing :: Right Swipe");
 				return true;
 			}else if(side == "left"){
 				//				iCurrentImg = (iCurrentImg == (numberImgs - 1))? 0: iCurrentImg + 1;
 				iCurrentImgPage = (iCurrentImgPage == (int)Math.ceil((double)numberImgs/2))? 1 : iCurrentImgPage + 1 ;
+				Log.i(TAG, "GUIHandler :: RecordViewing :: Left Swipe");
 				return true;
 			}
 		}
@@ -1052,11 +1062,13 @@ public class GUIHandler {
 				Core.transpose(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg]);
 				Core.flip(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg], 0);
 				//				mFullScreenImages[iCurrentImg] = mFullScreenImages[iCurrentImg].t();
+				Log.i(TAG, "GUIHandler :: ImageInteraction :: Left Rotate");
 				return true;
 			}else if(side == "right"){
 				//				mFullScreenImages[iCurrentImg] = mFullScreenImages[iCurrentImg].t();
 				Core.transpose(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg]);
 				Core.flip(mFullScreenImages[iCurrentImg], mFullScreenImages[iCurrentImg], 1);
+				Log.i(TAG, "GUIHandler :: ImageInteraction :: Right Rotate");
 				return true;
 			}
 		}
@@ -1072,9 +1084,10 @@ public class GUIHandler {
 		if(StatesHandler.currentOverallState == StatesHandler.sImageInteractionState){
 			if(zoom == "in"){
 				zoomLevel = (zoomLevel < maxZoom)? zoomLevel + 1 : 0;
+				Log.i(TAG, "GUIHandler :: ImageInteraction :: IN Zoom");
 				return true;
 			}else if(zoom == "out"){
-
+				Log.i(TAG, "GUIHandler :: ImageInteraction :: OUT Zoom");
 				zoomLevel = (zoomLevel > 0)? zoomLevel - 1 : 0;
 				return true;
 			}

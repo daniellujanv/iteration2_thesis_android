@@ -45,6 +45,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	private int cameraIndex;
 	private int screenWidth;
 	private int screenHeight;
+	private String TAG = "itu.dluj.tesisprototype_iteration2";
 
 //	private Mat mProcessed;
 
@@ -53,7 +54,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Log.i("opencv", "called onCreate");
+		Log.i(TAG, "opencv :: called onCreate");
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 
@@ -97,44 +98,44 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	 @Override
 	 public void onPause()
 	 {
-		 Log.i("pause", "app paused");
+		 Log.i(TAG, "pause :: app paused");
 		 super.onPause();
 	     if (mOpenCvCameraView != null)
 	         mOpenCvCameraView.disableView();
 	 }
 
 	 public void onDestroy() {
-		 Log.i("storagedirectory", Environment.DIRECTORY_DOWNLOADS.toString());
+		 Log.i(TAG, "storagedirectory :: "+Environment.DIRECTORY_DOWNLOADS.toString());
 		 String state = Environment.getExternalStorageState();
 		    if (Environment.MEDIA_MOUNTED.equals(state)) {
-		    	Log.i("MainActivity", "Mdia mounted");
+		    	Log.i(TAG, "MainActivity :: Media mounted");
 				 File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 				 if(!path.mkdirs()){
-					 Log.i("MainActivity", "Error mkdirs");
+					 Log.i(TAG, "MainActivity :: Error mkdirs");
 				 }
 				 //				 File path = this.getExternalFilesDir(null);
-				 String fileName = "logcatParticipant6.txt";
+				 String fileName = "logcatTestFinalExperiment.txt";
 				 File file = new File(path, fileName);
 			     try {
 			    	 OutputStream os = new FileOutputStream(file);
-			    	 Log.i("bla", "writting");
-			    	 os.write(("testng").getBytes());
+			    	 Log.i(TAG, "MainActivity :: writting");
+			    	 os.write(("making sure file exists_").getBytes());
 			    	 os.close();
-			    	 Log.i("bla", "closing");
-			    	 Runtime.getRuntime().exec(new String[]{"logcat", "-f", file.getPath(), "itu.dluj.tesisprototype_iteration2:I"});
-			    	 Log.i("bla", "logcat done :: "+ path.toString());
+			    	 Log.i(TAG, "MainActivity :: closing file");
+			    	 Runtime.getRuntime().exec("logcat -v threadtime -d -f " + file.getPath() +" *:S itu.dluj.tesisprototype_iteration2");
+			    	 Log.i(TAG, "MainActivity :: logcat done :: "+ path.toString());
 			    	 Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
 			    	    mediaScanIntent.setData(Uri.fromFile(file));
 			    	    this.sendBroadcast(mediaScanIntent);
 				} catch (IOException e) {
-					 Log.i("storagedirectory", e.toString());
+					 Log.i(TAG, "Error :: " + e.toString());
 				}
 		    }else{
-		    	Log.i("MainActivity", "Media NOT mounted");
+		    	Log.i(TAG, "MainActivity :: Media NOT mounted");
 		    }
 
 		 
-		 Log.i("crash", "app crashed");
+		 Log.i(TAG, "MainActivity :: app crashed");
 	     super.onDestroy();
 	     if (mOpenCvCameraView != null)
 	         mOpenCvCameraView.disableView();
@@ -146,7 +147,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS:
 			{
-				Log.i("opencv", "OpenCV loaded successfully");
+				Log.i(TAG, "MainActivity :: OpenCV loaded successfully");
 				mOpenCvCameraView.enableView();
 
 			} break;
@@ -168,7 +169,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	public void onCameraViewStarted(int width, int height) {				
 //		mOpenCvCameraView.setFpsRange(30000, 30000);
-		Log.i("MainActivity", "size:: w:"+ width+" h:"+height);
+		Log.i(TAG, "MainActivity:: size:: w:"+ width+" h:"+height);
 		if(width == 0){
 			width = 720;
 		}
@@ -183,13 +184,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStopped() {
-		 Log.i("stop", "camera view stopped");
+		 Log.i(TAG, "MainActivity :: camera view stopped");
 	}
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		Mat output = new Mat();
-//		Log.i("DEVICE", sDeviceModel);
+//		Log.i(TAG, "DEVICE::"+sDeviceModel);
 		if(cameraIndex == CameraBridgeViewBase.CAMERA_ID_BACK){  
 			Core.flip(inputFrame.rgba(), output, 1);
 		}else{
@@ -203,15 +204,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //		
 		
 		Mat outputScaled = new Mat();
-//		Log.i("MainActivity", "dims output before pyrdown::"+ output.cols());
+//		Log.i(TAG+"MainActivity", "dims output before pyrdown::"+ output.cols());
 		Imgproc.pyrDown(output, outputScaled);
-//		Log.i("MainActivity", "dims scaled after pyrdown::"+ outputScaled.cols());
+//		Log.i(TAG+"MainActivity", "dims scaled after pyrdown::"+ outputScaled.cols());
 		outputScaled = statesHandler.handleFrame(outputScaled);
 		Imgproc.pyrUp(outputScaled, output);
-//		Log.i("MainActivity", "dims output after pyrup::"+ output.cols());
+//		Log.i(TAG+"MainActivity", "dims output after pyrup::"+ output.cols());
 		Point handCentroid = statesHandler.getHandCentroid();
 		if(handCentroid != null){
-//			Log.i("StatesHandler", "centroidNormal::"+temp.toString());
+//			Log.i(TAG+"StatesHandler", "centroidNormal::"+temp.toString());
 			mOpenCvCameraView.resetFMAreas(handCentroid, screenWidth, screenHeight);
 		}
         return output;

@@ -96,7 +96,7 @@ public class RecordViewingGestures {
 				//good contour found
 				currentState = StatesHandler.sStateInit;
 				//				drawDefects(convexityDefects, handContour);
-				Log.i("ImageInteraction", "Gesture detected - INIT");
+				//Log.i("ImageInteraction", "Gesture detected - INIT");
 				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}
@@ -128,7 +128,7 @@ public class RecordViewingGestures {
 			
 			if( detectedPoint != null ){
 				double traveledDistance = Tools.getDistanceBetweenPoints(initSwipeLocation, detectedPoint);
-				Log.i("RecordViewing", "traveled::"+traveledDistance);
+				//Log.i("RecordViewing", "traveled::"+traveledDistance);
 				if(traveledDistance > screenWidth*0.20){//more than 20% of the screen
 					if(initSwipeLocation.x < detectedPoint.x){
 						if(guiHandler.swipe("right") == true){

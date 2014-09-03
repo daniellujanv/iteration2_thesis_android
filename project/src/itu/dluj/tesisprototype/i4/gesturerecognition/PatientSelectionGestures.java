@@ -83,7 +83,7 @@ public class PatientSelectionGestures {
 			if(Gestures.detectInitGesture(lDefects, centroid) == true ){
 				//good contour found
 				currentState = StatesHandler.sStateInit;
-				Log.i("ImageInteraction", "Gesture detected - INIT");
+				//Log.i("ImageInteraction", "Gesture detected - INIT");
 				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}

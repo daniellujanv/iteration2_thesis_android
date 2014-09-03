@@ -95,7 +95,7 @@ public class ImageInteractionGestures {
 			//Init not detected no interaction has not started
 			if(Gestures.detectInitGesture(lDefects, centroid) == true ){
 				currentState = StatesHandler.sStateInit;
-				Log.i("ImageInteraction", "Gesture detected - INIT");
+				//Log.i("ImageInteraction", "Gesture detected - INIT");
 				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}
@@ -105,7 +105,7 @@ public class ImageInteractionGestures {
 			if( detectedPoint != null ){
 				rotateInitPos = detectedPoint;
 				currentState = StatesHandler.sStateRotate;
-				Log.i("ImageInteraction", "Gesture detected - Rotate_Init");
+				//Log.i("ImageInteraction", "Gesture detected - Rotate_Init");
 				timeLastDetectedGest = System.currentTimeMillis() - 1000;
 				return;
 			}else {
@@ -113,7 +113,7 @@ public class ImageInteractionGestures {
 				if(detectedDistance != -1){
 					zoomInitDistance = detectedDistance;
 					currentState = StatesHandler.sStateZoom;
-//					Log.i("ImageInteraction", "Gesture detected - Zoom_Init");
+//					//Log.i("ImageInteraction", "Gesture detected - Zoom_Init");
 					timeLastDetectedGest = System.currentTimeMillis() - 1000;	
 					return;
 				}else{
@@ -140,14 +140,14 @@ public class ImageInteractionGestures {
 				if(traveledDistance > screenWidth*0.10){//more than 10% of the screen
 					if((rotateInitPos.x >= rotateEndPos.x)){
 						//rotate left
-						Log.i("ImageInteraction", "Rotate gesture::LEFT ");
+						//Log.i("ImageInteraction", "Rotate gesture::LEFT ");
 						if(guiHandler.rotate("left")){
 							currentState = StatesHandler.sStateInit;
 							timeLastDetectedGest = System.currentTimeMillis();
 						}
 					}else if((rotateInitPos.x < rotateEndPos.x) ){
 						//rotate right
-						Log.i("ImageInteraction", "Rotate gesture::RIGHT");
+						//Log.i("ImageInteraction", "Rotate gesture::RIGHT");
 						if(guiHandler.rotate("right")){
 							currentState = StatesHandler.sStateInit;
 							timeLastDetectedGest = System.currentTimeMillis();
@@ -166,7 +166,7 @@ public class ImageInteractionGestures {
 					if(zoomEndDistance > zoomInitDistance){
 						//Zoom-IN gesture
 						if(guiHandler.zoom("in")){
-							Log.i("ImageInteraction", "Zoom gesture::IN");
+							//Log.i("ImageInteraction", "Zoom gesture::IN");
 							currentState = StatesHandler.sStateInit;
 							timeLastDetectedGest = System.currentTimeMillis();
 						}
@@ -175,7 +175,7 @@ public class ImageInteractionGestures {
 						if(guiHandler.zoom("out")){
 							currentState = StatesHandler.sStateInit;
 							timeLastDetectedGest = System.currentTimeMillis();
-							Log.i("ImageInteraction", "Zoom gesture::OUT");
+							//Log.i("ImageInteraction", "Zoom gesture::OUT");
 						}
 					}
 					return;
