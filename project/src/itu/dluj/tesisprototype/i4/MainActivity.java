@@ -61,17 +61,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView = (JavaCameraView) findViewById(R.id.cameraView);
 //		mOpenCvCameraView = (JavaCameraViewExtended) findViewById(R.id.cameraView);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-
-		if(
-//				sDeviceModel.equals("Nexus 5") ||
-				sDeviceModel.equals("GT-S6810P")
-				){
-			mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
-			cameraIndex = CameraBridgeViewBase.CAMERA_ID_FRONT;
-		}else{
-			mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_ANY);
-			cameraIndex = CameraBridgeViewBase.CAMERA_ID_ANY;
-		}
+		mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_BACK);
+//		if(
+//				//				sDeviceModel.equals("Nexus 5") ||
+//				sDeviceModel.equals("GT-S6810P")
+//				){
+//			mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
+//			cameraIndex = CameraBridgeViewBase.CAMERA_ID_FRONT;
+//		}else{
+//			mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_ANY);
+//			cameraIndex = CameraBridgeViewBase.CAMERA_ID_ANY;
+//		}
 		mOpenCvCameraView.enableFpsMeter();
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	
@@ -114,7 +114,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 					 Log.i(TAG, "MainActivity :: Error mkdirs");
 				 }
 				 //				 File path = this.getExternalFilesDir(null);
-				 String fileName = "logcatTestFinalExperiment.txt";
+				 String fileName = "logcatTestFinalExperiment_1.txt";
 				 File file = new File(path, fileName);
 			     try {
 			    	 OutputStream os = new FileOutputStream(file);
