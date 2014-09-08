@@ -114,7 +114,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 					 Log.i(TAG, "MainActivity :: Error mkdirs");
 				 }
 				 //				 File path = this.getExternalFilesDir(null);
-				 String fileName = "logcatTestFinalExperiment_1.txt";
+				 String fileName = "logcatFinalExperiment_1.txt";
 				 File file = new File(path, fileName);
 			     try {
 			    	 OutputStream os = new FileOutputStream(file);

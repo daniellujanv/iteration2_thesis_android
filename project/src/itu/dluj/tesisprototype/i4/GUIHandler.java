@@ -404,6 +404,7 @@ public class GUIHandler {
 		mFullScreenImages[2] = new Mat();
 		Utils.bitmapToMat(bitmap, mFullScreenImages[2], true);
 		Imgproc.cvtColor(mFullScreenImages[2], mFullScreenImages[2], Imgproc.COLOR_RGBA2RGB);
+		Core.circle(mFullScreenImages[2], new Point(bWidth/4, bHeight/4), 4, Tools.red, -1);
 
 		//image 3
 		bitmap = Bitmap.createScaledBitmap(bitmap_3, bWidth, bHeight, true);
@@ -476,9 +477,9 @@ public class GUIHandler {
 		}
 		Core.rectangle(mRgb, patientOneCoords[0], patientOneCoords[1], Tools.lightGray, 1);
 		mRgb = writeToImage(mRgb, patientOneCoords[4], "Patient: Tom", 0.7);
-//		Log.i("GUIHandler", " profPicRoi::"+profilePicRoi[0].size().toString()
-//				+ " profPicSize::"+ mProfilePics[0].size().toString()
-//				);
+		//		Log.i("GUIHandler", " profPicRoi::"+profilePicRoi[0].size().toString()
+		//				+ " profPicSize::"+ mProfilePics[0].size().toString()
+		//				);
 		Core.addWeighted(mRgb.submat(profilePicRoi[0]), 0.0, mProfilePics[0], 1.0, 0, mRgb.submat(profilePicRoi[0]));
 
 		//Patient Two
@@ -490,9 +491,9 @@ public class GUIHandler {
 		}
 		Core.rectangle(mRgb, patientTwoCoords[0], patientTwoCoords[1], Tools.lightGray, 1);
 		mRgb = writeToImage(mRgb, patientTwoCoords[4], "Patient: Paul", 0.7);
-//		Log.i("GUIHandler", " profPicRoi2::"+profilePicRoi[1].size().toString()
-//				+ " profPicSize::"+ mProfilePics[1].size().toString()
-//				);
+		//		Log.i("GUIHandler", " profPicRoi2::"+profilePicRoi[1].size().toString()
+		//				+ " profPicSize::"+ mProfilePics[1].size().toString()
+		//				);
 		Core.addWeighted(mRgb.submat(profilePicRoi[1]), 0.0, mProfilePics[1], 1.0, 0, mRgb.submat(profilePicRoi[1]));
 	}
 
@@ -624,13 +625,13 @@ public class GUIHandler {
 
 			}
 
-//			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+toDraw[zoomLevel].size().toString()
-//					+ " imgRoi::"+fullScreenImgRoi.toString());
+			//			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+toDraw[zoomLevel].size().toString()
+			//					+ " imgRoi::"+fullScreenImgRoi.toString());
 			Core.addWeighted(mRgb.submat(fullScreenImgRoi), 0.0, 
 					toDraw[zoomLevel], 1.0, 0, mRgb.submat(fullScreenImgRoi));
 		}else {
-//			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+mFullScreenImages[iCurrentImg].size().toString()
-//					+ " imgRoi::"+fullScreenImgRoi.toString());
+			//			Log.i("GUIHandler","rec::"+mRgb.submat(fullScreenImgRoi).size().toString()+" toDraw::"+mFullScreenImages[iCurrentImg].size().toString()
+			//					+ " imgRoi::"+fullScreenImgRoi.toString());
 			Core.addWeighted(mRgb.submat(fullScreenImgRoi), 0.0, 
 					mFullScreenImages[iCurrentImg], 1.0, 0, mRgb.submat(fullScreenImgRoi));
 		}
@@ -746,69 +747,69 @@ public class GUIHandler {
 
 		if(second >= 1.0){
 			Imgproc.drawContours(mRgb, lHandContour, -1, Tools.red, -1);
-		}
+		} else{
 
-		int fill = 4;
-		switch (gesture) {
-		case StatesHandler.sStateZero:
-			currentHover = hoverNone;
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.gray, 2);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+			int fill = 4;
+			switch (gesture) {
+			case StatesHandler.sStateZero:
+				currentHover = hoverNone;
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.gray, 2);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			case StatesHandler.sStateEnd:
+				currentHover = hoverNone;
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGreen, fill);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			case StatesHandler.sStateInit:
+				currentHover = hoverNone;
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.green, 2);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			case StatesHandler.sStatePointSelect:
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.cyan, fill);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			case StatesHandler.sStateRotate:
+				currentHover = hoverNone;
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.magenta, fill);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			case StatesHandler.sStateSwipe:
+				currentHover = hoverNone;
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.white,fill);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			case StatesHandler.sStateZoom:
+				currentHover = hoverNone;
+				if(goodContour){
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.orange, fill);
+				}else{
+					Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
+				}
+				break;
+			default:
+				break;
 			}
-			break;
-		case StatesHandler.sStateEnd:
-			currentHover = hoverNone;
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGreen, fill);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
-			}
-			break;
-		case StatesHandler.sStateInit:
-			currentHover = hoverNone;
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.green, 2);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
-			}
-			break;
-		case StatesHandler.sStatePointSelect:
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.cyan, fill);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
-			}
-			break;
-		case StatesHandler.sStateRotate:
-			currentHover = hoverNone;
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.magenta, fill);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
-			}
-			break;
-		case StatesHandler.sStateSwipe:
-			currentHover = hoverNone;
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.white,fill);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
-			}
-			break;
-		case StatesHandler.sStateZoom:
-			currentHover = hoverNone;
-			if(goodContour){
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.orange, fill);
-			}else{
-				Imgproc.drawContours(mRgb, lHandContour, -1, Tools.lightGray, -1);
-			}
-			break;
-		default:
-			break;
 		}
-
 		if(drawAid){
 			drawAid(gesture);
 		}
